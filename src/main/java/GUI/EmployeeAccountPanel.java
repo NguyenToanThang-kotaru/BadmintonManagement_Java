@@ -9,50 +9,9 @@ public class EmployeeAccountPanel extends JPanel {
 
     public EmployeeAccountPanel(JFrame parentFrame) {
         setLayout(new BorderLayout());
-
-        // ====== Title Bar ======
-        JPanel titleBar = new JPanel(new BorderLayout());
-        titleBar.setBackground(new Color(50, 50, 50));
-        titleBar.setPreferredSize(new Dimension(getWidth(), 40));
-        titleBar.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, Color.DARK_GRAY));
-
-        // ====== Left Panel (Icon + Title) ======
-        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
-        leftPanel.setOpaque(false);
-
-        String iconLogo = "src/main/resources/images/LOGOAPP.png";
-        ImageIcon appIcon = new ImageIcon(iconLogo);
-        Image imgLogo = appIcon.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH);
-        appIcon = new ImageIcon(imgLogo);
-
-        JLabel iconLabel = new JLabel(appIcon);
-        JLabel titleLabel = new JLabel(" Quản Lý Nhân Viên");
-        titleLabel.setForeground(Color.WHITE);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
-
-        leftPanel.add(iconLabel);
-        leftPanel.add(titleLabel);
-
-        // ====== Right Panel (Control Buttons) ======
-        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
-        rightPanel.setOpaque(false);
-
-        JLabel minimizeLabel = createTitleBarButton("–", parentFrame, JFrame.ICONIFIED);
-        JLabel maximizeLabel = createTitleBarButton("⬜", parentFrame, -2);
-        JLabel closeLabel = createTitleBarButton("X", parentFrame, -1);
-        closeLabel.setBackground(Color.RED);
-
-        rightPanel.add(minimizeLabel);
-        rightPanel.add(maximizeLabel);
-        rightPanel.add(closeLabel);
-
-        titleBar.add(leftPanel, BorderLayout.WEST);
-        titleBar.add(rightPanel, BorderLayout.EAST);
-        add(titleBar, BorderLayout.NORTH);
-
         // ====== Content Panel ======
         JPanel contentPanel = new JPanel(new BorderLayout());
-        contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(0,0,0,0));
 
         // ====== Table ======
         String[] columnNames = {"Mã nhân viên", "Tên", "Địa chỉ", "SĐT", "Ngày tham gia"};

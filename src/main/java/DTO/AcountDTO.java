@@ -29,6 +29,11 @@ public class AcountDTO {
         this.rankID = rankID;
     }
 
+    public void input(){
+        
+    }
+    
+    
     public String getUsername() {
         return username;
     }

@@ -2,6 +2,14 @@ package GUI;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+//import java.sql.Connection;
+//import java.sql.PreparedStatement;
+//import java.sql.ResultSet;
+//import DAO.DatabaseConnection;
+
+
 
 public class Login extends JFrame {
 
@@ -93,13 +101,33 @@ public class Login extends JFrame {
         loginButton.setForeground(Color.WHITE);
         loginButton.setBackground(new Color(0, 150, 255));
         loginButton.setFocusPainted(false);
-
         rightPanel.add(loginButton);
+        
+//        loginButton.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                checkLogin();
+//            }
+//        });
+        
+        
         // Thêm vào mainPanel   
         mainPanel.add(leftPanel);
         mainPanel.add(rightPanel);
+        
+        
+//        private void checkLogin() {
+//        String username = userField.getText();
+//        String password = new String(passField.getPassword());
+//
+//        if (username.isEmpty() || password.isEmpty()) {
+//            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+//            return;
+//        }
     }
 
+    
+    
     public static void main(String[] args) {
         Login a= new Login();
         a.setVisible(true);
