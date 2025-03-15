@@ -4,12 +4,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class Main_Layout extends JFrame {
+public class GUI_MainLayout extends JFrame {
 
-    private Sidebar Sidebar;
-    private TittleBar tittleBar;
+    private CustomSidebar Sidebar;
+    private CustomTittleBar tittleBar;
     
-    public Main_Layout(JFrame login) {
+    public GUI_MainLayout(JFrame login) {
         setTitle("Quản Lý Kho Hàng");
         setSize(1000, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -18,10 +18,10 @@ public class Main_Layout extends JFrame {
         setUndecorated(true);
         
         // ================================ Title Bar ================================
-        tittleBar = new TittleBar(this);
+        tittleBar = new CustomTittleBar(this);
 
-        // ================================ Sidebar ================================
-        Sidebar = new Sidebar(login,this);
+        // ================================ CustomSidebar ================================
+        Sidebar = new CustomSidebar(login,this);
 
         // ================================ Content ================================
         JPanel contentPanel = new JPanel(new BorderLayout());
@@ -38,7 +38,7 @@ public class Main_Layout extends JFrame {
         Sidebar.orderPanel.setBackground(Color.ORANGE);
         Sidebar.orderPanel.add(new JLabel("Danh sách đơn hàng"));
 
-        Sidebar.employeePanel = new EmployeeAccountPanel(this);
+        Sidebar.employeePanel = new GUI_Employee(this);
 
 
         Sidebar.supplierPanel = new JPanel();
@@ -57,7 +57,7 @@ public class Main_Layout extends JFrame {
         Sidebar.customerPanel.setBackground(Color.RED);
         Sidebar.customerPanel.add(new JLabel("Khách hàng"));
 
-        Sidebar.accountPanel = new Account();
+        Sidebar.accountPanel = new GUI_Account();
 
         Sidebar.repairPanel = new JPanel();
         Sidebar.repairPanel.setBackground(Color.DARK_GRAY);

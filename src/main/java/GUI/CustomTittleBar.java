@@ -14,9 +14,9 @@ import java.awt.*;
 import java.awt.event.*;
 
 
-class TittleBar extends JPanel {
+class CustomTittleBar extends JPanel {
     private int mouseX, mouseY;
-    public TittleBar(JFrame parentFrame){
+    public CustomTittleBar(JFrame parentFrame){
         setLayout(new BorderLayout());
         setBackground(new Color(50, 50, 50));
         setPreferredSize(new Dimension(parentFrame.getWidth(), 40));
@@ -51,7 +51,7 @@ class TittleBar extends JPanel {
         appIcon = new ImageIcon(imgLogo);
 
         JLabel iconLabel = new JLabel(appIcon);
-        JLabel titleLabel = new JLabel(" Quản Lý Cửa Hàng Cầu Lông");
+        JLabel titleLabel = new JLabel("Quản Lý Cửa Hàng Cầu Lông_Java");
         titleLabel.setForeground(Color.WHITE);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
 

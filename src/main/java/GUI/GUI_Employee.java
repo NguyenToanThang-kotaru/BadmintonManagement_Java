@@ -5,9 +5,9 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.border.MatteBorder;
 
-public class EmployeeAccountPanel extends JPanel {
+public class GUI_Employee extends JPanel {
 
-    public EmployeeAccountPanel(JFrame parentFrame) {
+    public GUI_Employee(JFrame parentFrame) {
         setLayout(new BorderLayout());
         // ====== Content Panel ======
         JPanel contentPanel = new JPanel(new BorderLayout());
@@ -106,7 +106,7 @@ public class EmployeeAccountPanel extends JPanel {
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setSize(800, 600);
             frame.setLocationRelativeTo(null);
-            frame.setContentPane(new EmployeeAccountPanel(frame));
+            frame.setContentPane(new GUI_Employee(frame));
             frame.setVisible(true);
         });
     }
