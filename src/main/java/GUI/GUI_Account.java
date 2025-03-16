@@ -156,8 +156,9 @@ public class GUI_Account extends JPanel {
         List<AccountDTO> accounts = accountBUS.getAllAccounts(); // Lấy danh sách tài khoản
         tableModel.setRowCount(0); // Xóa dữ liệu cũ trước khi cập nhật
         int index = 1;
+        String no = "";
         for (AccountDTO acc : accounts) {
-            tableModel.addRow(new Object[]{index++, acc.getFullName(), acc.getUsername(), acc.getPassword(), acc.getRankID()});
+            tableModel.addRow(new Object[]{index++,no ,acc.getUsername(), acc.getPassword(),no});
         }
     }
 }
