@@ -114,21 +114,12 @@ public class GUI_Login extends JFrame {
     private void checkLogin(JTextField userField, JTextField passField) {
         String username = userField.getText();
         String password = passField.getText();
-        if (username.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-            return;
-        } else {
-            AccountDTO account = AccountDAO.getAccount(username, password);
-            if (account != null) {
+       
                 //Chay vao frame GUI_MainLayout
                 this.setVisible(false);
                 GUI_MainLayout mainLayout = new GUI_MainLayout(this);
                 mainLayout.setVisible(true);
-            }
-            else{
-                JOptionPane.showMessageDialog(null, "Sai tài khoản hoặc mật khẩu!", "Lỗi", JOptionPane.ERROR_MESSAGE);                
-                
-            }}
+          
 
     }
 
