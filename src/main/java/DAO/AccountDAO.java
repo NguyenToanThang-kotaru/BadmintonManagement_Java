@@ -10,9 +10,9 @@ import java.util.ArrayList;
 
 public class AccountDAO {
     public static AccountDTO getAccount(String username, String password) {
-        String query = "SELECT `Tên Đăng Nhập`, `Mật Khẩu`" 
-                     + "FROM `tài khoản` "
-                     + "WHERE `Tên Đăng Nhập` = ? AND `Mật Khẩu` = ?;";
+        String query = "SELECT `ten_dang_nhap`, `mat_khau`" 
+                     + "FROM tai_khoan "
+                     + "WHERE `ten_dang_nhap` = ? AND `mat_khau` = ?;";
         
         try (Connection conn = DatabaseConnection.getConnection();  
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -22,8 +22,8 @@ public class AccountDAO {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return new AccountDTO(
-                        rs.getString("Tên Đăng Nhập"),
-                        rs.getString("Mật Khẩu")
+                        rs.getString("ten_dang_nhap"),
+                        rs.getString("mat_khau")
                     );
                 }
             }
@@ -35,14 +35,14 @@ public class AccountDAO {
         // Lấy danh sách tài khoản cho bảng GUI
     public static ArrayList<AccountDTO> getAllAccounts() {
         ArrayList<AccountDTO> accounts = new ArrayList<>();
-        String query = "SELECT `Tên Đăng Nhập`, `Mật Khẩu`" 
-                     + "FROM `tài khoản` ";
+        String query = "SELECT `ten_dang_nhap`, `mat_khau`" 
+                     + "FROM `tai_khoan` ";
 //                     + "WHERE `Tên Đăng Nhập` = ? AND `Mật Khẩu` = ?;";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 accounts.add(new AccountDTO(
-                        rs.getString("Tên Đăng Nhập"),
-                        rs.getString("Mật Khẩu")
+                        rs.getString("ten_dang_nhap"),
+                        rs.getString("mat_khau")
                 ));
             }
         } catch (Exception e) {
