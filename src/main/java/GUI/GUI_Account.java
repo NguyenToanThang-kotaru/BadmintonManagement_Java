@@ -158,7 +158,8 @@ public class GUI_Account extends JPanel {
         int index = 1;
         String no = "";
         for (AccountDTO acc : accounts) {
-            tableModel.addRow(new Object[]{index++,no ,acc.getUsername(), acc.getPassword(),no});
+            tableModel.addRow(new Object[]{index++,acc.getFullname() ,
+                acc.getUsername(), acc.getPassword(), acc.getTenquyen()});
         }
     }
 }
