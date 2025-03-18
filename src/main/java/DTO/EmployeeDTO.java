@@ -2,33 +2,36 @@ package DTO;
 
 public class EmployeeDTO {
 
-    private String employeeID;
+    private int employeeID;
     private String fullName;
     private String address;
     private String phone;
-    private String startDate;
+    private int accountID;
+   
 
     public EmployeeDTO() {
-        this.employeeID = "";
+        this.employeeID = 0;
         this.fullName = "";
         this.address = "";
         this.phone = "";
-        this.startDate = "";
+        this.accountID = 0;
+  
     }
 
-    public EmployeeDTO(String employeeID, String fullName, String address, String phone, String startDate) {
-        this.employeeID = employeeID;
-        this.fullName = fullName;
-        this.address = address;
-        this.phone = phone;
-        this.startDate = startDate;
-    }
+  public EmployeeDTO(int employeeID, String fullName, String address, String phone, int accountID) {
+    this.employeeID = employeeID;
+    this.fullName = fullName;
+    this.address = address;
+    this.phone = phone;
+    this.accountID = accountID;
+}
 
-    public String getEmployeeID() {
+
+    public int getEmployeeID() {
         return employeeID;
     }
 
-    public void setEmployeeID(String employeeID) {
+    public void setEmployeeID(int employeeID) {
         this.employeeID = employeeID;
     }
 
@@ -56,11 +59,11 @@ public class EmployeeDTO {
         this.phone = phone;
     }
 
-    public String getStartDate() {
-        return startDate;
+    public int getAccountID() {
+        return accountID;
     }
 
-    public void setStartDate(String startDate) {
-        this.startDate = startDate;
+    public void setAccountID(int accountID) {
+        this.accountID = accountID;
     }
 }
