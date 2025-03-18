@@ -4,24 +4,21 @@ public class AccountDTO {
 
     private String username;
     private String password;
-    private String employeeID;
-    private String fullName;  // Thêm trường fullName
-    private String rankID;
+    private String fullname;
+    private String tenquyen;
 
     public AccountDTO() {
         username = "";
         password = "";
-        employeeID = "";
-        fullName = "";
-        rankID = "";
+        fullname = "";
+        tenquyen = "";
     }
 
-    public AccountDTO(String username, String password, String employeeID, String fullName, String rankID) {
+    public AccountDTO(String username, String password, String fullname, String tenquyen) {
         this.username = username;
         this.password = password;
-        this.employeeID = employeeID;
-        this.fullName = fullName;
-        this.rankID = rankID;
+        this.fullname = fullname;
+        this.tenquyen = tenquyen;
     }
 
     public String getUsername() {
@@ -39,28 +36,21 @@ public class AccountDTO {
     public void setPassword(String password) {
         this.password = password;
     }
-
-    public String getEmployeeID() {
-        return employeeID;
+    
+    public String getFullname() {
+        return fullname;
     }
 
-    public void setEmployeeID(String employeeID) {
-        this.employeeID = employeeID;
+    public void setFullname(String fullname) {
+        this.fullname = fullname;
     }
-
-    public String getFullName() {  // Getter cho fullName
-        return fullName;
+    
+    public String getTenquyen() {
+        return tenquyen;
     }
-
-    public void setFullName(String fullName) {  // Setter cho fullName
-        this.fullName = fullName;
-    }
-
-    public String getRankID() {
-        return rankID;
-    }
-
-    public void setRankID(String rankID) {
-        this.rankID = rankID;
+    
+    
+    public void setTenquyen (String Tenquyen) {
+        this.tenquyen = tenquyen;
     }
 }

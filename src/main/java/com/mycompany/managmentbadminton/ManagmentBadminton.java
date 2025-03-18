@@ -13,5 +13,6 @@ public class ManagmentBadminton {
     public static void main(String[] args) {
         GUI_Login a = new GUI_Login();
         a.setVisible(true);
+        System.out.print("avc");
     }
 }
