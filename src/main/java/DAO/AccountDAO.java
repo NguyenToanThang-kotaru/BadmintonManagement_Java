@@ -13,7 +13,6 @@ public class AccountDAO {
         String a = "";
         String query = "SELECT `ten_dang_nhap`, `mat_khau` " // Thêm khoảng trắng
              + "FROM tai_khoan "
-//             + "JOIN nhan_vien nv ON nv.ma_tai_khoan = tai_khoan.ma_tai_khoan"
              + "WHERE `ten_dang_nhap` = ? AND `mat_khau` = ?;";
         
         try (Connection conn = DatabaseConnection.getConnection();  
