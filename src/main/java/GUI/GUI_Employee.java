@@ -2,166 +2,133 @@ package GUI;
 
 import BUS.EmployeeBUS;
 import DTO.EmployeeDTO;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.*;
 import java.util.List;
 
 public class GUI_Employee extends JPanel {
-
-    private JPanel midPanel, topPanel, botPanel;
+    private JPanel midPanel, botPanel;
     private JTable employeeTable;
     private DefaultTableModel tableModel;
-    private JTextField searchField;
-    private CustomButton saveButton, addButton;
+    private CustomButton editButton, deleteButton;
     private EmployeeBUS employeeBUS;
-    private JTextField[] textFields;
-    private JLabel[] labels;
-    private String[] fieldNames = {"Mã NV", "Họ Tên", "Địa Chỉ", "SĐT", "Mã Quyền"};
+
+    private JLabel lblMaNV, lblHoTen, lblDiaChi, lblSDT, lblMaQuyen;
 
     public GUI_Employee() {
         employeeBUS = new EmployeeBUS();
+
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(new EmptyBorder(10, 10, 10, 10));
         setBackground(new Color(200, 200, 200));
 
-        // ====== TOP PANEL ======
-        topPanel = new JPanel(new BorderLayout(10, 10));
-        topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        topPanel.setBackground(Color.WHITE);
-        searchField = new JTextField(20);
-        addButton = new CustomButton("+ Thêm nhân viên");
-        topPanel.add(searchField, BorderLayout.CENTER);
-        topPanel.add(addButton, BorderLayout.EAST);
-
-        // ====== MID PANEL ======
+        // ========== BẢNG HIỂN THỊ DANH SÁCH NHÂN VIÊN ==========
         midPanel = new JPanel(new BorderLayout());
         midPanel.setBackground(Color.WHITE);
+
+        String[] columnNames = {"Mã NV", "Họ Tên", "Địa Chỉ", "SĐT", "Mã Quyền"};
+        CustomTable customTable = new CustomTable(columnNames);
+        employeeTable = customTable.getAccountTable(); 
+        tableModel = customTable.getTableModel(); 
         
-        CustomTable customTable = new CustomTable(fieldNames);
-        employeeTable = customTable.getAccountTable();
-        tableModel = customTable.getTableModel();
         midPanel.add(customTable, BorderLayout.CENTER);
 
-        // ====== BOT PANEL ======
+        // ========== PANEL CHI TIẾT NHÂN VIÊN ==========
         botPanel = new JPanel(new GridBagLayout());
         botPanel.setBackground(Color.WHITE);
         botPanel.setBorder(BorderFactory.createTitledBorder("Chi tiết nhân viên"));
-        
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
 
-        textFields = new JTextField[fieldNames.length];
-        labels = new JLabel[fieldNames.length];
-
-        for (int i = 0; i < fieldNames.length; i++) {
-            createEditableField(fieldNames[i] + ":", botPanel, gbc, i, i == 0);
-        }
-        
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        botPanel.add(new JLabel("Tên nhân viên: "), gbc);
         gbc.gridx = 1;
-        gbc.gridy = fieldNames.length;
-        saveButton = new CustomButton("💾 Lưu");
-        botPanel.add(saveButton, gbc);
+        JLabel employeeLabel = new JLabel("Chọn nhân viên");
+        botPanel.add(employeeLabel, gbc);
 
-        // ====== ADD TO PANEL ======
-        add(topPanel);
-        add(Box.createVerticalStrut(10));
+        gbc.gridx = 0; 
+        gbc.gridy = 1;
+        botPanel.add(new JLabel("Họ Tên: "), gbc);
+        gbc.gridx = 1;
+        JLabel usernameLabel = new JLabel("");
+        botPanel.add(usernameLabel, gbc);
+
+        gbc.gridx = 0; 
+        gbc.gridy = 2;
+        botPanel.add(new JLabel("Địa Chỉ: "), gbc);
+        gbc.gridx = 1;
+        JLabel addressLabel = new JLabel("");
+        botPanel.add(addressLabel, gbc);
+
+        gbc.gridx = 0; 
+        gbc.gridy = 3;
+        botPanel.add(new JLabel("SĐT: "), gbc);
+        gbc.gridx = 1;
+        JLabel phoneLabel = new JLabel("");
+        botPanel.add(phoneLabel, gbc);
+
+        gbc.gridx = 0; 
+        gbc.gridy = 4;
+        botPanel.add(new JLabel("Quyền: "), gbc);
+        gbc.gridx = 1;
+        JLabel quyenLabel = new JLabel("");
+        botPanel.add(quyenLabel, gbc);
+
+        // ========== PANEL BUTTON ==========
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        buttonPanel.setOpaque(false);
+
+        deleteButton = new CustomButton("Xóa");
+        deleteButton.setCustomColor(new Color(220, 0, 0));
+        buttonPanel.add(deleteButton);
+
+        editButton = new CustomButton("Sửa");
+        editButton.setCustomColor(new Color(0, 230, 0));
+        buttonPanel.add(editButton);
+
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        gbc.gridwidth = 2;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        botPanel.add(buttonPanel, gbc);
+
+        employeeTable.getSelectionModel().addListSelectionListener(e -> {
+            int selectedRow = employeeTable.getSelectedRow();
+            if (selectedRow != -1) {
+                Object value = employeeTable.getValueAt(selectedRow, 0);
+                String valueStr = String.valueOf(value);
+                String hoTen = (String) employeeTable.getValueAt(selectedRow, 1);
+                String diaChi = (String) employeeTable.getValueAt(selectedRow, 2);
+                String sdt = (String) employeeTable.getValueAt(selectedRow, 3);
+                String maQuyen = (String) employeeTable.getValueAt(selectedRow, 4);
+
+                employeeLabel.setText(valueStr + " - " + hoTen);
+                usernameLabel.setText(hoTen);
+                addressLabel.setText(diaChi);
+                phoneLabel.setText(sdt);
+                quyenLabel.setText(sdt);
+                botPanel.add(buttonPanel, gbc);
+            }   
+        });   
         add(midPanel);
-        add(Box.createVerticalStrut(10));
         add(botPanel);
 
         loadEmployees();
-        addEventListeners();
-    }
-
-    private void createEditableField(String labelText, JPanel panel, GridBagConstraints gbc, int row, boolean isReadOnly) {
-        gbc.gridx = 0;
-        gbc.gridy = row;
-        panel.add(new JLabel(labelText), gbc);
-
-        gbc.gridx = 1;
-        labels[row] = new JLabel("");
-        textFields[row] = new JTextField(15);
-        textFields[row].setVisible(false);
-        textFields[row].setEditable(!isReadOnly);
-        panel.add(labels[row], gbc);
-        panel.add(textFields[row], gbc);
-
-        if (!isReadOnly) {
-            gbc.gridx = 2;
-            CustomButton editButton = new CustomButton("✎");
-            panel.add(editButton, gbc);
-            
-            int index = row;
-            editButton.addActionListener(e -> {
-                textFields[index].setText(labels[index].getText());
-                labels[index].setVisible(false);
-                textFields[index].setVisible(true);
-                textFields[index].requestFocus();
-            });
-            
-            textFields[row].addFocusListener(new FocusAdapter() {
-                @Override
-                public void focusLost(FocusEvent e) {
-                    labels[index].setText(textFields[index].getText());
-                    textFields[index].setVisible(false);
-                    labels[index].setVisible(true);
-                }
-            });
-        }
+        
     }
 
     private void loadEmployees() {
         List<EmployeeDTO> employees = employeeBUS.getAllEmployees();
         tableModel.setRowCount(0);
+        int index = 0;
         for (EmployeeDTO emp : employees) {
-            tableModel.addRow(new Object[]{emp.getEmployeeID(), emp.getFullName(), emp.getAddress(), emp.getPhone()});
+            tableModel.addRow(new Object[]{++index, emp.getFullName(), emp.getAddress(), emp.getPhone()});
         }
     }
 
-    private void addEventListeners() {
-        employeeTable.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting() && employeeTable.getSelectedRow() != -1) {
-                int row = employeeTable.getSelectedRow();
-                for (int i = 0; i < fieldNames.length; i++) {
-                    Object value = tableModel.getValueAt(row, i);
-                    labels[i].setText(value != null ? value.toString() : "");
-
-                }
-            }
-        });
-        
-        saveButton.addActionListener(e -> {
-    int row = employeeTable.getSelectedRow();
-    if (row != -1) {
-        try {
-            int employeeID = Integer.parseInt(labels[0].getText().trim()); // Mã nhân viên
-            String fullName = labels[1].getText().trim();
-            String address = labels[2].getText().trim();
-            String phone = labels[3].getText().trim();
-            String startDate = labels[4].getText().trim();
-
-            EmployeeDTO updatedEmployee = new EmployeeDTO(employeeID, fullName, address, phone, 0);
-            boolean success = employeeBUS.updateEmployee(updatedEmployee);
-
-            if (success) {
-                for (int i = 1; i < fieldNames.length; i++) {
-                    tableModel.setValueAt(labels[i].getText(), row, i);
-                }
-                JOptionPane.showMessageDialog(this, "✔ Cập nhật thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-            } else {
-                JOptionPane.showMessageDialog(this, "❌ Không cập nhật được! Hãy kiểm tra ID nhân viên.", "Lỗi", JOptionPane.ERROR_MESSAGE);
-            }
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "⚠ ID nhân viên không hợp lệ!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-});
-
-        
-    }
 }
