@@ -8,7 +8,7 @@ public class GUI_MainLayout extends JFrame {
 
     private CustomSidebar Sidebar;
     private CustomTittleBar tittleBar;
-    
+
     public GUI_MainLayout(JFrame login) {
         setTitle("Quản Lý Kho Hàng");
         setSize(1000, 600);
@@ -16,12 +16,12 @@ public class GUI_MainLayout extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(0, 0));
         setUndecorated(true);
-        
+
         // ================================ Title Bar ================================
         tittleBar = new CustomTittleBar(this);
 
         // ================================ CustomSidebar ================================
-        Sidebar = new CustomSidebar(login,this);
+        Sidebar = new CustomSidebar(login, this);
 
         // ================================ Content ================================
         JPanel contentPanel = new JPanel(new BorderLayout());
@@ -38,9 +38,6 @@ public class GUI_MainLayout extends JFrame {
         Sidebar.orderPanel.setBackground(Color.ORANGE);
         Sidebar.orderPanel.add(new JLabel("Danh sách đơn hàng"));
 
-        Sidebar.employeePanel = new GUI_Employee();
-        Sidebar.customerPanel = new GUI_Customer();
-
         Sidebar.supplierPanel = new JPanel();
         Sidebar.supplierPanel.setBackground(Color.YELLOW);
         Sidebar.supplierPanel.add(new JLabel("Nhà cung cấp"));
@@ -56,10 +53,13 @@ public class GUI_MainLayout extends JFrame {
         /*Sidebar.customerPanel = new JPanel();
         Sidebar.customerPanel.setBackground(Color.RED);
         Sidebar.customerPanel.add(new JLabel("Khách hàng"));*/
+        Sidebar.employeePanel = new GUI_Employee();
 
         Sidebar.accountPanel = new GUI_Account();
 
         Sidebar.repairPanel = new GUI_Guarantee();
+
+        Sidebar.customerPanel = new GUI_Customer();
 
         Sidebar.rolePanel = new JPanel();
         Sidebar.rolePanel.setBackground(Color.LIGHT_GRAY);
@@ -109,5 +109,5 @@ public class GUI_MainLayout extends JFrame {
         add(Sidebar, BorderLayout.WEST);
         add(contentPanel, BorderLayout.CENTER);
     }
-    
+
 }
