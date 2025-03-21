@@ -15,9 +15,9 @@ public class GUI_Account extends JPanel {
     private JPanel midPanel, topPanel, botPanel;
     private JTable accountTable;
     private DefaultTableModel tableModel;
-    private JComboBox<String> roleComboBox;
+//    private JComboBox<String> roleComboBox;
     private CustomButton deleteButton, addButton, editButton;
-    private JTextField searchField;
+    private CustomSearch searchField;
     private AccountBUS accountBUS;
 
     public GUI_Account() {
@@ -27,19 +27,20 @@ public class GUI_Account extends JPanel {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(new EmptyBorder(10, 10, 10, 10));
         setBackground(new Color(200, 200, 200));
-
+        
         // ========== PANEL TRÊN CÙNG (Thanh tìm kiếm & nút thêm) ==========
         topPanel = new JPanel(new BorderLayout(10, 10));
         topPanel.setPreferredSize(new Dimension(0, 60));
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         topPanel.setBackground(Color.WHITE);
 
-        searchField = new JTextField(20); // Ô nhập tìm kiếm
+        searchField = new CustomSearch(275,20); // Ô nhập tìm kiếm
+        searchField.setBackground(Color.WHITE);
         topPanel.add(searchField, BorderLayout.CENTER);
 
         addButton = new CustomButton("+ Thêm tài khoản"); // Nút thêm tài khoản
         topPanel.add(addButton, BorderLayout.EAST);
-
+        
         // ========== BẢNG HIỂN THỊ DANH SÁCH TÀI KHOẢN ==========
         midPanel = new JPanel(new BorderLayout());
         midPanel.setBackground(Color.WHITE);
@@ -87,28 +88,28 @@ public class GUI_Account extends JPanel {
         gbc.gridy = 3;
         botPanel.add(new JLabel("Quyền tài khoản: "), gbc);
         gbc.gridx = 1;
-        roleComboBox = new JComboBox<>(new String[]{"ADMIN1", "ADMIN2", "QUANLY1", "NHANVIEN1"});
+        JLabel roleComboBox = new JLabel("");
         botPanel.add(roleComboBox, gbc);
-// Tạo panel chứa hai nút
+        // Tạo panel chứa hai nút
         JPanel buttonPanel = new JPanel(new BorderLayout());
         buttonPanel.setOpaque(false); // Để không ảnh hưởng đến màu nền
 
-// Nút xóa (căn trái)
+        // Nút xóa (căn trái)
         deleteButton = new CustomButton("Xoá");
         deleteButton.setCustomColor(new Color(220, 0, 0));
         buttonPanel.add(deleteButton, BorderLayout.WEST);
 
-// Nút sửa (căn phải)
+        // Nút sửa (căn phải)
         editButton = new CustomButton("Sửa");
         editButton.setCustomColor(new Color(0, 230, 0));
         buttonPanel.add(editButton, BorderLayout.EAST);
 
-// Thêm panel vào `botPanel`
+        // Thêm panel vào `botPanel`
         gbc.gridx = 0;
         gbc.gridy = 4;
         gbc.gridwidth = 2; // Trải dài 2 cột
         gbc.fill = GridBagConstraints.HORIZONTAL; // Căn chỉnh full chiều ngang
-        botPanel.add(buttonPanel, gbc);
+        
 
         // Xử lý sự kiện chọn tài khoản trong bảng
         accountTable.getSelectionModel().addListSelectionListener(e -> {
@@ -126,7 +127,8 @@ public class GUI_Account extends JPanel {
                 employeeLabel.setText(valueStr + " - " + tenNhanVien);
                 usernameLabel.setText(taiKhoan);
                 passwordLabel.setText(matKhau);
-                roleComboBox.setSelectedItem(quyen);
+                roleComboBox.setText(quyen);
+                botPanel.add(buttonPanel, gbc);
             }
         });
 
@@ -170,7 +172,7 @@ public class GUI_Account extends JPanel {
     private void loadAccounts() {
         List<AccountDTO> accounts = accountBUS.getAllAccounts(); // Lấy danh sách tài khoản
         tableModel.setRowCount(0); // Xóa dữ liệu cũ trước khi cập nhật
-        int index = 1;
+        int index = 0;
         String no = "";
         for (AccountDTO acc : accounts) {
             tableModel.addRow(new Object[]{index++, acc.getFullname(),

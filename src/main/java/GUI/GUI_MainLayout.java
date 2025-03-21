@@ -48,9 +48,6 @@ public class GUI_MainLayout extends JFrame {
         Sidebar.promotionPanel.setBackground(Color.BLUE);
         Sidebar.promotionPanel.add(new JLabel("Khuyến mãi"));
 
-        /*Sidebar.customerPanel = new JPanel();
-        Sidebar.customerPanel.setBackground(Color.RED);
-        Sidebar.customerPanel.add(new JLabel("Khách hàng"));*/
         Sidebar.employeePanel = new GUI_Employee();
 
         Sidebar.accountPanel = new GUI_Account();

@@ -125,6 +125,7 @@ public class GUI_Guarantee extends JPanel {
             if (selectedRow != -1) {
                 serialLabel.setText((String) warrantyTable.getAccountTable().getValueAt(selectedRow, 1));
                 purchaseDateLabel.setText("2025-01-15"); // Giả lập ngày mua
+                
             }
         });
 
