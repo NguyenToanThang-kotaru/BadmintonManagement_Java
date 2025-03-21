@@ -98,7 +98,7 @@ public class GUI_Product extends JPanel {
         gbcInfo.gridx = 1;
         JLabel namePDLabel = new JLabel("");
         namePDLabel.setPreferredSize(new Dimension(200, 20));
-        infoPanel.add(namePDLabel, gbcInfo);
+        infoPanel.add(namePDLabel, gbcInfo);    
 
         gbcInfo.gridx = 0;
         gbcInfo.gridy = 2;
