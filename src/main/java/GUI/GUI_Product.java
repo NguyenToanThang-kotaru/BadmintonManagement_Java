@@ -207,15 +207,4 @@ public class GUI_Product extends JPanel {
             });
         }
     }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("Quản lý sản phẩm");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(900, 600); // Đặt kích thước cửa sổ
-            frame.setLocationRelativeTo(null); // Căn giữa màn hình
-            frame.setContentPane(new GUI_Product()); // Đặt JPanel Account vào JFrame
-            frame.setVisible(true);
-        });
-    }
 }

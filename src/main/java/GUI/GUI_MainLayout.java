@@ -8,7 +8,7 @@ public class GUI_MainLayout extends JFrame {
 
     private CustomSidebar Sidebar;
     private CustomTittleBar tittleBar;
-    
+
     public GUI_MainLayout(JFrame login) {
         setTitle("Quản Lý Kho Hàng");
         setSize(1000, 600);
@@ -16,12 +16,12 @@ public class GUI_MainLayout extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(0, 0));
         setUndecorated(true);
-        
+
         // ================================ Title Bar ================================
         tittleBar = new CustomTittleBar(this);
 
         // ================================ CustomSidebar ================================
-        Sidebar = new CustomSidebar(login,this);
+        Sidebar = new CustomSidebar(login, this);
 
         // ================================ Content ================================
         JPanel contentPanel = new JPanel(new BorderLayout());
@@ -30,16 +30,11 @@ public class GUI_MainLayout extends JFrame {
         Sidebar.statisticsPanel.setBackground(Color.CYAN);
         Sidebar.statisticsPanel.add(new JLabel("Thống kê doanh thu"));
 
-        Sidebar.productPanel = new JPanel();
-        Sidebar.productPanel.setBackground(Color.GREEN);
-        Sidebar.productPanel.add(new JLabel("Danh sách sản phẩm"));
+        
 
         Sidebar.orderPanel = new JPanel();
         Sidebar.orderPanel.setBackground(Color.ORANGE);
         Sidebar.orderPanel.add(new JLabel("Danh sách đơn hàng"));
-
-        Sidebar.employeePanel = new GUI_Employee();
-
 
         Sidebar.supplierPanel = new JPanel();
         Sidebar.supplierPanel.setBackground(Color.YELLOW);
@@ -53,16 +48,19 @@ public class GUI_MainLayout extends JFrame {
         Sidebar.promotionPanel.setBackground(Color.BLUE);
         Sidebar.promotionPanel.add(new JLabel("Khuyến mãi"));
 
-        Sidebar.customerPanel = new JPanel();
+        /*Sidebar.customerPanel = new JPanel();
         Sidebar.customerPanel.setBackground(Color.RED);
-        Sidebar.customerPanel.add(new JLabel("Khách hàng"));
+        Sidebar.customerPanel.add(new JLabel("Khách hàng"));*/
+        Sidebar.employeePanel = new GUI_Employee();
 
         Sidebar.accountPanel = new GUI_Account();
 
-        Sidebar.repairPanel = new JPanel();
-        Sidebar.repairPanel.setBackground(Color.DARK_GRAY);
-        Sidebar.repairPanel.add(new JLabel("Bảo hành"));
+        Sidebar.repairPanel = new GUI_Guarantee();
 
+        Sidebar.customerPanel = new GUI_Customer();
+
+        Sidebar.productPanel = new GUI_Product();
+        
         Sidebar.rolePanel = new JPanel();
         Sidebar.rolePanel.setBackground(Color.LIGHT_GRAY);
         Sidebar.rolePanel.add(new JLabel("Phân quyền"));
@@ -111,5 +109,5 @@ public class GUI_MainLayout extends JFrame {
         add(Sidebar, BorderLayout.WEST);
         add(contentPanel, BorderLayout.CENTER);
     }
-    
+
 }
