@@ -1,56 +1,91 @@
 package DAO;
 
 import Connection.DatabaseConnection;
-import java.sql.*;
+import DTO.GuaranteeDTO;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
 
 // Lớp này dùng để kết nối database và lấy dữ liệu sản phẩm
 public class GuaranteeDAO {
 
-    // Phương thức lấy danh sách sản phẩm từ database
-    public static List<String[]> getGuaranteeData() {
-        List<String[]> productList = new ArrayList<>();
-        String query = "SELECT ma_bao_hanh, ten_san_pham, gia, so_luong, ma_thuong_hieu, thong_so_ki_thuat, ma_loai FROM san_pham";
+    // Lấy thông tin của một sản phẩm
+    public static GuaranteeDTO getGuarantee(String BaohanhID) {
+        String query = "SELECT ma_bao_hanh, ma_serial, trang_thai, ly_do FROM bao_hanh WHERE ma_bao_hanh = ?";
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, BaohanhID);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new GuaranteeDTO(
+                            rs.getString("ma_bao_hanh"),
+                            rs.getString("ma_serial"),
+                            rs.getString("trang_thai"),
+                            rs.getString("ly_do")
+                    );
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
+    // Lấy danh sách tất cả sản phẩm
+    public static ArrayList<GuaranteeDTO> getAllGuarantee() {
+        ArrayList<GuaranteeDTO> products = new ArrayList<>();
+        String query = "SELECT * FROM bao_hanh";
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                String[] product = new String[]{
-                   rs.getString("ma_san_pham"),
-                    rs.getString("ten_san_pham"),
-                    rs.getString("gia"),
-                    rs.getString("so_luong"),
-                    rs.getString("ma_thuong_hieu"),
-                    rs.getString("thong_so_ki_thuat"),
-                    rs.getString("ma_loai"),};
-                productList.add(product);
+                products.add(new GuaranteeDTO(
+                        rs.getString("ma_bao_hanh"),
+                        rs.getString("ma_serial"),
+                        rs.getString("trang_thai"),
+                        rs.getString("ly_do")
+                ));
             }
-
-        } catch (SQLException e) {
+            System.out.println("Lấy danh sách sản phẩm bảo hành thành công.");
+        } catch (Exception e) {
+            System.out.println("Lỗi lấy danh sách sản phẩm: " + e.getMessage());
             e.printStackTrace();
         }
-        return productList;
+        return products;
     }
 
-    public static String getProductImage(String productID) {
-        String imagePath = null;
-        String query = "SELECT hinh_anh_sp FROM san_pham WHERE ma_san_pham = ?";
+    // Cập nhật thông tin sản phẩm
+    public void updateGuarantee(GuaranteeDTO product) {
+        String sql = "UPDATE bao_hanh SET ma_serial = ?, trang_thai = ?, ly_do = ? WHERE ma_bao_hanh = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-
-            stmt.setString(1, productID);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                imagePath = rs.getString("hinh_anh_sp"); // Lấy tên file ảnh
-            }
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, product.getBaohanhID());
+            stmt.setString(2, product.getSerialID());
+            stmt.setString(3, product.gettrangthai());
+            stmt.setString(4, product.getLydo());
+            stmt.executeUpdate();
+            System.out.println("Cập nhật sản phẩm thành công.");
         } catch (SQLException e) {
+            System.out.println("Lỗi cập nhật sản phẩm: " + e.getMessage());
             e.printStackTrace();
         }
-        return imagePath;
     }
+//
+//    // Lấy đường dẫn ảnh sản phẩm
+//    public static String getProductImage(String productID) {
+//        String imagePath = null;
+//        String query = "SELECT hinh_anh_sp FROM san_pham WHERE ma_bao_hanh = ?";
+//
+//        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+//            stmt.setString(1, productID);
+//            try (ResultSet rs = stmt.executeQuery()) {
+//                if (rs.next()) {
+//                    imagePath = rs.getString("hinh_anh_sp"); // Lấy tên file ảnh
+//                }
+//            }
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//        return imagePath;
+//    }
 }
