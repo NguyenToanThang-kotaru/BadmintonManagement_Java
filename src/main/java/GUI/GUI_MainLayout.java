@@ -59,9 +59,7 @@ public class GUI_MainLayout extends JFrame {
 
         Sidebar.accountPanel = new GUI_Account();
 
-        Sidebar.repairPanel = new JPanel();
-        Sidebar.repairPanel.setBackground(Color.DARK_GRAY);
-        Sidebar.repairPanel.add(new JLabel("Bảo hành"));
+        Sidebar.repairPanel = new GUI_Guarantee();
 
         Sidebar.rolePanel = new JPanel();
         Sidebar.rolePanel.setBackground(Color.LIGHT_GRAY);

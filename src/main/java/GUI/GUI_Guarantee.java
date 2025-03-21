@@ -142,14 +142,4 @@ public class GUI_Guarantee extends JPanel {
         warrantyTable.addRow(new Object[]{"BH003", "SN789123", "Chưa bảo hành", "Chưa đổi trả"});
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("Quản lý bảo hành");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(900, 600);
-            frame.setLocationRelativeTo(null);
-            frame.setContentPane(new GUI_Guarantee());
-            frame.setVisible(true);
-        });
-    }
 }
