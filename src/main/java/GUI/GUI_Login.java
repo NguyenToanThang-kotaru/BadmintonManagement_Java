@@ -4,11 +4,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import DAO.AccountDAO;
-import DTO.AccountDTO;
 
 public class GUI_Login extends JFrame {
 
-    private CustomTittleBar tittleBar;
+    private final CustomTittleBar tittleBar;
 
     public GUI_Login() {
         // Cấu hình cửa sổ
@@ -20,7 +19,6 @@ public class GUI_Login extends JFrame {
         setUndecorated(true);
         // ===== THÊM THANH TIÊU ĐỀ =====
         tittleBar = new CustomTittleBar(this);
-        add(tittleBar, BorderLayout.NORTH);
 
         // Panel chính chứa 2 phần
         JPanel mainPanel = new JPanel(new GridLayout(1, 2));
@@ -93,19 +91,22 @@ public class GUI_Login extends JFrame {
         passField.setBounds(150, 230, 180, 25);
         rightPanel.add(passField);
 
-        JButton loginButton = new JButton("Đăng nhập");
+        CustomButton loginButton = new CustomButton("Đăng nhập");
         loginButton.setBounds(130, 290, 140, 40);
         loginButton.setFont(new Font("Arial", Font.BOLD, 14));
-        loginButton.setForeground(Color.WHITE);
-        loginButton.setBackground(new Color(0, 150, 255));
-        loginButton.setFocusPainted(false);
+//        loginButton.setForeground(Color.WHITE);
+//        loginButton.setBackground(new Color(0, 150, 255));
+//        loginButton.setFocusPainted(false);
 
         loginButton.addActionListener((ActionEvent e) -> {
             checkLogin(userField, passField); // Gọi hàm check khi bấm nút
         });
 
+        userField.addActionListener(e -> checkLogin(userField, passField));
+        passField.addActionListener(e -> checkLogin(userField, passField));
+
         rightPanel.add(loginButton);
-        // Thêm vào mainPanel   
+        add(tittleBar, BorderLayout.NORTH);
         mainPanel.add(leftPanel);
         mainPanel.add(rightPanel);
 
@@ -114,7 +115,6 @@ public class GUI_Login extends JFrame {
     private void checkLogin(JTextField userField, JTextField passField) {
         String username = userField.getText();
         String password = passField.getText();
-<<<<<<< Updated upstream
        
                 //Chay vao frame GUI_MainLayout
                 this.setVisible(false);
@@ -122,15 +122,6 @@ public class GUI_Login extends JFrame {
                 mainLayout.setVisible(true);
           
 
-=======
-      
-            //Chay vao frame GUI_MainLayout
-            this.setVisible(false);
-            GUI_MainLayout mainLayout = new GUI_MainLayout(this);
-            mainLayout.setVisible(true);
-            userField.setText("");
-            passField.setText("");
->>>>>>> Stashed changes
     }
 
     public static void main(String[] args) {

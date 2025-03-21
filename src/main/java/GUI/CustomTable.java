@@ -42,9 +42,7 @@ public class CustomTable extends JPanel {
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
         for (int i = 0; i < CustomTable.getColumnCount(); i++) {
-            if (i != 2 && i != 3) {
-                CustomTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
-            }
+                CustomTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);          
         }
 
         // Tùy chỉnh UI phần tiêu đề bảng
