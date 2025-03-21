@@ -114,6 +114,7 @@ public class GUI_Login extends JFrame {
     private void checkLogin(JTextField userField, JTextField passField) {
         String username = userField.getText();
         String password = passField.getText();
+<<<<<<< Updated upstream
        
                 //Chay vao frame GUI_MainLayout
                 this.setVisible(false);
@@ -121,6 +122,15 @@ public class GUI_Login extends JFrame {
                 mainLayout.setVisible(true);
           
 
+=======
+      
+            //Chay vao frame GUI_MainLayout
+            this.setVisible(false);
+            GUI_MainLayout mainLayout = new GUI_MainLayout(this);
+            mainLayout.setVisible(true);
+            userField.setText("");
+            passField.setText("");
+>>>>>>> Stashed changes
     }
 
     public static void main(String[] args) {
