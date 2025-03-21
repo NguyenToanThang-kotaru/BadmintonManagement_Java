@@ -10,19 +10,21 @@ import java.util.ArrayList;
 
 public class EmployeeDAO {
 
-    public static EmployeeDTO getEmployee(String employeeID) {
-        String query = "SELECT * FROM employee WHERE EmployeeID = ?";
+    public static EmployeeDTO getEmployee(int maNhanVien) {
+        String query = "SELECT * FROM nhan_vien WHERE ma_nhan_vien = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, employeeID);
+            stmt.setInt(1, maNhanVien);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return new EmployeeDTO(
-                            rs.getString("EmployeeID"),
-                            rs.getString("FullName"),
-                            rs.getString("Address"),
-                            rs.getString("Phone"),
-                            rs.getString("StartDate")
+                            rs.getInt("ma_nhan_vien"),
+                            rs.getString("ten_nhan_vien"),
+                            rs.getString("dia_chi"),
+                            rs.getString("so_dien_thoai"),
+                       
+                            rs.getInt("ma_tai_khoan")
+                        
                     );
                 }
             }
@@ -34,39 +36,48 @@ public class EmployeeDAO {
 
     public static ArrayList<EmployeeDTO> getAllEmployees() {
         ArrayList<EmployeeDTO> employees = new ArrayList<>();
-        String query = "SELECT * FROM employee";
+        String query = "SELECT * FROM nhan_vien";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query);
              ResultSet rs = stmt.executeQuery()) {
+
             while (rs.next()) {
                 employees.add(new EmployeeDTO(
-                        rs.getString("EmployeeID"),
-                        rs.getString("FullName"),
-                        rs.getString("Address"),
-                        rs.getString("Phone"),
-                        rs.getString("StartDate")
+                    rs.getInt("ma_nhan_vien"),
+                    rs.getString("ten_nhan_vien"),
+                    rs.getString("dia_chi"),
+                    rs.getString("so_dien_thoai"),
+                
+                    rs.getInt("ma_tai_khoan")
+                   
                 ));
             }
+            System.out.println("Lấy danh sách nhân viên thành công.");
         } catch (Exception e) {
+            System.out.println("Lỗi lấy danh sách nhân viên: " + e.getMessage());
             e.printStackTrace();
         }
         return employees;
     }
 
     public void updateEmployee(EmployeeDTO employee) {
-        String sql = "UPDATE employee SET FullName = ?, Address = ?, Phone = ?, StartDate = ? WHERE EmployeeID = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+      String sql = "UPDATE nhan_vien SET ten_nhan_vien = ?, dia_chi = ?, so_dien_thoai = ?, ma_tai_khoan = ? WHERE ma_nhan_vien = ?";
 
-            stmt.setString(1, employee.getFullName());
-            stmt.setString(2, employee.getAddress());
-            stmt.setString(3, employee.getPhone());
-            stmt.setString(4, employee.getStartDate());
-            stmt.setString(5, employee.getEmployeeID());
-            
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+try (Connection conn = DatabaseConnection.getConnection();
+     PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+    stmt.setString(1, employee.getFullName());
+    stmt.setString(2, employee.getAddress());
+    stmt.setString(3, employee.getPhone());
+    stmt.setInt(4, employee.getAccountID());
+    stmt.setInt(5, employee.getEmployeeID()); // Chuyển về vị trí đúng
+
+    stmt.executeUpdate();
+    System.out.println("Cập nhật nhân viên thành công.");
+} catch (SQLException e) {
+    System.out.println("Lỗi cập nhật nhân viên: " + e.getMessage());
+    e.printStackTrace();
+}
+
     }
 }
