@@ -52,7 +52,7 @@ public class GUI_Employee extends JPanel {
         // ========== PANEL CHI TIẾT NHÂN VIÊN ==========
         botPanel = new JPanel(new GridBagLayout());
         botPanel.setBackground(Color.WHITE);
-        botPanel.setBorder(BorderFactory.createTitledBorder("Chi tiết nhân viên"));
+        botPanel.setBorder(BorderFactory.createTitledBorder("Chi Tiết Nhân Viên"));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
@@ -61,14 +61,14 @@ public class GUI_Employee extends JPanel {
         // Nhãn hiển thị thông tin tài khoản
         gbc.gridx = 0;
         gbc.gridy = 0;
-        botPanel.add(new JLabel("Tên nhân viên: "), gbc);
+        botPanel.add(new JLabel("Tên Nhân Viên: "), gbc);
         gbc.gridx = 1;
-        JLabel employeeLabel = new JLabel("Chọn nhân viên");
+        JLabel employeeLabel = new JLabel("Chọn Nhân Viên");
         botPanel.add(employeeLabel, gbc);
 
         gbc.gridx = 0; 
         gbc.gridy = 1;
-        botPanel.add(new JLabel("Mã NV: "), gbc);
+        botPanel.add(new JLabel("Mã Nhân Viên: "), gbc);
         gbc.gridx = 1;
         JLabel employeeidLabel = new JLabel("");
         botPanel.add(employeeidLabel, gbc);
@@ -82,7 +82,7 @@ public class GUI_Employee extends JPanel {
 
         gbc.gridx = 0; 
         gbc.gridy = 3;
-        botPanel.add(new JLabel("SĐT: "), gbc);
+        botPanel.add(new JLabel("Số Điện Thoại: "), gbc);
         gbc.gridx = 1;
         JLabel phoneLabel = new JLabel("");
         botPanel.add(phoneLabel, gbc);
@@ -117,8 +117,8 @@ public class GUI_Employee extends JPanel {
                 
                 /*Object value = employeeTable.getValueAt(selectedRow, 0);
                 String valueStr = String.valueOf(value);*/
-                String manv = (String) employeeTable.getValueAt(selectedRow, 1);
                 String hoTen = (String) employeeTable.getValueAt(selectedRow, 0);
+                String manv = (String) employeeTable.getValueAt(selectedRow, 1);
                 String diaChi = (String) employeeTable.getValueAt(selectedRow, 2);
                 String sdt = (String) employeeTable.getValueAt(selectedRow, 3);
                 String maQuyen = (String) employeeTable.getValueAt(selectedRow, 4);

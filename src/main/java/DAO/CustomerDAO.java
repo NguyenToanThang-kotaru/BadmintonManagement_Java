@@ -57,7 +57,7 @@ public class CustomerDAO {
             stmt.setString(1, customer.getcustomerID());
             stmt.setString(2, customer.getFullName());
             stmt.setString(3, customer.getPhone());
-            stmt.setString(2, customer.getEmail());
+            stmt.setString(4, customer.getEmail());
 
             stmt.executeUpdate();
         } catch (SQLException e) {

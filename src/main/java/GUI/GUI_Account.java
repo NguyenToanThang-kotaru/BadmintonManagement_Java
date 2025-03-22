@@ -38,7 +38,7 @@ public class GUI_Account extends JPanel {
         searchField.setBackground(Color.WHITE);
         topPanel.add(searchField, BorderLayout.CENTER);
 
-        addButton = new CustomButton("+ Thêm tài khoản"); // Nút thêm tài khoản
+        addButton = new CustomButton("+ Thêm Tài Khoản"); // Nút thêm tài khoản
         topPanel.add(addButton, BorderLayout.EAST);
         
         // ========== BẢNG HIỂN THỊ DANH SÁCH TÀI KHOẢN ==========
@@ -56,7 +56,7 @@ public class GUI_Account extends JPanel {
         // ========== PANEL CHI TIẾT TÀI KHOẢN ==========
         botPanel = new JPanel(new GridBagLayout());
         botPanel.setBackground(Color.WHITE);
-        botPanel.setBorder(BorderFactory.createTitledBorder("Chi tiết tài khoản"));
+        botPanel.setBorder(BorderFactory.createTitledBorder("Chi Tiết Tài Khoản"));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
@@ -65,28 +65,28 @@ public class GUI_Account extends JPanel {
         // Nhãn hiển thị thông tin tài khoản
         gbc.gridx = 0;
         gbc.gridy = 0;
-        botPanel.add(new JLabel("Tên nhân viên: "), gbc);
+        botPanel.add(new JLabel("Tên Nhân Viên: "), gbc);
         gbc.gridx = 1;
-        JLabel employeeLabel = new JLabel("Chọn tài khoản");
+        JLabel employeeLabel = new JLabel("Chọn Tài Khoản");
         botPanel.add(employeeLabel, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 1;
-        botPanel.add(new JLabel("Tài khoản: "), gbc);
+        botPanel.add(new JLabel("Tài Khoản: "), gbc);
         gbc.gridx = 1;
         JLabel usernameLabel = new JLabel("");
         botPanel.add(usernameLabel, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 2;
-        botPanel.add(new JLabel("Mật khẩu: "), gbc);
+        botPanel.add(new JLabel("Mật Khẩu: "), gbc);
         gbc.gridx = 1;
         JLabel passwordLabel = new JLabel("");
         botPanel.add(passwordLabel, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 3;
-        botPanel.add(new JLabel("Quyền tài khoản: "), gbc);
+        botPanel.add(new JLabel("Quyền Tài Khoản: "), gbc);
         gbc.gridx = 1;
         JLabel roleComboBox = new JLabel("");
         botPanel.add(roleComboBox, gbc);

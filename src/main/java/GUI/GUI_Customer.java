@@ -52,7 +52,7 @@ public class GUI_Customer extends JPanel {
         // ========== PANEL CHI TIẾT KHÁCH HÀNG ==========
         botPanel = new JPanel(new GridBagLayout());
         botPanel.setBackground(Color.WHITE);
-        botPanel.setBorder(BorderFactory.createTitledBorder("Chi tiết khách hàng"));
+        botPanel.setBorder(BorderFactory.createTitledBorder("Chi Tiết Khách Hàng"));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
@@ -61,21 +61,21 @@ public class GUI_Customer extends JPanel {
         // Nhãn hiển thị thông tin tài khoản
         gbc.gridx = 0;
         gbc.gridy = 0;
-        botPanel.add(new JLabel("Tên khách hàng: "), gbc);
+        botPanel.add(new JLabel("Tên Khách Hàng: "), gbc);
         gbc.gridx = 1;
-        JLabel customerLabel = new JLabel("Chọn khách hàng");
+        JLabel customerLabel = new JLabel("Chọn Khách Hàng");
         botPanel.add(customerLabel, gbc);
 
         gbc.gridx = 0; 
         gbc.gridy = 1;
-        botPanel.add(new JLabel("Mã KH: "), gbc);
+        botPanel.add(new JLabel("Mã Khách Hàng: "), gbc);
         gbc.gridx = 1;
         JLabel customeridLabel = new JLabel("");
         botPanel.add(customeridLabel, gbc);
         
         gbc.gridx = 0; 
         gbc.gridy = 2;
-        botPanel.add(new JLabel("SĐT: "), gbc);
+        botPanel.add(new JLabel("Số Điện Thoại: "), gbc);
         gbc.gridx = 1;
         JLabel phoneLabel = new JLabel("");
         botPanel.add(phoneLabel, gbc);

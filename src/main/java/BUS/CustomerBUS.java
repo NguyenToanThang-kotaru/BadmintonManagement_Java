@@ -10,7 +10,7 @@ public class CustomerBUS {
         return CustomerDAO.getAllCustomer();
     }
 
-    public void updateAccount(CustomerDTO customer) {
+    public void updateCustomer(CustomerDTO customer) {
         CustomerDAO dao = new CustomerDAO();
         dao.updateCustomer(customer);
     }
