@@ -14,6 +14,14 @@ public class OrderDTO {
     private String totalmoney;
     private String issuedate;
     
+    public OrderDTO() {
+        this.orderID = "";
+        this.employeeID = "";
+        this.customerID = "";
+        this.totalmoney = "";
+        this.issuedate = "";
+    }
+    
     public OrderDTO(String orderID, String employeeID, String customerID, String totalmoney, String issuedate) {
         this.orderID = orderID;
         this.employeeID = employeeID;
