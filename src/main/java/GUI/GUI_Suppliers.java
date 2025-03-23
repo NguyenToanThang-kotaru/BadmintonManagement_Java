@@ -11,7 +11,7 @@ import java.util.List;
 public class GUI_Suppliers extends JPanel {
     
     private JPanel topPanel, midPanel, botPanel;
-    private JTable customerTable;
+    private JTable supplierTable;
     private DefaultTableModel tableModel;
     private CustomButton editButton, deleteButton, addButton;
     private CustomSearch searchField;
@@ -44,7 +44,7 @@ public class GUI_Suppliers extends JPanel {
         // Định nghĩa tiêu đề cột
         String[] columnNames = {"Mã NCC", "Tên NCC", "Địa chỉ", "SĐT"};
         CustomTable customTable = new CustomTable(columnNames);
-        customerTable = customTable.getCustomerTable(); 
+        supplierTable = customTable.getSuppliersTable(); 
         tableModel = customTable.getTableModel(); 
         
         midPanel.add(customTable, BorderLayout.CENTER);
@@ -104,14 +104,14 @@ public class GUI_Suppliers extends JPanel {
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        customerTable.getSelectionModel().addListSelectionListener(e -> {
-            int selectedRow = customerTable.getSelectedRow();
+        supplierTable.getSelectionModel().addListSelectionListener(e -> {
+            int selectedRow = supplierTable.getSelectedRow();
             if (selectedRow != -1) {
 
-                String hoten = (String) customerTable.getValueAt(selectedRow, 0);
-                String mancc = (String) customerTable.getValueAt(selectedRow, 1);
-                String diachi = (String) customerTable.getValueAt(selectedRow, 2);
-                String sdt = (String) customerTable.getValueAt(selectedRow, 3);
+                String mancc = (String) supplierTable.getValueAt(selectedRow, 0);
+                String hoten = (String) supplierTable.getValueAt(selectedRow, 1);
+                String diachi = (String) supplierTable.getValueAt(selectedRow, 2);
+                String sdt = (String) supplierTable.getValueAt(selectedRow, 3);
 
                 // Hiển thị dữ liệu trên giao diện
                 suppliersnameLabel.setText(hoten);

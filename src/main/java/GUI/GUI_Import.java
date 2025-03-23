@@ -11,7 +11,7 @@ import java.util.List;
 public class GUI_Import extends JPanel {
     
     private JPanel topPanel, midPanel, botPanel;
-    private JTable customerTable;
+    private JTable importTable;
     private DefaultTableModel tableModel;
     private CustomButton editButton, deleteButton, addButton, detailimportButton;
     private CustomSearch searchField;
@@ -44,7 +44,7 @@ public class GUI_Import extends JPanel {
         // Định nghĩa tiêu đề cột
         String[] columnNames = {"Mã PN", "Mã NV", "Mã NCC", "Tổng Tiền", "Ngày Nhập"};
         CustomTable customTable = new CustomTable(columnNames);
-        customerTable = customTable.getCustomerTable(); 
+        importTable = customTable.getImportTable(); 
         tableModel = customTable.getTableModel(); 
    
         midPanel.add(customTable, BorderLayout.CENTER);
@@ -115,15 +115,15 @@ public class GUI_Import extends JPanel {
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        customerTable.getSelectionModel().addListSelectionListener(e -> {
-            int selectedRow = customerTable.getSelectedRow();
+        importTable.getSelectionModel().addListSelectionListener(e -> {
+            int selectedRow = importTable.getSelectedRow();
             if (selectedRow != -1) {
                 
-                String mapn = (String) customerTable.getValueAt(selectedRow, 0);
-                String manv = (String) customerTable.getValueAt(selectedRow, 1);
-                String mannc = (String) customerTable.getValueAt(selectedRow, 2);
-                String tongtien = (String) customerTable.getValueAt(selectedRow, 3);
-                String ngaynhap = (String) customerTable.getValueAt(selectedRow, 4);
+                String mapn = (String) importTable.getValueAt(selectedRow, 0);
+                String manv = (String) importTable.getValueAt(selectedRow, 1);
+                String mannc = (String) importTable.getValueAt(selectedRow, 2);
+                String tongtien = (String) importTable.getValueAt(selectedRow, 3);
+                String ngaynhap = (String) importTable.getValueAt(selectedRow, 4);
 
                 // Hiển thị dữ liệu trên giao diện
                 importidLabel.setText(mapn);
