@@ -52,7 +52,7 @@ public class GUI_Order extends JPanel {
         // ========== PANEL CHI TIẾT HÓA ĐƠN ==========
         botPanel = new JPanel(new GridBagLayout());
         botPanel.setBackground(Color.WHITE);
-        botPanel.setBorder(BorderFactory.createTitledBorder("Chi Tiết Hóa Đơn"));
+        botPanel.setBorder(BorderFactory.createTitledBorder("Hóa Đơn"));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
@@ -95,7 +95,7 @@ public class GUI_Order extends JPanel {
         botPanel.add(issuedateLabel, gbc);
 
         // ========== PANEL BUTTON ==========
-        JPanel buttonPanel = new JPanel(new BorderLayout());
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 5));
         buttonPanel.setOpaque(false);
 
         deleteButton = new CustomButton("Xóa");
@@ -104,11 +104,11 @@ public class GUI_Order extends JPanel {
 
         editButton = new CustomButton("Sửa");
         editButton.setCustomColor(new Color(0, 230, 0));
-        buttonPanel.add(editButton, BorderLayout.EAST);
+        buttonPanel.add(editButton, BorderLayout.CENTER );
         
         detailorderButton = new CustomButton("Xem Chi Tiết Hóa Đơn");
         detailorderButton.setCustomColor(new Color(0, 120, 215));
-        buttonPanel.add(detailorderButton, BorderLayout.CENTER);
+        buttonPanel.add(detailorderButton, BorderLayout.EAST);
 
         gbc.gridx = 0;
         gbc.gridy = 5;
