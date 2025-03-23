@@ -1,24 +1,24 @@
 package GUI;
 
-import BUS.OrderBUS;
-import DTO.OrderDTO;
+import BUS.ImportBUS;
+import DTO.ImportDTO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
 
-public class GUI_Order extends JPanel {
+public class GUI_Import extends JPanel {
     
     private JPanel topPanel, midPanel, botPanel;
-    private JTable orderTable;
+    private JTable importTable;
     private DefaultTableModel tableModel;
-    private CustomButton editButton, deleteButton, addButton, detailorderButton;
+    private CustomButton editButton, deleteButton, addButton, detailimportButton;
     private CustomSearch searchField;
-    private OrderBUS orderBUS;   
+    private ImportBUS importBUS;   
 
-    public GUI_Order() {
-        orderBUS = new OrderBUS();
+    public GUI_Import() {
+        importBUS = new ImportBUS();
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -34,37 +34,37 @@ public class GUI_Order extends JPanel {
         searchField.setBackground(Color.WHITE);
         topPanel.add(searchField, BorderLayout.CENTER);
 
-        addButton = new CustomButton("+ Thêm Hóa Đơn"); // Nút thêm hóa đơn
+        addButton = new CustomButton("+ Thêm Phiếu Nhập"); // Nút thêm phiếu nhập 
         topPanel.add(addButton, BorderLayout.EAST);
 
-        // ========== BẢNG HIỂN THỊ DANH SÁCH HÓA ĐƠN ==========
+        // ========== BẢNG HIỂN THỊ DANH SÁCH PHIẾU NHẬP ==========
         midPanel = new JPanel(new BorderLayout());
         midPanel.setBackground(Color.WHITE);
         
         // Định nghĩa tiêu đề cột
-        String[] columnNames = {"Mã HĐ", "Mã NV", "Mã KH", "Tổng Tiền", "Ngày Xuất"};
+        String[] columnNames = {"Mã PN", "Mã NV", "Mã NCC", "Tổng Tiền", "Ngày Nhập"};
         CustomTable customTable = new CustomTable(columnNames);
-        orderTable = customTable.getOrderTable(); 
+        importTable = customTable.getImportTable(); 
         tableModel = customTable.getTableModel(); 
-        
+   
         midPanel.add(customTable, BorderLayout.CENTER);
 
-        // ========== PANEL CHI TIẾT HÓA ĐƠN ==========
+        // ========== PANEL CHI TIẾT PHIẾU NHẬP ==========
         botPanel = new JPanel(new GridBagLayout());
         botPanel.setBackground(Color.WHITE);
-        botPanel.setBorder(BorderFactory.createTitledBorder("Hóa Đơn"));
+        botPanel.setBorder(BorderFactory.createTitledBorder("Hóa Đơn Nhập"));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
         
-        // Nhãn hiển thị thông tin hóa đơn
+        // Nhãn hiển thị thông tin phiếu nhập
         gbc.gridx = 0;
         gbc.gridy = 0;
-        botPanel.add(new JLabel("Mã Hóa Đơn: "), gbc);
+        botPanel.add(new JLabel("Mã Phiếu Nhập: "), gbc);
         gbc.gridx = 1;
-        JLabel orderidLabel = new JLabel("Chọn Hóa Đơn");
-        botPanel.add(orderidLabel, gbc);
+        JLabel importidLabel = new JLabel("Chọn Hóa Đơn Nhập");
+        botPanel.add(importidLabel, gbc);
 
         gbc.gridx = 0; 
         gbc.gridy = 1;
@@ -72,32 +72,32 @@ public class GUI_Order extends JPanel {
         gbc.gridx = 1;
         JLabel employeeidLabel = new JLabel("");
         botPanel.add(employeeidLabel, gbc);
-
+        
         gbc.gridx = 0; 
         gbc.gridy = 2;
-        botPanel.add(new JLabel("Mã Khách Hàng: "), gbc);
+        botPanel.add(new JLabel("Mã Nhà Cung Cấp: "), gbc);
         gbc.gridx = 1;
-        JLabel customeridLabel = new JLabel("");
-        botPanel.add(customeridLabel, gbc);
-
+        JLabel supplieridLabel = new JLabel("");
+        botPanel.add(supplieridLabel, gbc);
+        
         gbc.gridx = 0; 
         gbc.gridy = 3;
-        botPanel.add(new JLabel("Tồng Tiền: "), gbc);
+        botPanel.add(new JLabel("Tổng Tiền: "), gbc);
         gbc.gridx = 1;
         JLabel totalmoneyLabel = new JLabel("");
         botPanel.add(totalmoneyLabel, gbc);
-
+        
         gbc.gridx = 0; 
         gbc.gridy = 4;
-        botPanel.add(new JLabel("Ngày Xuất: "), gbc);
+        botPanel.add(new JLabel("Ngày Nhập: "), gbc);
         gbc.gridx = 1;
-        JLabel issuedateLabel = new JLabel("");
-        botPanel.add(issuedateLabel, gbc);
+        JLabel receiptdateLabel = new JLabel("");
+        botPanel.add(receiptdateLabel, gbc);
 
         // ========== PANEL BUTTON ==========
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 5));
         buttonPanel.setOpaque(false);
-
+        
         deleteButton = new CustomButton("Xóa");
         deleteButton.setCustomColor(new Color(220, 0, 0));
         buttonPanel.add(deleteButton, BorderLayout.WEST);
@@ -106,31 +106,31 @@ public class GUI_Order extends JPanel {
         editButton.setCustomColor(new Color(0, 230, 0));
         buttonPanel.add(editButton, BorderLayout.CENTER );
         
-        detailorderButton = new CustomButton("Xem Chi Tiết Hóa Đơn");
-        detailorderButton.setCustomColor(new Color(0, 120, 215));
-        buttonPanel.add(detailorderButton, BorderLayout.EAST);
+        detailimportButton = new CustomButton("Xem Chi Tiết Hóa Đơn Nhập");
+        detailimportButton.setCustomColor(new Color(0, 120, 215));
+        buttonPanel.add(detailimportButton, BorderLayout.EAST);
 
         gbc.gridx = 0;
         gbc.gridy = 5;
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        orderTable.getSelectionModel().addListSelectionListener(e -> {
-            int selectedRow = orderTable.getSelectedRow();
+        importTable.getSelectionModel().addListSelectionListener(e -> {
+            int selectedRow = importTable.getSelectedRow();
             if (selectedRow != -1) {
-
-                String mahd = (String) orderTable.getValueAt(selectedRow, 0);
-                String manv = (String) orderTable.getValueAt(selectedRow, 1);
-                String makh = (String) orderTable.getValueAt(selectedRow, 2);
-                String tongtien = (String) orderTable.getValueAt(selectedRow, 3);
-                String ngayxuat = (String) orderTable.getValueAt(selectedRow, 4);
+                
+                String mapn = (String) importTable.getValueAt(selectedRow, 0);
+                String manv = (String) importTable.getValueAt(selectedRow, 1);
+                String mannc = (String) importTable.getValueAt(selectedRow, 2);
+                String tongtien = (String) importTable.getValueAt(selectedRow, 3);
+                String ngaynhap = (String) importTable.getValueAt(selectedRow, 4);
 
                 // Hiển thị dữ liệu trên giao diện
-                orderidLabel.setText(mahd);
+                importidLabel.setText(mapn);
                 employeeidLabel.setText(manv);
-                customeridLabel.setText(makh);
+                supplieridLabel.setText(mannc);
                 totalmoneyLabel.setText(tongtien);
-                issuedateLabel.setText(ngayxuat);
+                receiptdateLabel.setText(ngaynhap);
                 botPanel.add(buttonPanel, gbc);
             }   
         });
@@ -142,17 +142,17 @@ public class GUI_Order extends JPanel {
         add(Box.createVerticalStrut(10));
         add(botPanel);
 
-        loadOrder();
+        loadImport();
         
     }
 
-    private void loadOrder() {
-        List<OrderDTO> order = orderBUS.getAllOrder();
+    private void loadImport() {
+        List<ImportDTO> Import = importBUS.getAllImport();
         tableModel.setRowCount(0);
         //int index = 0;
         String no = "";
-        for (OrderDTO odr : order ) {
-            tableModel.addRow(new Object[]{odr.getorderID(), odr.getemployeeID(), odr.getcustomerID(), odr.gettotalmoney(), odr.getissuedate()});
+        for (ImportDTO ipt : Import) {
+            tableModel.addRow(new Object[]{ipt.getimportID(), ipt.getemployeeID(), ipt.getsupplierID(), ipt.gettotalmoney(), ipt.getreceiptdate()});
         }
     }
 

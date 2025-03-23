@@ -10,18 +10,18 @@ import java.util.ArrayList;
 
 public class CustomerDAO {
 
-    public static CustomerDTO getCustomer(String customerID) {
-        String query = "SELECT * FROM customer WHERE customerID = ?";
+    public static CustomerDTO getCustomer(int maKhachHang) {
+        String query = "SELECT * FROM khach_hang WHERE ma_khach_hang = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, customerID);
+            stmt.setInt(1, maKhachHang);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return new CustomerDTO(
-                            rs.getString("CustomerID"),
-                            rs.getString("FullName"),
-                            rs.getString("Address"),
-                            rs.getString("Phone")
+                            rs.getString("ma_khach_hang"),
+                            rs.getString("ten_khach_hang"),
+                            rs.getString("so_dien_thoai"),
+                            rs.getString("email")  
                     );
                 }
             }
@@ -31,39 +31,38 @@ public class CustomerDAO {
         return null;
     }
 
+    // Lấy danh sách tài khoản cho bảng GUI
     public static ArrayList<CustomerDTO> getAllCustomer() {
         ArrayList<CustomerDTO> customer = new ArrayList<>();
-        String query = "SELECT * FROM customer";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query);
-             ResultSet rs = stmt.executeQuery()) {
+        String query = "SELECT * FROM khach_hang";
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 customer.add(new CustomerDTO(
-                        rs.getString("CustomerID"),
-                        rs.getString("FullName"),
-                        rs.getString("Address"),
-                        rs.getString("Phone")
+                        rs.getString("ma_khach_hang"),
+                        rs.getString("ten_khach_hang"),
+                        rs.getString("so_dien_thoai"),
+                        rs.getString("email")
                 ));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
         }
         return customer;
     }
 
     public void updateCustomer(CustomerDTO customer) {
-        String sql = "UPDATE customer SET FullName = ?, Address = ?, Phone = ? WHERE CustomerID = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        String sql = "UPDATE customer SET ma_khach_hang = ?, ten_khach_hang = ?, so_dien_thoai = ? WHERE email = ?";
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, customer.getFullName());
-            stmt.setString(2, customer.getAddress());
+            stmt.setString(1, customer.getcustomerID());
+            stmt.setString(2, customer.getFullName());
             stmt.setString(3, customer.getPhone());
-            stmt.setString(5, customer.getcustomerID());
-            
+            stmt.setString(4, customer.getEmail());
+
             stmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
         }
     }
+
 }

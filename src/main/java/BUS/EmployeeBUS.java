@@ -17,7 +17,7 @@ public class EmployeeBUS {
         return new ArrayList<>(employeeList);
     }
 
-    public EmployeeDTO getEmployeeByID(int employeeID) {
+    public EmployeeDTO getEmployeeByID(String employeeID) {
         for (EmployeeDTO emp : employeeList) {
             if (emp.getEmployeeID() == employeeID) {
                 return emp;

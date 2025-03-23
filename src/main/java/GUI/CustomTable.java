@@ -69,6 +69,26 @@ public class CustomTable extends JPanel {
     public JTable getAccountTable() {
         return CustomTable;
     }
+    
+    public JTable getCustomerTable() {
+        return CustomTable;
+    }
+    
+    public JTable getOrderTable() {
+        return CustomTable;
+    }
+    
+    public JTable getEmployeeTable() {
+        return CustomTable;
+    }
+    
+    public JTable getSuppliersTable() {
+        return CustomTable;
+    }
+    
+    public JTable getImportTable() {
+        return CustomTable;
+    }
 
     public DefaultTableModel getTableModel() {
         return tableModel;

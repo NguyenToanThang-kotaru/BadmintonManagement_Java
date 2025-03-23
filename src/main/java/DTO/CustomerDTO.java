@@ -4,19 +4,20 @@ public class CustomerDTO {
 
     private String customerID;
     private String fullName;
-    private String address;
+    private String email;
     private String phone;
 
     public CustomerDTO() {
         this.customerID = "";
         this.fullName = "";
-        this.address = "";
+        this.phone = "";
+        this.email = "";
     }
 
-    public CustomerDTO(String customerID, String fullName, String address, String phone) {
+    public CustomerDTO(String customerID, String fullName, String phone, String email) {
         this.customerID = customerID;
         this.fullName = fullName;
-        this.address = address;
+        this.email = email;
         this.phone = phone;
     }
 
@@ -36,19 +37,19 @@ public class CustomerDTO {
         this.fullName = fullName;
     }
 
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
     public String getPhone() {
         return phone;
     }
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+    
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

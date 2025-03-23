@@ -100,6 +100,7 @@ public class GUI_Guarantee extends JPanel {
         fixButton.setCustomColor(Color.RED);
 //        botPanel.add(fixButton, gbc);
 
+//<<<<<<< HEAD
         // ========== THÊM MỌI THỨ VÀO MAIN PANEL ==========
         add(topPanel);
         add(midPanel);
@@ -121,6 +122,15 @@ public class GUI_Guarantee extends JPanel {
                     botPanel.add(fixButton, gbc);
 
                 }
+//=======
+//        // Sự kiện chọn dòng trong bảng
+//        warrantyTable.getAccountTable().getSelectionModel().addListSelectionListener((ListSelectionEvent e) -> {
+//            int selectedRow = warrantyTable.getAccountTable().getSelectedRow();
+//            if (selectedRow != -1) {
+//                serialLabel.setText((String) warrantyTable.getAccountTable().getValueAt(selectedRow, 1));
+//                purchaseDateLabel.setText("2025-01-15"); // Giả lập ngày mua
+//                
+//>>>>>>> 89c79e75ff78b36b8a6583805bb025b71ded3fe4
             }
         });
 
