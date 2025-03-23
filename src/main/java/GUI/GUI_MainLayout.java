@@ -51,6 +51,10 @@ public class GUI_MainLayout extends JFrame {
         Sidebar.customerPanel = new JPanel();
         Sidebar.customerPanel.setBackground(Color.RED);
         Sidebar.customerPanel.add(new JLabel("Khách hàng"));
+        
+        Sidebar.importPanel = new GUI_Import();
+
+        Sidebar.employeePanel = new GUI_Employee();
 
         Sidebar.accountPanel = new GUI_Account();
 
