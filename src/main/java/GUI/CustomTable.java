@@ -81,6 +81,10 @@ public class CustomTable extends JPanel {
     public JTable getEmployeeTable() {
         return CustomTable;
     }
+    
+    public JTable getSuppliersTable() {
+        return CustomTable;
+    }
 
     public DefaultTableModel getTableModel() {
         return tableModel;

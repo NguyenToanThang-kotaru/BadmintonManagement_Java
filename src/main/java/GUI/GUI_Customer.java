@@ -58,7 +58,7 @@ public class GUI_Customer extends JPanel {
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
         
-        // Nhãn hiển thị thông tin tài khoản
+        // Nhãn hiển thị thông tin khách hàng
         gbc.gridx = 0;
         gbc.gridy = 0;
         botPanel.add(new JLabel("Tên Khách Hàng: "), gbc);
@@ -108,8 +108,6 @@ public class GUI_Customer extends JPanel {
             int selectedRow = customerTable.getSelectedRow();
             if (selectedRow != -1) {
                 
-                /*Object value = customerTable.getValueAt(selectedRow, 0);
-                String valueStr = String.valueOf(value);*/
                 String customerID = (String) customerTable.getValueAt(selectedRow, 0);
                 String hoten = (String) customerTable.getValueAt(selectedRow, 1);
                 String sdt = (String) customerTable.getValueAt(selectedRow, 2);

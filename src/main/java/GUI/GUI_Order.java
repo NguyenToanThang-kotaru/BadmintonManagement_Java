@@ -58,7 +58,7 @@ public class GUI_Order extends JPanel {
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
         
-        // Nhãn hiển thị thông tin tài khoản
+        // Nhãn hiển thị thông tin hóa đơn
         gbc.gridx = 0;
         gbc.gridy = 0;
         botPanel.add(new JLabel("Mã Hóa Đơn: "), gbc);
@@ -118,9 +118,7 @@ public class GUI_Order extends JPanel {
         orderTable.getSelectionModel().addListSelectionListener(e -> {
             int selectedRow = orderTable.getSelectedRow();
             if (selectedRow != -1) {
-                
-                /*Object value = employeeTable.getValueAt(selectedRow, 0);
-                String valueStr = String.valueOf(value);*/
+
                 String mahd = (String) orderTable.getValueAt(selectedRow, 0);
                 String manv = (String) orderTable.getValueAt(selectedRow, 1);
                 String makh = (String) orderTable.getValueAt(selectedRow, 2);
