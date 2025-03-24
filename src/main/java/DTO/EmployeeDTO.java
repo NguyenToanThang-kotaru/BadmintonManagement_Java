@@ -7,6 +7,7 @@ public class EmployeeDTO {
     private String address;
     private String phone;
     private String accountID;
+    private String powerID;
    
 
     public EmployeeDTO() {
@@ -15,15 +16,17 @@ public class EmployeeDTO {
         this.address = "";
         this.phone = "";
         this.accountID = "";
+        this.powerID = "";
   
     }
 
-  public EmployeeDTO(String employeeID, String fullName, String address, String phone, String accountID) {
+  public EmployeeDTO(String employeeID, String fullName, String address, String phone, String accountID, String powerID) {
     this.employeeID = employeeID;
     this.fullName = fullName;
     this.address = address;
     this.phone = phone;
     this.accountID = accountID;
+    this.powerID = powerID;
 }
 
 
@@ -65,5 +68,13 @@ public class EmployeeDTO {
 
     public void setAccountID(String accountID) {
         this.accountID = accountID;
+    }
+    
+    public String getpowerID() {
+        return powerID;
+    }
+    
+    public void setpowerID(String powerID) {
+        this.powerID = powerID;
     }
 }

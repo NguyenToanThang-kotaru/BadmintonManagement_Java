@@ -42,7 +42,7 @@ public class GUI_Employee extends JPanel {
         midPanel.setBackground(Color.WHITE);
         
         // Định nghĩa tiêu đề cột
-        String[] columnNames = {"Mã NV", "Họ Tên", "Địa Chỉ", "SĐT", "Mã Quyền"};
+        String[] columnNames = {"Mã NV", "Họ Tên", "Mã TK", "Địa Chỉ", "SĐT", "Mã Quyền"};
         CustomTable customTable = new CustomTable(columnNames);
         employeeTable = customTable.getEmployeeTable(); 
         tableModel = customTable.getTableModel(); 
@@ -72,23 +72,30 @@ public class GUI_Employee extends JPanel {
         gbc.gridx = 1;
         JLabel employeeidLabel = new JLabel("");
         botPanel.add(employeeidLabel, gbc);
-
+        
         gbc.gridx = 0; 
         gbc.gridy = 2;
+        botPanel.add(new JLabel("Mã Tài Khoản: "), gbc);
+        gbc.gridx = 1;
+        JLabel accountidLabel = new JLabel("");
+        botPanel.add(accountidLabel, gbc);
+
+        gbc.gridx = 0; 
+        gbc.gridy = 3;
         botPanel.add(new JLabel("Địa Chỉ: "), gbc);
         gbc.gridx = 1;
         JLabel addressLabel = new JLabel("");
         botPanel.add(addressLabel, gbc);
 
         gbc.gridx = 0; 
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         botPanel.add(new JLabel("Số Điện Thoại: "), gbc);
         gbc.gridx = 1;
         JLabel phoneLabel = new JLabel("");
         botPanel.add(phoneLabel, gbc);
 
         gbc.gridx = 0; 
-        gbc.gridy = 4;
+        gbc.gridy = 5;
         botPanel.add(new JLabel("Quyền: "), gbc);
         gbc.gridx = 1;
         JLabel quyenLabel = new JLabel("");
@@ -107,7 +114,7 @@ public class GUI_Employee extends JPanel {
         buttonPanel.add(editButton, BorderLayout.EAST);
 
         gbc.gridx = 0;
-        gbc.gridy = 5;
+        gbc.gridy = 6;
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
@@ -115,15 +122,17 @@ public class GUI_Employee extends JPanel {
             int selectedRow = employeeTable.getSelectedRow();
             if (selectedRow != -1) {
 
-                String hoTen = (String) employeeTable.getValueAt(selectedRow, 0);
-                String manv = (String) employeeTable.getValueAt(selectedRow, 1);
-                String diaChi = (String) employeeTable.getValueAt(selectedRow, 2);
-                String sdt = (String) employeeTable.getValueAt(selectedRow, 3);
-                String maQuyen = (String) employeeTable.getValueAt(selectedRow, 4);
+                String manv = (String) employeeTable.getValueAt(selectedRow, 0);
+                String hoten = (String) employeeTable.getValueAt(selectedRow, 1);
+                String matk = (String) employeeTable.getValueAt(selectedRow, 2);
+                String diaChi = (String) employeeTable.getValueAt(selectedRow, 3);
+                String sdt = (String) employeeTable.getValueAt(selectedRow, 4);
+                String maQuyen = (String) employeeTable.getValueAt(selectedRow, 5);
 
                 // Hiển thị dữ liệu trên giao diện
-                employeeLabel.setText(hoTen);
+                employeeLabel.setText(hoten);
                 employeeidLabel.setText(manv);
+                accountidLabel.setText(matk);
                 addressLabel.setText(diaChi);
                 phoneLabel.setText(sdt);
                 quyenLabel.setText(maQuyen);
@@ -148,7 +157,7 @@ public class GUI_Employee extends JPanel {
         //int index = 0;
         String no = "";
         for (EmployeeDTO emp : employees) {
-            tableModel.addRow(new Object[]{emp.getFullName(), emp.getEmployeeID(), emp.getAddress(), emp.getPhone(), emp.getAccountID()});
+            tableModel.addRow(new Object[]{emp.getEmployeeID(), emp.getFullName(), emp.getAccountID(), emp.getAddress(), emp.getPhone(), emp.getpowerID()});
         }
     }
 
