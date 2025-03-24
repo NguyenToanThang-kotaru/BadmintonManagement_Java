@@ -3,71 +3,69 @@ package DAO;
 import Connection.DatabaseConnection;
 import DTO.ImportDTO;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class ImportDAO {
-    
-    public ImportDTO getImport(String importID) {
+
+    public static ImportDTO getImport(int maphieunhap) {
         String query = "SELECT * FROM nhap_hang WHERE ma_nhap_hang = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, importID);
+            stmt.setInt(1, maphieunhap);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return new ImportDTO(
                             rs.getString("ma_nhap_hang"),
                             rs.getString("ma_nhan_vien"),
                             rs.getString("ma_nha_cung_cap"),
-                            rs.getDouble("tong_tien"),
-                            rs.getDate("ngay_nhap")
+                            rs.getString("tong_tien"),
+                            rs.getString("ngay_nhap") 
                     );
                 }
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
-    
-    public ArrayList<ImportDTO> getAllImport() {
-        ArrayList<ImportDTO> imports = new ArrayList<>();
+
+    // Lấy danh sách tài khoản cho bảng GUI
+    public static ArrayList<ImportDTO> getAllImport() {
+        ArrayList<ImportDTO> Import = new ArrayList<>();
         String query = "SELECT * FROM nhap_hang";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query);
-             ResultSet rs = stmt.executeQuery()) {
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
-                imports.add(new ImportDTO(
+                Import.add(new ImportDTO(
                         rs.getString("ma_nhap_hang"),
                         rs.getString("ma_nhan_vien"),
                         rs.getString("ma_nha_cung_cap"),
-                        rs.getDouble("tong_tien"),
-                        rs.getDate("ngay_nhap")
+                        rs.getString("ma_nha_cung_cap"),
+                        rs.getString("ngay_nhap")
                 ));
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+//            e.printStackTrace();
         }
-        return imports;
+        return Import;
     }
 
-    public void updateImport(ImportDTO importDTO) {
-        String sql = "UPDATE nhap_hang SET ma_nhan_vien = ?, ma_nha_cung_cap = ?, tong_tien = ?, ngay_nhap = ? WHERE ma_nhap_hang = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
-            stmt.setString(1, importDTO.getEmployeeID());
-            stmt.setString(2, importDTO.getSupplierID());
-            stmt.setDouble(3, importDTO.getTotalMoney());
-            stmt.setDate(4, importDTO.getImportDate());
-            stmt.setString(5, importDTO.getImportID());
-            
+    public void updateImport(ImportDTO customer) {
+        String sql = "UPDATE import SET ma_nhap_hang = ?, ma_nhan_vien = ?, ma_nha_cung_cap = ?, ma_nha_cung_cap = ? WHERE ngay_nhap = ?";
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, customer.getimportID());
+            stmt.setString(2, customer.getemployeeID());
+            stmt.setString(3, customer.getsupplierID());
+            stmt.setString(4, customer.gettotalmoney());
+            stmt.setString(5, customer.getreceiptdate());
+
             stmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
         }
     }
+
 }

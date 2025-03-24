@@ -2,24 +2,17 @@ package BUS;
 
 import DAO.ImportDAO;
 import DTO.ImportDTO;
-import java.util.ArrayList;
+import java.util.List;
 
 public class ImportBUS {
-    private ImportDAO importDAO;
 
-    public ImportBUS() {
-        importDAO = new ImportDAO();
+    public List<ImportDTO> getAllImport() {
+        return ImportDAO.getAllImport();
     }
 
-    public ImportDTO getImportByID(String importID) {
-        return importDAO.getImport(importID);
+    public void updateCustomer(ImportDTO Import) {
+        ImportDAO dao = new ImportDAO();
+        dao.updateImport(Import);
     }
 
-    public ArrayList<ImportDTO> getAllImports() {
-        return importDAO.getAllImport();
-    }
-
-    public void updateImport(ImportDTO importDTO) {
-        importDAO.updateImport(importDTO);
-    }
 }

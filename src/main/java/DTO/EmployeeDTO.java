@@ -2,36 +2,39 @@ package DTO;
 
 public class EmployeeDTO {
 
-    private int employeeID;
+    private String employeeID;
     private String fullName;
     private String address;
     private String phone;
-    private int accountID;
+    private String accountID;
+    private String powerID;
    
 
     public EmployeeDTO() {
-        this.employeeID = 0;
+        this.employeeID = "";
         this.fullName = "";
         this.address = "";
         this.phone = "";
-        this.accountID = 0;
+        this.accountID = "";
+        this.powerID = "";
   
     }
 
-  public EmployeeDTO(int employeeID, String fullName, String address, String phone, int accountID) {
+  public EmployeeDTO(String employeeID, String fullName, String address, String phone, String accountID, String powerID) {
     this.employeeID = employeeID;
     this.fullName = fullName;
     this.address = address;
     this.phone = phone;
     this.accountID = accountID;
+    this.powerID = powerID;
 }
 
 
-    public int getEmployeeID() {
+    public String getEmployeeID() {
         return employeeID;
     }
 
-    public void setEmployeeID(int employeeID) {
+    public void setEmployeeID(String employeeID) {
         this.employeeID = employeeID;
     }
 
@@ -59,11 +62,19 @@ public class EmployeeDTO {
         this.phone = phone;
     }
 
-    public int getAccountID() {
+    public String getAccountID() {
         return accountID;
     }
 
-    public void setAccountID(int accountID) {
+    public void setAccountID(String accountID) {
         this.accountID = accountID;
+    }
+    
+    public String getpowerID() {
+        return powerID;
+    }
+    
+    public void setpowerID(String powerID) {
+        this.powerID = powerID;
     }
 }

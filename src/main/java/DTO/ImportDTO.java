@@ -1,59 +1,67 @@
+
 package DTO;
 
-import java.sql.Date;
-
 public class ImportDTO {
+    
     private String importID;
     private String employeeID;
     private String supplierID;
-    private double totalMoney;
-    private Date importDate;
-
-    public ImportDTO(String importID, String employeeID, String supplierID, double totalMoney, Date importDate) {
+    private String totalmoney;
+    private String receiptdate;
+    
+    public ImportDTO() {
+        this.importID = "";
+        this.employeeID = "";
+        this.supplierID = "";
+        this.totalmoney = "";
+        this.receiptdate = "";
+    }
+    
+    public ImportDTO(String importID, String employeeID, String supplierID, String totalmoney, String receiptdate) {
         this.importID = importID;
         this.employeeID = employeeID;
         this.supplierID = supplierID;
-        this.totalMoney = totalMoney;
-        this.importDate = importDate;
+        this.totalmoney = totalmoney;
+        this.receiptdate = receiptdate;
     }
-
-    public String getImportID() {
+    
+    public String getimportID() {
         return importID;
     }
-
-    public void setImportID(String importID) {
+    
+    public void setimportID(String importID) {
         this.importID = importID;
     }
-
-    public String getEmployeeID() {
+    
+    public String getemployeeID() {
         return employeeID;
     }
-
-    public void setEmployeeID(String employeeID) {
+    
+    public void setemployeeID(String employeeID) {
         this.employeeID = employeeID;
     }
-
-    public String getSupplierID() {
+    
+    public String getsupplierID() {
         return supplierID;
     }
-
-    public void setSupplierID(String supplierID) {
+    
+    public void setsupplierID(String supplierID) {
         this.supplierID = supplierID;
     }
-
-    public double getTotalMoney() {
-        return totalMoney;
+    
+    public String gettotalmoney() {
+        return totalmoney;
     }
-
-    public void setTotalMoney(double totalMoney) {
-        this.totalMoney = totalMoney;
+    
+    public void settotalmoney(String totalmoney) {
+        this.totalmoney = totalmoney;
     }
-
-    public Date getImportDate() {
-        return importDate;
+    
+    public String getreceiptdate() {
+        return receiptdate;
     }
-
-    public void setImportDate(Date importDate) {
-        this.importDate = importDate;
+    
+    public void setreceiptdate(String receiptdate) {
+        this.receiptdate = receiptdate;
     }
 }

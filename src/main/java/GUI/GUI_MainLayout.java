@@ -30,20 +30,6 @@ public class GUI_MainLayout extends JFrame {
         Sidebar.statisticsPanel.setBackground(Color.CYAN);
         Sidebar.statisticsPanel.add(new JLabel("Thống kê doanh thu"));
 
-        
-
-        Sidebar.orderPanel = new JPanel();
-        Sidebar.orderPanel.setBackground(Color.ORANGE);
-        Sidebar.orderPanel.add(new JLabel("Danh sách đơn hàng"));
-
-        Sidebar.supplierPanel = new JPanel();
-        Sidebar.supplierPanel.setBackground(Color.YELLOW);
-        Sidebar.supplierPanel.add(new JLabel("Nhà cung cấp"));
-
-        Sidebar.importPanel = new JPanel();
-        Sidebar.importPanel.setBackground(Color.PINK);
-        Sidebar.importPanel.add(new JLabel("Hóa đơn nhập"));
-
         Sidebar.promotionPanel = new JPanel();
         Sidebar.promotionPanel.setBackground(Color.BLUE);
         Sidebar.promotionPanel.add(new JLabel("Khuyến mãi"));
@@ -63,6 +49,12 @@ public class GUI_MainLayout extends JFrame {
         Sidebar.customerPanel = new GUI_Customer();
 
         Sidebar.productPanel = new GUI_Product();
+        
+        Sidebar.orderPanel = new GUI_Order();
+        
+        Sidebar.supplierPanel = new GUI_Suppliers();
+        
+        Sidebar.importPanel = new GUI_Import();
         
         Sidebar.rolePanel = new JPanel();
         Sidebar.rolePanel.setBackground(Color.LIGHT_GRAY);

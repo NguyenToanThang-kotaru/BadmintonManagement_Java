@@ -11,10 +11,18 @@ public class OrderDTO {
     private String orderID;
     private String employeeID;
     private String customerID;
-    private double totalmoney;
-    private Date issuedate;
+    private String totalmoney;
+    private String issuedate;
     
-    public OrderDTO(String orderID, String employeeID, String customerID, double totalmoney, Date issuedate) {
+    public OrderDTO() {
+        this.orderID = "";
+        this.employeeID = "";
+        this.customerID = "";
+        this.totalmoney = "";
+        this.issuedate = "";
+    }
+    
+    public OrderDTO(String orderID, String employeeID, String customerID, String totalmoney, String issuedate) {
         this.orderID = orderID;
         this.employeeID = employeeID;
         this.customerID = customerID;
@@ -38,7 +46,7 @@ public class OrderDTO {
         this.employeeID = employeeID;
     }
     
-    public String setcustomerID() {
+    public String getcustomerID() {
         return customerID;
     }
     
@@ -46,23 +54,19 @@ public class OrderDTO {
         this.customerID = customerID;
     }
     
-    public double gettotalmoney() {
+    public String gettotalmoney() {
         return totalmoney;
     }
     
-    public void settotalmoney(double totalmoney) {
+    public void settotalmoney(String totalmoney) {
         this.totalmoney = totalmoney;
     }
     
-    public Date getissuedate() {
+    public String getissuedate() {
         return issuedate;
     }
     
-    public void setissuedate(Date issuedate) {
+    public void setissuedate(String issuedate) {
         this.issuedate = issuedate;
-    }
-
-    public String getcustomerID() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 }
