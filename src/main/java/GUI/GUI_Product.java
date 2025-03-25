@@ -1,6 +1,7 @@
 package GUI;
 
 import DAO.ProductDAO;
+import DTO.ProductDTO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -130,7 +131,7 @@ public class GUI_Product extends JPanel {
 
         gbcInfo.gridx = 0;
         gbcInfo.gridy = 6;
-        infoPanel.add(new JLabel("Mã loại: "), gbcInfo);
+        infoPanel.add(new JLabel("Tên loại: "), gbcInfo);
         gbcInfo.gridx = 1;
         JLabel TypeidLabel = new JLabel("");
         infoPanel.add(TypeidLabel, gbcInfo);
@@ -153,35 +154,28 @@ public class GUI_Product extends JPanel {
         productTable.getSelectionModel().addListSelectionListener(e -> {
             int selectedRow = productTable.getSelectedRow();
             if (selectedRow != -1) {
-                // Lấy dữ liệu từ bảng
-                String masanpham = (String) productTable.getValueAt(selectedRow, 0);
-                String tensanpham = (String) productTable.getValueAt(selectedRow, 1);
-                String gia = (String) productTable.getValueAt(selectedRow, 2);
-                String soluongsanpham = (String) productTable.getValueAt(selectedRow, 3);
-                String mathhieu = (String) productTable.getValueAt(selectedRow, 4);
-                String thongsokt = (String) productTable.getValueAt(selectedRow, 5);
-                String maloai = (String) productTable.getValueAt(selectedRow, 6);
+                String productID = (String) productTable.getValueAt(selectedRow, 0);
+                ProductDTO product = ProductDAO.getProduct(productID);
 
-                String productImg = ProductDAO.getProductImage(masanpham);
-                // Cập nhật giao diện
-                productLabel.setText(masanpham);
-                quantityLabel.setText(soluongsanpham);
-                namePDLabel.setText(tensanpham);
-                TypeidLabel.setText(maloai);
-                MaThHieuLabel.setText(mathhieu);
-                TSKTLabel.setText(thongsokt);
-                priceLabel.setText(gia);
+                // Cập nhật thông tin sản phẩm
+                productLabel.setText(String.valueOf(product.getProductID()));
+                namePDLabel.setText(product.getProductName());
+                priceLabel.setText(String.valueOf(product.getGia()));
+                quantityLabel.setText(String.valueOf(product.getSoluong()));
+                MaThHieuLabel.setText(String.valueOf(product.getMaThuongHieu()));
+                TSKTLabel.setText(product.getTSKT());
+                TypeidLabel.setText(product.getML());
 
+                // Cập nhật ảnh
+                String productImg = product.getAnh();
                 if (productImg != null && !productImg.isEmpty()) {
-                    String imagePath = "/images/" + productImg; // Đường dẫn trong resources
+                    String imagePath = "/images/" + productImg;
                     java.net.URL imageUrl = getClass().getResource(imagePath);
-
                     if (imageUrl != null) {
                         ImageIcon productIcon = new ImageIcon(imageUrl);
                         Image img = productIcon.getImage().getScaledInstance(220, 220, Image.SCALE_SMOOTH);
                         imageLabel.setIcon(new ImageIcon(img));
                     } else {
-                        System.out.println("⚠ Không tìm thấy ảnh: " + imagePath);
                         imageLabel.setIcon(null);
                     }
                 } else {
@@ -190,20 +184,18 @@ public class GUI_Product extends JPanel {
             }
         });
 
-        // ========== THÊM MỌI THỨ VÀO MAINPANEL ==========
         add(topPanel);
-        add(Box.createVerticalStrut(10)); // Thêm khoảng cách 10px
         add(midPanel);
-        add(Box.createVerticalStrut(10)); // Thêm khoảng cách 10px
         add(botPanel);
         loadProductData();
     }
 
     private void loadProductData() {
-        List<String[]> productList = ProductDAO.getProductData();
-        for (String[] product : productList) {
+        List<ProductDTO> productList = ProductDAO.getAllProducts();
+        for (ProductDTO product : productList) {
             tableModel.addRow(new Object[]{
-                product[0], product[1], product[2], product[3], product[4], product[5], product[6]
+                product.getProductID(), product.getProductName(), product.getGia(),
+                product.getSoluong(), product.getMaThuongHieu(), product.getTSKT(), product.getML()
             });
         }
     }

@@ -117,14 +117,13 @@ public class GUI_Account extends JPanel {
             if (selectedRow != -1) {
                 // Lấy dữ liệu từ bảng và chuyển đổi sang String một cách an toàn
                 Object value = accountTable.getValueAt(selectedRow, 0);
-                String valueStr = String.valueOf(value);
                 String tenNhanVien = (String) accountTable.getValueAt(selectedRow, 1);
                 String taiKhoan = (String) accountTable.getValueAt(selectedRow, 2);
                 String matKhau = (String) accountTable.getValueAt(selectedRow, 3);
                 String quyen = (String) accountTable.getValueAt(selectedRow, 4);
 
                 // Hiển thị dữ liệu trên giao diện
-                employeeLabel.setText(valueStr + " - " + tenNhanVien);
+                employeeLabel.setText(tenNhanVien);
                 usernameLabel.setText(taiKhoan);
                 passwordLabel.setText(matKhau);
                 roleComboBox.setText(quyen);

@@ -11,7 +11,7 @@ import javax.swing.border.MatteBorder;
  * @author Thang Nguyen
  */
 public class CustomSidebar extends JPanel {
-
+    private JLabel selectedLabel = null;
     private ArrayList<String> menuItems;
     public JPanel statisticsPanel, productPanel, orderPanel,
             supplierPanel, importPanel, promotionPanel,
@@ -19,7 +19,7 @@ public class CustomSidebar extends JPanel {
             repairPanel, employeePanel;
     private JLabel titleMenu;
     public JPanel panel1, panel2, panel3;
-    
+
     public CustomScrollPane scrollPane;
 
     public CustomSidebar(JFrame login, JFrame Main_Layout) {
@@ -54,7 +54,7 @@ public class CustomSidebar extends JPanel {
         panel2 = new JPanel();
         panel2.setLayout(new BoxLayout(panel2, BoxLayout.Y_AXIS));
         panel2.setBackground(Color.LIGHT_GRAY);
-
+        
         for (String item : menuItems) {
             // Định nghĩa đường dẫn của icon tương ứng
             String iconPath = "src/main/resources/images/";
@@ -113,19 +113,38 @@ public class CustomSidebar extends JPanel {
             label.setForeground(Color.BLACK);
             label.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
             label.setPreferredSize(new Dimension(200, 40));
-
+//            final boolean[] isClicked = {false};
+            
             // Hiệu ứng hover
             label.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseEntered(MouseEvent e) {
-                    label.setBackground(new Color(0, 153, 153));
-                    label.setForeground(Color.WHITE);
+                    if (label != selectedLabel) { // Chỉ đổi màu khi chưa được chọn
+                        label.setBackground(new Color(0, 153, 153));
+                        label.setForeground(Color.WHITE);
+                    }
                 }
 
                 @Override
                 public void mouseExited(MouseEvent e) {
-                    label.setBackground(Color.LIGHT_GRAY);
-                    label.setForeground(Color.BLACK);
+                    if (label != selectedLabel) { // Chỉ reset màu nếu chưa được chọn
+                        label.setBackground(Color.LIGHT_GRAY);
+                        label.setForeground(Color.BLACK);
+                    }
+                }
+
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    // Reset màu của menu trước đó nếu có
+                    if (selectedLabel != null) {
+                        selectedLabel.setBackground(Color.LIGHT_GRAY);
+                        selectedLabel.setForeground(Color.BLACK);
+                    }
+
+                    // Gán label hiện tại là selectedLabel
+                    selectedLabel = label;
+                    label.setBackground(new Color(0, 153, 153)); // Đổi màu khi chọn
+                    label.setForeground(Color.WHITE);
                 }
             });
 
@@ -148,7 +167,7 @@ public class CustomSidebar extends JPanel {
         logoutButton.setFont(new Font("Arial", Font.BOLD, 14));
 
         logoutButton.addActionListener((ActionEvent e) -> {
-            logout(login,Main_Layout); // Gọi hàm check khi bấm nút
+            logout(login, Main_Layout); // Gọi hàm check khi bấm nút
         });
 
         panel3.add(logoutButton);
