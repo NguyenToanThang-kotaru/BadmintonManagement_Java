@@ -96,7 +96,7 @@ public class GUI_Permission extends JPanel {
         deleteButton = new CustomButton("Xoá"); // Nút lưu thông tin tài khoản
         deleteButton.setCustomColor(Color.red);
         botPanel.add(deleteButton, gbc);
-        
+                                                    
         gbc.gridx = 1;
         gbc.gridy = 4;
         saveButton = new CustomButton("💾 Lưu"); // Nút lưu thông tin tài khoản
@@ -172,3 +172,4 @@ public class GUI_Permission extends JPanel {
         }
     }
 }
+    
