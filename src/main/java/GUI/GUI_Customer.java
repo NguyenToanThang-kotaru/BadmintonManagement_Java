@@ -15,6 +15,7 @@ public class GUI_Customer extends JPanel {
     private DefaultTableModel tableModel;
     private CustomButton editButton, deleteButton, addButton;
     private CustomSearch searchField;
+    private CustomScrollPane scroll;
     private CustomerBUS customerBUS;   
 
     public GUI_Customer() {
@@ -48,7 +49,7 @@ public class GUI_Customer extends JPanel {
         tableModel = customTable.getTableModel(); 
         
         midPanel.add(customTable, BorderLayout.CENTER);
-
+        scroll = new CustomScrollPane(midPanel);
         // ========== PANEL CHI TIẾT KHÁCH HÀNG ==========
         botPanel = new JPanel(new GridBagLayout());
         botPanel.setBackground(Color.WHITE);
@@ -125,7 +126,7 @@ public class GUI_Customer extends JPanel {
         // Thêm các panel vào giao diện chính
         add(topPanel);
         add(Box.createVerticalStrut(10));
-        add(midPanel);
+        add(scroll);
         add(Box.createVerticalStrut(10));
         add(botPanel);
 
