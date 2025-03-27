@@ -8,7 +8,7 @@ import DAO.AccountDAO;
 public class GUI_Login extends JFrame {
 
     private final CustomTittleBar tittleBar;
-
+    
     public GUI_Login() {
         // Cấu hình cửa sổ
         setTitle("Đăng nhập");
@@ -95,7 +95,7 @@ public class GUI_Login extends JFrame {
         loginButton.setBounds(130, 290, 140, 40);
         loginButton.setFont(new Font("Arial", Font.BOLD, 14));
 //        loginButton.setForeground(Color.WHITE);
-//        loginButton.setBackground(new Color(0, 150, 255));
+//        loginButton.setBackground(new Color(0, 150, 255));    
 //        loginButton.setFocusPainted(false);
 
         loginButton.addActionListener((ActionEvent e) -> {
@@ -113,7 +113,7 @@ public class GUI_Login extends JFrame {
     }
 
     private void checkLogin(JTextField userField, JTextField passField) {
-        String username = userField.getText();
+        String username = userField.getText();  
         String password = passField.getText();
         if (AccountDAO.getAccount(username, password) != null) {
             //Chay vao frame GUI_MainLayout
@@ -128,7 +128,7 @@ public class GUI_Login extends JFrame {
             JOptionPane.showMessageDialog(this, "Sai tài khoản hoặc mật khẩu!", "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
-
+    
     public static void main(String[] args) {
         GUI_Login a = new GUI_Login();
         a.setVisible(true);

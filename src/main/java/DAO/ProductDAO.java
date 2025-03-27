@@ -13,7 +13,7 @@ public class ProductDAO {
 
     // Lấy thông tin của một sản phẩm
     public static ProductDTO getProduct(String ProductID) {
-        String query = "SELECT ma_san_pham, ten_san_pham, gia, so_luong, ma_thuong_hieu, thong_so_ki_thuat, ma_loai, hinh_anh_sp FROM san_pham WHERE ma_san_pham = ?";
+        String query = "SELECT ma_san_pham, ten_san_pham, gia, so_luong, ma_nha_cung_cap, thong_so_ki_thuat, ma_loai, hinh_anh FROM san_pham WHERE ma_san_pham = ?";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, ProductID);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -23,10 +23,10 @@ public class ProductDAO {
                             rs.getString("ten_san_pham"),
                             rs.getString("gia"),
                             rs.getString("so_luong"),
-                            rs.getString("ma_thuong_hieu"),
+                            rs.getString("ma_nha_cung_cap"),
                             rs.getString("thong_so_ki_thuat"),
                             rs.getString("ma_loai"),
-                            rs.getString("hinh_anh_sp")
+                            rs.getString("hinh_anh")
                     );
                 }
             }
@@ -48,10 +48,10 @@ public class ProductDAO {
                         rs.getString("ten_san_pham"),
                         rs.getString("gia"),
                         rs.getString("so_luong"),
-                        rs.getString("ma_thuong_hieu"),
+                        rs.getString("ma_nha_cung_cap"),
                         rs.getString("thong_so_ki_thuat"),
                         rs.getString("ma_loai"),
-                        rs.getString("hinh_anh_sp")
+                        rs.getString("hinh_anh")
                 ));
             }
             System.out.println("Lấy danh sách sản phẩm thành công.");
@@ -61,16 +61,16 @@ public class ProductDAO {
         }
         return products;
     }
-
+    
     // Cập nhật thông tin sản phẩm
     public void updateProduct(ProductDTO product) {
-        String sql = "UPDATE san_pham SET ten_san_pham = ?, gia = ?, so_luong = ?, ma_thuong_hieu = ?, thong_so_ki_thuat = ?, ma_loai = ?, hinh_anh_sp = ? WHERE ma_san_pham = ?";
+        String sql = "UPDATE san_pham SET ten_san_pham = ?, gia = ?, so_luong = ?, ma_nha_cung_cap = ?, thong_so_ki_thuat = ?, ma_loai = ?, hinh_anh = ? WHERE ma_san_pham = ?";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, product.getProductName());
             stmt.setString(2, product.getGia());
             stmt.setString(3, product.getSoluong());
-            stmt.setString(4, product.getMaThuongHieu());
+            stmt.setString(4, product.getMaNCC());
             stmt.setString(5, product.getTSKT());
             stmt.setString(6, product.getML());
             stmt.setString(7, product.getAnh());
@@ -83,17 +83,17 @@ public class ProductDAO {
             e.printStackTrace();
         }
     }
-
-    // Lấy đường dẫn ảnh sản phẩm
+    
+// Lấy đường dẫn ảnh sản phẩm
     public static String getProductImage(String productID) {
         String imagePath = null;
-        String query = "SELECT hinh_anh_sp FROM san_pham WHERE ma_san_pham = ?";
+        String query = "SELECT hinh_anh FROM san_pham WHERE ma_san_pham = ?";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, productID);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    imagePath = rs.getString("hinh_anh_sp"); // Lấy tên file ảnh
+                    imagePath = rs.getString("hinh_anh"); // Lấy tên file ảnh
                 }
             }
         } catch (SQLException e) {
