@@ -21,10 +21,7 @@ public class EmployeeDAO {
                             rs.getString("ma_nhan_vien"),
                             rs.getString("ten_nhan_vien"),
                             rs.getString("dia_chi"),
-                            rs.getString("so_dien_thoai"),
-                            rs.getString("ma_tai_khoan"),
-                            rs.getString("ma_quyen")
-                        
+                            rs.getString("so_dien_thoai")                        
                     );
                 }
             }
@@ -46,9 +43,7 @@ public class EmployeeDAO {
                         rs.getString("ma_nhan_vien"),
                         rs.getString("ten_nhan_vien"),
                         rs.getString("dia_chi"),
-                        rs.getString("so_dien_thoai"),
-                        rs.getString("ma_tai_khoan"),
-                        rs.getString("ma_quyen")
+                        rs.getString("so_dien_thoai")
                    
                 ));
             }
@@ -69,9 +64,7 @@ try (Connection conn = DatabaseConnection.getConnection();
     stmt.setString(1, employee.getFullName());
     stmt.setString(2, employee.getEmployeeID());
     stmt.setString(3, employee.getPhone());
-    stmt.setString(4, employee.getAddress());
-    stmt.setString(5, employee.getAccountID());
-    stmt.setString(6, employee.getpowerID());// Chuyển về vị trí đúng
+    stmt.setString(4, employee.getAddress());// Chuyển về vị trí đúng
 
     stmt.executeUpdate();
     System.out.println("Cập nhật nhân viên thành công.");

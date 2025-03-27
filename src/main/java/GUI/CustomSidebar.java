@@ -46,7 +46,6 @@ public class CustomSidebar extends JPanel {
         menuItems.add("Nhân Viên");
         menuItems.add("Nhà Cung Cấp");
         menuItems.add("Hóa Đơn Nhập");
-        menuItems.add("Khuyến Mãi");
         menuItems.add("Khách Hàng");
         menuItems.add("Tài Khoản");
         menuItems.add("Bảo Hành");
@@ -88,9 +87,6 @@ public class CustomSidebar extends JPanel {
                     break;
                 case "Phân Quyền":
                     iconPath += "icon_role.png";
-                    break;
-                case "Khuyến Mãi":
-                    iconPath += "icon_khuyenmai.png";
                     break;
                 default:
                     iconPath = null;

@@ -40,9 +40,9 @@ public class AccountDAO {
     public static ArrayList<AccountDTO> getAllAccounts() {
         ArrayList<AccountDTO> accounts = new ArrayList<>();
         String query = "SELECT * " 
-                     + "FROM nhan_vien AS nv "
-                     + "JOIN tai_khoan ON nv.ma_tai_khoan = tai_khoan.ma_tai_khoan "
-                     + "JOIN quyen AS q ON q.ma_quyen = nv.ma_quyen;";
+                     + "FROM tai_khoan AS tk "
+                     + "JOIN nhan_vien AS nv ON nv.ma_nhan_vien = tk.ten_dang_nhap "
+                     + "JOIN quyen AS q ON q.ma_quyen = tk.ma_quyen;";
                      
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {

@@ -27,20 +27,20 @@ public class GUI_Account extends JPanel {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(new EmptyBorder(10, 10, 10, 10));
         setBackground(new Color(200, 200, 200));
-        
+
         // ========== PANEL TRÊN CÙNG (Thanh tìm kiếm & nút thêm) ==========
         topPanel = new JPanel(new BorderLayout(10, 10));
         topPanel.setPreferredSize(new Dimension(0, 60));
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         topPanel.setBackground(Color.WHITE);
 
-        searchField = new CustomSearch(275,20); // Ô nhập tìm kiếm
+        searchField = new CustomSearch(275, 20); // Ô nhập tìm kiếm
         searchField.setBackground(Color.WHITE);
         topPanel.add(searchField, BorderLayout.CENTER);
 
         addButton = new CustomButton("+ Thêm Tài Khoản"); // Nút thêm tài khoản
         topPanel.add(addButton, BorderLayout.EAST);
-        
+
         // ========== BẢNG HIỂN THỊ DANH SÁCH TÀI KHOẢN ==========
         midPanel = new JPanel(new BorderLayout());
         midPanel.setBackground(Color.WHITE);
@@ -52,7 +52,7 @@ public class GUI_Account extends JPanel {
         tableModel = customTable.getTableModel(); // Lấy model của bảng
 
         midPanel.add(customTable, BorderLayout.CENTER);
-
+        CustomScrollPane scrollPane = new CustomScrollPane(accountTable);
         // ========== PANEL CHI TIẾT TÀI KHOẢN ==========
         botPanel = new JPanel(new GridBagLayout());
         botPanel.setBackground(Color.WHITE);
@@ -109,14 +109,13 @@ public class GUI_Account extends JPanel {
         gbc.gridy = 4;
         gbc.gridwidth = 2; // Trải dài 2 cột
         gbc.fill = GridBagConstraints.HORIZONTAL; // Căn chỉnh full chiều ngang
-        
 
         // Xử lý sự kiện chọn tài khoản trong bảng
         accountTable.getSelectionModel().addListSelectionListener(e -> {
             int selectedRow = accountTable.getSelectedRow();
             if (selectedRow != -1) {
                 // Lấy dữ liệu từ bảng và chuyển đổi sang String một cách an toàn
-                Object value = accountTable.getValueAt(selectedRow, 0);
+
                 String tenNhanVien = (String) accountTable.getValueAt(selectedRow, 1);
                 String taiKhoan = (String) accountTable.getValueAt(selectedRow, 2);
                 String matKhau = (String) accountTable.getValueAt(selectedRow, 3);
@@ -131,40 +130,44 @@ public class GUI_Account extends JPanel {
             }
         });
 
-//        saveButton.addActionListener(e -> {
-//            int selectedRow = accountTable.getSelectedRow();
-//            if (selectedRow != -1) {
-//                // Lấy dữ liệu từ giao diện
-        ////                int employeeID = Integer.parseInt(employeeLabel.getText().split(" - ")[0]);
-//                String employeeID = employeeLabel.getText();
-//                String username = usernameLabel.getText();
-//                String password = passwordLabel.getText();
-//                String fullname = passwordLabel.getText();
-//                String role = (String) roleComboBox.getSelectedItem();
-//
-//                // Tạo đối tượng DTO
-//                AccountDTO account = new AccountDTO(employeeID, username, password,fullname, role);
-//
-//                // Cập nhật vào database
-//                accountBUS.updateAccount(account);
-//
-//                // Tải lại bảng
-//                loadAccounts();
-//                JOptionPane.showMessageDialog(this, "Cập nhật tài khoản thành công!");
-//            } else {
-//                JOptionPane.showMessageDialog(this, "Vui lòng chọn tài khoản để chỉnh sửa!");
-//            }
-//        });
-
         // Thêm các panel vào giao diện chính
         add(topPanel);
         add(Box.createVerticalStrut(10));
-        add(midPanel);
+        add(scrollPane);
         add(Box.createVerticalStrut(10));
         add(botPanel);
 
         // Tải dữ liệu tài khoản lên bảng
         loadAccounts();
+
+        addButton.addActionListener(e -> {
+            JOptionPane.showMessageDialog(this, "Chức năng thêm nhân viên chưa được triển khai!");
+        });
+
+        editButton.addActionListener(e -> {
+            int selectedRow = accountTable.getSelectedRow();            
+            System.out.println("Da xoa Account");
+        });
+
+
+        deleteButton.addActionListener(e -> {
+            int selectedRow = accountTable.getSelectedRow();
+
+            // Lấy dữ liệu từ bảng (đảm bảo lấy ID đúng cột)
+            String username = (String) accountTable.getValueAt(selectedRow, 2); // Giả sử cột 2 là tài khoản
+
+            int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn xóa tài khoản này?", "Xác nhận xóa", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+//                if (accountBUS.deleteAccount(username)) { // Giả sử có hàm xóa trong BUS
+//                    JOptionPane.showMessageDialog(this, "Xóa thành công!");
+//                    loadAccounts(); // Cập nhật lại bảng
+//                } else {
+//                    JOptionPane.showMessageDialog(this, "Xóa thất bại, vui lòng thử lại!");
+//                }
+                System.out.println("Da xo account") ;
+            }
+        });
+
     }
 
     // Phương thức tải danh sách tài khoản từ database lên bảng
@@ -172,7 +175,6 @@ public class GUI_Account extends JPanel {
         List<AccountDTO> accounts = accountBUS.getAllAccounts(); // Lấy danh sách tài khoản
         tableModel.setRowCount(0); // Xóa dữ liệu cũ trước khi cập nhật
         int index = 0;
-        String no = "";
         for (AccountDTO acc : accounts) {
             tableModel.addRow(new Object[]{index++, acc.getFullname(),
                 acc.getUsername(), acc.getPassword(), acc.getTenquyen()});

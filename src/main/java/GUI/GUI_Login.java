@@ -4,11 +4,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import DAO.AccountDAO;
+import BUS.AccountBUS;
 
 public class GUI_Login extends JFrame {
 
     private final CustomTittleBar tittleBar;
-
+    private AccountBUS checkLogin;
     public GUI_Login() {
         // Cấu hình cửa sổ
         setTitle("Đăng nhập");
@@ -115,18 +116,33 @@ public class GUI_Login extends JFrame {
     private void checkLogin(JTextField userField, JTextField passField) {
         String username = userField.getText();
         String password = passField.getText();
-        if (AccountDAO.getAccount(username, password) != null) {
-            //Chay vao frame GUI_MainLayout
+        checkLogin = new AccountBUS();
+        if (username.isEmpty() || password.isEmpty()){
+            JOptionPane.showMessageDialog(this, 
+                    "Vui lòng nhập tài khoản và mật khẩu!", 
+                    "Lỗi", 
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (checkLogin.HaveAccount(username, password)){
             this.setVisible(false);
             GUI_MainLayout mainLayout = new GUI_MainLayout(this);
             mainLayout.setVisible(true);
             userField.setText("");
             passField.setText("");
-        } else if (username.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập tài khoản và mật khẩu!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-        } else {
-            JOptionPane.showMessageDialog(this, "Sai tài khoản hoặc mật khẩu!", "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
+//        if (AccountDAO.getAccount(username, password) != null) {
+//            //Chay vao frame GUI_MainLayout
+//            this.setVisible(false);
+//            GUI_MainLayout mainLayout = new GUI_MainLayout(this);
+//            mainLayout.setVisible(true);
+//            userField.setText("");
+//            passField.setText("");
+//        } else if (username.isEmpty() || password.isEmpty()) {
+//            JOptionPane.showMessageDialog(this, "Vui lòng nhập tài khoản và mật khẩu!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+//        } else {
+//            JOptionPane.showMessageDialog(this, "Sai tài khoản hoặc mật khẩu!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+//        }
     }
 
     public static void main(String[] args) {
