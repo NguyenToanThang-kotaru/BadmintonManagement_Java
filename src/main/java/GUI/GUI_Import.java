@@ -6,6 +6,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.util.List;
 
 public class GUI_Import extends JPanel {
@@ -36,6 +37,20 @@ public class GUI_Import extends JPanel {
 
         addButton = new CustomButton("+ Thêm Phiếu Nhập"); // Nút thêm phiếu nhập 
         topPanel.add(addButton, BorderLayout.EAST);
+        addButton.addActionListener(e -> {
+            JDialog importInvoiceDialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Thêm Phiếu Nhập", true);
+            importInvoiceDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+            importInvoiceDialog.setResizable(false);
+            importInvoiceDialog.setUndecorated(false);
+            importInvoiceDialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
+            
+            ImportInvoiceWindow importInvoiceWindow = new ImportInvoiceWindow();
+            importInvoiceDialog.getContentPane().add(importInvoiceWindow);
+            
+            importInvoiceDialog.pack();
+            importInvoiceDialog.setLocationRelativeTo(null);
+            importInvoiceDialog.setVisible(true);
+        });
 
         // ========== BẢNG HIỂN THỊ DANH SÁCH PHIẾU NHẬP ==========
         midPanel = new JPanel(new BorderLayout());
@@ -115,26 +130,6 @@ public class GUI_Import extends JPanel {
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        importTable.getSelectionModel().addListSelectionListener(e -> {
-            int selectedRow = importTable.getSelectedRow();
-            if (selectedRow != -1) {
-                
-                String mapn = (String) importTable.getValueAt(selectedRow, 0);
-                String manv = (String) importTable.getValueAt(selectedRow, 1);
-                String mannc = (String) importTable.getValueAt(selectedRow, 2);
-                String tongtien = (String) importTable.getValueAt(selectedRow, 3);
-                String ngaynhap = (String) importTable.getValueAt(selectedRow, 4);
-
-                // Hiển thị dữ liệu trên giao diện
-                importidLabel.setText(mapn);
-                employeeidLabel.setText(manv);
-                supplieridLabel.setText(mannc);
-                totalmoneyLabel.setText(tongtien);
-                receiptdateLabel.setText(ngaynhap);
-                botPanel.add(buttonPanel, gbc);
-            }   
-        });
-        
         // Thêm các panel vào giao diện chính
         add(topPanel);
         add(Box.createVerticalStrut(10));
@@ -149,11 +144,8 @@ public class GUI_Import extends JPanel {
     private void loadImport() {
         List<ImportDTO> Import = importBUS.getAllImport();
         tableModel.setRowCount(0);
-        //int index = 0;
-        String no = "";
         for (ImportDTO ipt : Import) {
             tableModel.addRow(new Object[]{ipt.getimportID(), ipt.getemployeeID(), ipt.getsupplierID(), ipt.gettotalmoney(), ipt.getreceiptdate()});
         }
     }
-
 }
