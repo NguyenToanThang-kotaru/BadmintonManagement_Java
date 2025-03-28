@@ -5,7 +5,7 @@ public class ProductDTO {
     private String productName;
     private String gia;
     private String soluong;
-    private String mathuonghieu;
+    private String maNCC;
     private String TSKT;
     private String ML;
     private String anh;
@@ -15,18 +15,18 @@ public class ProductDTO {
         this.productName = "";
         this.gia = "";
         this.soluong = "";
-        this.mathuonghieu = "";
-        this.TSKT = "";
+        this.maNCC = "";
+        this.TSKT = ""; 
         this.ML = "";
         this.anh = "";
     }
 
-    public ProductDTO(String productID, String productName, String gia, String soluong, String mathuonghieu, String TSKT, String ML, String anh) {
+    public ProductDTO(String productID, String productName, String gia, String soluong, String maNCC, String TSKT, String ML, String anh) {
         this.productID = productID;
         this.productName = productName;
         this.gia = gia;
         this.soluong = soluong;
-        this.mathuonghieu = mathuonghieu;
+        this.maNCC = maNCC;
         this.TSKT = TSKT;
         this.ML = ML;
         this.anh = anh;
@@ -44,8 +44,8 @@ public class ProductDTO {
     public String getSoluong() { return soluong; }
     public void setSoluong(String soluong) { this.soluong = soluong; }
 
-    public String getMaThuongHieu() { return mathuonghieu; }
-    public void setMaThuongHieu(String mathuonghieu) { this.mathuonghieu = mathuonghieu; }
+    public String getMaNCC() { return maNCC; }
+    public void setMaNCC(String maNCC) { this.maNCC = maNCC; }
 
     public String getTSKT() { return TSKT; }
     public void setTSKT(String TSKT) { this.TSKT = TSKT; }

@@ -185,8 +185,8 @@ public class GUI_Guarantee extends JPanel {
                 guarantee.getBaohanhID(), guarantee.getSerialID(), guarantee.gettrangthai(), guarantee.getLydo()
             });
         }
-    }
-
+    }   
+//
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Quản lý bảo hành");
