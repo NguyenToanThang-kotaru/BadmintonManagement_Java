@@ -19,6 +19,7 @@ public class GUI_Account extends JPanel {
     private CustomButton deleteButton, addButton, editButton;
     private CustomSearch searchField;
     private AccountBUS accountBUS;
+    private AccountDTO accountChoosing;
 
     public GUI_Account() {
         accountBUS = new AccountBUS(); // Khởi tạo đối tượng BUS để lấy dữ liệu tài khoản
@@ -109,7 +110,7 @@ public class GUI_Account extends JPanel {
         gbc.gridy = 4;
         gbc.gridwidth = 2; // Trải dài 2 cột
         gbc.fill = GridBagConstraints.HORIZONTAL; // Căn chỉnh full chiều ngang
-
+        
         // Xử lý sự kiện chọn tài khoản trong bảng
         accountTable.getSelectionModel().addListSelectionListener(e -> {
             int selectedRow = accountTable.getSelectedRow();
@@ -117,14 +118,14 @@ public class GUI_Account extends JPanel {
                 // Lấy dữ liệu từ bảng và chuyển đổi sang String một cách an toàn
 
                 String tenNhanVien = (String) accountTable.getValueAt(selectedRow, 1);
-                String taiKhoan = (String) accountTable.getValueAt(selectedRow, 2);
-                String matKhau = (String) accountTable.getValueAt(selectedRow, 3);
+                String taikhoan = (String) accountTable.getValueAt(selectedRow, 2);
+                String matkhau = (String) accountTable.getValueAt(selectedRow, 3);
                 String quyen = (String) accountTable.getValueAt(selectedRow, 4);
-
+                accountChoosing = new AccountDTO(taikhoan, matkhau,tenNhanVien,quyen);
                 // Hiển thị dữ liệu trên giao diện
                 employeeLabel.setText(tenNhanVien);
-                usernameLabel.setText(taiKhoan);
-                passwordLabel.setText(matKhau);
+                usernameLabel.setText(taikhoan);
+                passwordLabel.setText(matkhau);
                 roleComboBox.setText(quyen);
                 botPanel.add(buttonPanel, gbc);
             }
@@ -142,13 +143,13 @@ public class GUI_Account extends JPanel {
 
         addButton.addActionListener(e -> {
 //            JOptionPane.showMessageDialog(this, "Chức năng thêm nhân viên chưa được triển khai!");
-            GUI_Form_Account GFA = new GUI_Form_Account(this);
+            GUI_Form_Account GFA = new GUI_Form_Account(this,null);
             GFA.setVisible(true);
         });
 
         editButton.addActionListener(e -> {
-            int selectedRow = accountTable.getSelectedRow();            
-            System.out.println("Da xoa Account");
+            GUI_Form_Account GFA = new GUI_Form_Account(this, accountChoosing);     
+            GFA.setVisible(true);
         });
 
 
@@ -180,6 +181,7 @@ public class GUI_Account extends JPanel {
         for (AccountDTO acc : accounts) {
             tableModel.addRow(new Object[]{index++, acc.getFullname(),
                 acc.getUsername(), acc.getPassword(), acc.getTenquyen()});
+            
         }
     }
 }

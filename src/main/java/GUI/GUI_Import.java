@@ -7,16 +7,17 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionListener;
+
 import java.util.List;
 
 public class GUI_Import extends JPanel {
-    
+
     private JPanel topPanel, midPanel, botPanel;
     private JTable importTable;
     private DefaultTableModel tableModel;
     private CustomButton editButton, deleteButton, addButton, detailimportButton;
     private CustomSearch searchField;
-    private ImportBUS importBUS;   
+    private ImportBUS importBUS;
 
     public GUI_Import() {
         importBUS = new ImportBUS();
@@ -24,46 +25,36 @@ public class GUI_Import extends JPanel {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(new EmptyBorder(10, 10, 10, 10));
         setBackground(new Color(200, 200, 200));
-        
+
         // ========== PANEL TRÊN CÙNG (Thanh tìm kiếm & nút thêm) ==========
         topPanel = new JPanel(new BorderLayout(10, 10));
         topPanel.setPreferredSize(new Dimension(0, 60));
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         topPanel.setBackground(Color.WHITE);
 
-        searchField = new CustomSearch(275,20); // Ô nhập tìm kiếm
+        searchField = new CustomSearch(275, 20); // Ô nhập tìm kiếm
         searchField.setBackground(Color.WHITE);
         topPanel.add(searchField, BorderLayout.CENTER);
 
         addButton = new CustomButton("+ Thêm Phiếu Nhập"); // Nút thêm phiếu nhập 
         topPanel.add(addButton, BorderLayout.EAST);
         addButton.addActionListener(e -> {
-            JDialog importInvoiceDialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Thêm Phiếu Nhập", true);
-            importInvoiceDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-            importInvoiceDialog.setResizable(false);
-            importInvoiceDialog.setUndecorated(false);
-            importInvoiceDialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
-            
-            ImportInvoiceWindow importInvoiceWindow = new ImportInvoiceWindow();
-            importInvoiceDialog.getContentPane().add(importInvoiceWindow);
-            
-            importInvoiceDialog.pack();
-            importInvoiceDialog.setLocationRelativeTo(null);
-            importInvoiceDialog.setVisible(true);
+            GUI_Form_Import GFI = new GUI_Form_Import(this);
+            GFI.setVisible(true);
         });
 
         // ========== BẢNG HIỂN THỊ DANH SÁCH PHIẾU NHẬP ==========
         midPanel = new JPanel(new BorderLayout());
         midPanel.setBackground(Color.WHITE);
-        
+
         // Định nghĩa tiêu đề cột
         String[] columnNames = {"Mã PN", "Mã NV", "Mã NCC", "Tổng Tiền", "Ngày Nhập"};
         CustomTable customTable = new CustomTable(columnNames);
-        importTable = customTable.getImportTable(); 
-        tableModel = customTable.getTableModel(); 
-   
-        midPanel.add(customTable, BorderLayout.CENTER);
+        importTable = customTable.getImportTable();
+        tableModel = customTable.getTableModel();
 
+        midPanel.add(customTable, BorderLayout.CENTER);
+        CustomScrollPane scrollPane = new CustomScrollPane(importTable);
         // ========== PANEL CHI TIẾT PHIẾU NHẬP ==========
         botPanel = new JPanel(new GridBagLayout());
         botPanel.setBackground(Color.WHITE);
@@ -72,7 +63,7 @@ public class GUI_Import extends JPanel {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
-        
+
         // Nhãn hiển thị thông tin phiếu nhập
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -81,28 +72,28 @@ public class GUI_Import extends JPanel {
         JLabel importidLabel = new JLabel("Chọn Hóa Đơn Nhập");
         botPanel.add(importidLabel, gbc);
 
-        gbc.gridx = 0; 
+        gbc.gridx = 0;
         gbc.gridy = 1;
         botPanel.add(new JLabel("Mã Nhân Viên: "), gbc);
         gbc.gridx = 1;
         JLabel employeeidLabel = new JLabel("");
         botPanel.add(employeeidLabel, gbc);
-        
-        gbc.gridx = 0; 
+
+        gbc.gridx = 0;
         gbc.gridy = 2;
         botPanel.add(new JLabel("Mã Nhà Cung Cấp: "), gbc);
         gbc.gridx = 1;
         JLabel supplieridLabel = new JLabel("");
         botPanel.add(supplieridLabel, gbc);
-        
-        gbc.gridx = 0; 
+
+        gbc.gridx = 0;
         gbc.gridy = 3;
         botPanel.add(new JLabel("Tổng Tiền: "), gbc);
         gbc.gridx = 1;
         JLabel totalmoneyLabel = new JLabel("");
         botPanel.add(totalmoneyLabel, gbc);
-        
-        gbc.gridx = 0; 
+
+        gbc.gridx = 0;
         gbc.gridy = 4;
         botPanel.add(new JLabel("Ngày Nhập: "), gbc);
         gbc.gridx = 1;
@@ -112,15 +103,15 @@ public class GUI_Import extends JPanel {
         // ========== PANEL BUTTON ==========
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 5));
         buttonPanel.setOpaque(false);
-        
+
         deleteButton = new CustomButton("Xóa");
         deleteButton.setCustomColor(new Color(220, 0, 0));
         buttonPanel.add(deleteButton, BorderLayout.WEST);
 
         editButton = new CustomButton("Sửa");
         editButton.setCustomColor(new Color(0, 230, 0));
-        buttonPanel.add(editButton, BorderLayout.CENTER );
-        
+        buttonPanel.add(editButton, BorderLayout.CENTER);
+
         detailimportButton = new CustomButton("Xem Chi Tiết Hóa Đơn Nhập");
         detailimportButton.setCustomColor(new Color(0, 120, 215));
         buttonPanel.add(detailimportButton, BorderLayout.EAST);
@@ -133,12 +124,12 @@ public class GUI_Import extends JPanel {
         // Thêm các panel vào giao diện chính
         add(topPanel);
         add(Box.createVerticalStrut(10));
-        add(midPanel);
+        add(scrollPane);
         add(Box.createVerticalStrut(10));
         add(botPanel);
 
         loadImport();
-        
+
     }
 
     private void loadImport() {

@@ -4,20 +4,20 @@ public class AccountDTO {
 
     private String username;
     private String password;
-    private String fullname;
+    private String ID;
     private String tenquyen;
 
     public AccountDTO() {
         username = "";
         password = "";
-        fullname = "";
+        ID = "";
         tenquyen = "";
     }
 
-    public AccountDTO(String username, String password, String fullname, String tenquyen) {
+    public AccountDTO(String username, String password, String ID, String tenquyen) {
         this.username = username;
         this.password = password;
-        this.fullname = fullname;
+        this.ID = ID;
         this.tenquyen = tenquyen;
     }
 
@@ -38,11 +38,11 @@ public class AccountDTO {
     }
     
     public String getFullname() {
-        return fullname;
+        return ID;
     }
 
-    public void setFullname(String fullname) {
-        this.fullname = fullname;
+    public void setFullname(String ID) {
+        this.ID = ID;
     }
     
     public String getTenquyen() {
