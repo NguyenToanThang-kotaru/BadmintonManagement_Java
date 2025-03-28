@@ -141,7 +141,9 @@ public class GUI_Account extends JPanel {
         loadAccounts();
 
         addButton.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "Chức năng thêm nhân viên chưa được triển khai!");
+//            JOptionPane.showMessageDialog(this, "Chức năng thêm nhân viên chưa được triển khai!");
+            GUI_Form_Account GFA = new GUI_Form_Account(this);
+            GFA.setVisible(true);
         });
 
         editButton.addActionListener(e -> {
