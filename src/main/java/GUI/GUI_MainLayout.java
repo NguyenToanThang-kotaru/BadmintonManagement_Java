@@ -82,7 +82,7 @@ public class GUI_MainLayout extends JFrame {
                             case "Khuyến Mãi" ->
                                 contentPanel.add(Sidebar.promotionPanel, BorderLayout.CENTER);
                             case "Khách Hàng" ->
-                                contentPanel.add(Sidebar.customerPanel, BorderLayout.CENTER);
+                                contentPanel.add(Sidebar.customerPanel  , BorderLayout.CENTER);
                             case "Tài Khoản" ->
                                 contentPanel.add(Sidebar.accountPanel, BorderLayout.CENTER);
                             case "Bảo Hành" ->
