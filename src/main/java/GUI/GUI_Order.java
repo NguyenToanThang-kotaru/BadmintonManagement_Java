@@ -144,6 +144,21 @@ public class GUI_Order extends JPanel {
 
         loadOrder();
         
+        detailorderButton.addActionListener(e -> {
+            int selectedRow = orderTable.getSelectedRow();
+            if (selectedRow != -1) {
+                String orderID = (String) orderTable.getValueAt(selectedRow, 0);
+                String totalMoney = (String) orderTable.getValueAt(selectedRow, 3);
+                String issueDate = (String) orderTable.getValueAt(selectedRow, 4);
+
+                GUI_DetailOrder GDO = new GUI_DetailOrder(orderID, totalMoney, issueDate);
+                GDO.setVisible(true);
+            } else {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn hóa đơn trước!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            }
+        });
+
+
     }
 
     private void loadOrder() {

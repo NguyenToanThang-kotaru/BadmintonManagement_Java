@@ -16,7 +16,8 @@ public class GUI_Customer extends JPanel {
     private CustomButton editButton, deleteButton, addButton;
     private CustomSearch searchField;
     private CustomScrollPane scroll;
-    private CustomerBUS customerBUS;   
+    private CustomerBUS customerBUS;
+    private CustomerDTO customerChoosing;
 
     public GUI_Customer() {
         customerBUS = new CustomerBUS();
@@ -113,7 +114,7 @@ public class GUI_Customer extends JPanel {
                 String hoten = (String) customerTable.getValueAt(selectedRow, 1);
                 String sdt = (String) customerTable.getValueAt(selectedRow, 2);
                 String email = (String) customerTable.getValueAt(selectedRow, 3);
-
+                customerChoosing = new CustomerDTO(customerID, hoten, sdt, email);
                 // Hiển thị dữ liệu trên giao diện
                 customerLabel.setText(hoten);
                 customeridLabel.setText(customerID);
@@ -131,6 +132,35 @@ public class GUI_Customer extends JPanel {
         add(botPanel);
 
         loadCustomer();
+        
+        addButton.addActionListener(e -> {
+//            
+            GUI_Form_Customer GFC = new GUI_Form_Customer(this,null);
+            GFC.setVisible(true);
+        });
+
+        editButton.addActionListener(e -> {
+            GUI_Form_Customer GFC = new GUI_Form_Customer(this, customerChoosing);     
+            GFC.setVisible(true);
+        });
+        
+        deleteButton.addActionListener(e -> {
+            int selectedRow = customerTable.getSelectedRow();
+
+            
+            String customerID = (String) customerTable.getValueAt(selectedRow, 2); // Giả sử cột 2 là khách hàng
+
+            int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn xóa khách hàng này?", "Xác nhận xóa", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+//                if (customerBUS.deleteCustomer(customerID)) { // Giả sử có hàm xóa trong BUS
+//                    JOptionPane.showMessageDialog(this, "Xóa thành công!");
+//                    loadCustomer(); // Cập nhật lại bảng
+//                } else {
+//                    JOptionPane.showMessageDialog(this, "Xóa thất bại, vui lòng thử lại!");
+//                }
+                System.out.println("Da xo customer") ;
+            }
+        });
         
     }
 

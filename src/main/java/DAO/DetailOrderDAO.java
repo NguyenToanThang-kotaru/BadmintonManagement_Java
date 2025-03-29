@@ -74,5 +74,32 @@ public class DetailOrderDAO {
     public void updateDetailOrder(DetailOrderDTO detailorder) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
+    
+    public static ArrayList<DetailOrderDTO> getDetailOrderByOrderID(String orderID) {
+        ArrayList<DetailOrderDTO> detailorderList = new ArrayList<>();
+        String query = "SELECT * FROM chi_tiet_hoa_don WHERE ma_hoa_don = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, orderID);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    detailorderList.add(new DetailOrderDTO(
+                            rs.getString("ma_chi_tiet_hoa_don"),
+                            rs.getString("ma_san_pham"),
+                            rs.getString("ma_hoa_don"),
+                            rs.getString("ma_serial"),
+                            rs.getString("so_luong"),
+                            rs.getString("gia")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return detailorderList;
+    }
 
 }
