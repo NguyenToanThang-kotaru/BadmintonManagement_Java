@@ -12,7 +12,9 @@ public class CustomCombobox<E> extends JComboBox<E> {
         setBackground(Color.WHITE);
         setForeground(Color.BLACK);
         setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
+        setMaximumRowCount(3);
     }
+
 }
 
 // Lớp CustomComboboxUI để tùy chỉnh UI
@@ -31,4 +33,5 @@ class CustomComboboxUI extends BasicComboBoxUI {
         g.setColor(Color.WHITE);
         g.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
     }
+
 }

@@ -144,5 +144,8 @@ public class GUI_Employee extends JPanel {
             tableModel.addRow(new Object[]{emp.getEmployeeID(), emp.getFullName(), emp.getAddress(), emp.getPhone()});
         }
     }
+    
+    
+    
 
 }

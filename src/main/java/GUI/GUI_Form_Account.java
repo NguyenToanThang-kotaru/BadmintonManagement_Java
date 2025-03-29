@@ -38,20 +38,21 @@ public class GUI_Form_Account extends JDialog {
         txtAccount = new JTextField(20);
         txtPassword = new JPasswordField(20);
 
-        cbRole = new CustomCombobox<>(new String[]{"Admin", "Nhân Viên", "Quản Lý"});
-
+        cbRole = new CustomCombobox<>(new String[]{"Admin", "Nhân Viên Kho", "Nhân Viên Bán Hàng"});
+        
         if (account != null) {
             txtEmployeeName.setText(account.getFullname());
             txtAccount.setText(account.getUsername());
             txtPassword.setText(account.getPassword());
             cbRole.setSelectedItem(account.getTenquyen());
-            String quyen = account.getTenquyen();
-            System.out.println(quyen);
-            if (quyen != null && (quyen.equals("Admin") || quyen.equals("Nhân Viên") || quyen.equals("Quản Lý"))) {
-                cbRole.setSelectedItem(quyen);
-            } else {
-                cbRole.setSelectedIndex(-1); // Không chọn mục nào nếu không hợp lệ
-            }
+//            String quyen = account.getTenquyen();
+//            System.out.println(quyen);
+      
+//            if (quyen != null) {
+//                cbRole.setSelectedItem(quyen);
+//            } else {
+//                cbRole.setSelectedIndex(-1); // Không chọn mục nào nếu không hợp lệ
+//            }
         }
 
         addComponent("Nhân Viên:", txtEmployeeName, gbc);
@@ -93,5 +94,4 @@ public class GUI_Form_Account extends JDialog {
         gbc.gridx = 1;
         add(component, gbc);
     }
-
 }

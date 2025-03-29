@@ -59,16 +59,27 @@ public class AccountDAO {
         return accounts;
     }
 
-    public void updateAccount(AccountDTO account) {
-        String sql = "UPDATE accounts SET username = ?, password = ?, rankID = ? WHERE employeeID = ?";
+    public static void deleteAccount(String username) {
+        String sql = "DELETE FROM tai_khoan WHERE ten_dang_nhap = ?";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, username);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace(); // In lỗi ra để debug
+        }
+    }
 
+    public static void updateAccount(AccountDTO account) {
+        String sql = "UPDATE tai_khoan SET ten_dang_nhap = ?, mat_khau = ?, ma_quyen = ? WHERE ten_dang_nhap = ?";
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, account.getUsername());
             stmt.setString(2, account.getPassword());
+            stmt.setString(3, account.getTenquyen()); // Chưa rõ cách bạn lưu quyền, có thể cần sửa
+            stmt.setString(4, account.getUsername()); // WHERE điều kiện phải đúng
 
             stmt.executeUpdate();
         } catch (SQLException e) {
-//            e.printStackTrace();
+            e.printStackTrace(); // Nên log lỗi để debug dễ hơn
         }
     }
 

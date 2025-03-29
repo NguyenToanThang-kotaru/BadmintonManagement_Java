@@ -8,6 +8,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
 import BUS.AccountBUS;
+import DAO.AccountDAO;
 
 public class GUI_Account extends JPanel {
 
@@ -20,7 +21,7 @@ public class GUI_Account extends JPanel {
     private CustomSearch searchField;
     private AccountBUS accountBUS;
     private AccountDTO accountChoosing;
-
+    private AccountDAO AccountDAO;
     public GUI_Account() {
         accountBUS = new AccountBUS(); // Khởi tạo đối tượng BUS để lấy dữ liệu tài khoản
 
@@ -152,23 +153,10 @@ public class GUI_Account extends JPanel {
             GFA.setVisible(true);
         });
 
-
+        
         deleteButton.addActionListener(e -> {
-            int selectedRow = accountTable.getSelectedRow();
-
-            // Lấy dữ liệu từ bảng (đảm bảo lấy ID đúng cột)
-            String username = (String) accountTable.getValueAt(selectedRow, 2); // Giả sử cột 2 là tài khoản
-
-            int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn xóa tài khoản này?", "Xác nhận xóa", JOptionPane.YES_NO_OPTION);
-            if (confirm == JOptionPane.YES_OPTION) {
-//                if (accountBUS.deleteAccount(username)) { // Giả sử có hàm xóa trong BUS
-//                    JOptionPane.showMessageDialog(this, "Xóa thành công!");
-//                    loadAccounts(); // Cập nhật lại bảng
-//                } else {
-//                    JOptionPane.showMessageDialog(this, "Xóa thất bại, vui lòng thử lại!");
-//                }
-                System.out.println("Da xo account") ;
-            }
+            AccountDAO.deleteAccount(accountChoosing.getUsername());
+            loadAccounts();
         });
 
     }
