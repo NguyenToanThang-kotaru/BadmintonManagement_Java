@@ -10,11 +10,11 @@ import java.util.ArrayList;
 
 public class CustomerDAO {
 
-    public static CustomerDTO getCustomer(int maKhachHang) {
+    public static CustomerDTO getCustomer(String  maKhachHang) {
         String query = "SELECT * FROM khach_hang WHERE ma_khach_hang = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setInt(1, maKhachHang);
+            stmt.setString(1, maKhachHang);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return new CustomerDTO(
@@ -51,7 +51,7 @@ public class CustomerDAO {
     }
 
     public void updateCustomer(CustomerDTO customer) {
-        String sql = "UPDATE customer SET ma_khach_hang = ?, ten_khach_hang = ?, so_dien_thoai = ? WHERE email = ?";
+        String sql = "UPDATE khach_hang SET ma_khach_hang = ?, ten_khach_hang = ?, so_dien_thoai = ? WHERE email = ?";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, customer.getcustomerID());
@@ -65,4 +65,23 @@ public class CustomerDAO {
         }
     }
 
+    public String getCustomerNameByID(String customerID) {
+        String customerName = "";
+        try {
+            Connection conn = DatabaseConnection.getConnection();
+            String sql = "SELECT ten_khach_hang FROM khach_hang WHERE ma_khach_hang = ?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, customerID);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                customerName = rs.getString("ten_khach_hang");
+            }
+            rs.close();
+            ps.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return customerName;
+    }
+    
 }

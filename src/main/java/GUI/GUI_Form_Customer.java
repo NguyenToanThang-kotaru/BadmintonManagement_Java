@@ -33,10 +33,10 @@ public class GUI_Form_Customer extends JDialog {
         gbc.gridy = 1;
 
         // Nếu customer != null => Sửa khách hàng
-        txtCustomerID = new JTextField(50);
-        txtFullName = new JTextField(50);
-        txtSDT = new JTextField(50);
-        txtEmail = new JTextField(50);
+        txtCustomerID = new JTextField(20);
+        txtFullName = new JTextField(20);
+        txtSDT = new JTextField(20);
+        txtEmail = new JTextField(20);
 
         if (customer != null) {
             txtCustomerID.setText(customer.getcustomerID());
@@ -74,15 +74,18 @@ public class GUI_Form_Customer extends JDialog {
     }
 
     private void addComponent(String label, JComponent component, GridBagConstraints gbc) {
-
         gbc.gridx = 0;
-        gbc.gridy++; // Giữ thứ tự đúng
+        gbc.gridy++;
         gbc.anchor = GridBagConstraints.WEST;
+        gbc.weightx = 0;  // Không mở rộng label
+        gbc.fill = GridBagConstraints.NONE;  
 
         add(new JLabel(label), gbc);
 
         gbc.gridx = 1;
+        gbc.weightx = 1;  // Cho phép JTextField mở rộng
+        gbc.fill = GridBagConstraints.HORIZONTAL;  
+
         add(component, gbc);
     }
-
 }

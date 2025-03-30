@@ -16,9 +16,11 @@ public class GUI_DetailOrder extends JFrame {
     private String orderID;
     private String totalMoney;
     private String issueDate;
+    private String customerName;
 
-    public GUI_DetailOrder(String orderID, String totalMoney, String issueDate) {
+    public GUI_DetailOrder(String orderID, String customerName, String totalMoney, String issueDate) {
         this.orderID = orderID;
+        this.customerName = customerName;
         this.totalMoney = totalMoney;
         this.issueDate = issueDate;
         detailOrderBUS = new DetailOrderBUS();
@@ -44,24 +46,28 @@ public class GUI_DetailOrder extends JFrame {
         centerPanel.setBackground(Color.WHITE);
 
         // Panel thông tin hóa đơn
-        JPanel infoPanel = new JPanel(new GridLayout(2, 2, 10, 10));
+        JPanel infoPanel = new JPanel(new GridLayout(3, 1, 10, 10));
         infoPanel.setBackground(Color.WHITE);
         infoPanel.setBorder(BorderFactory.createTitledBorder("Thông Tin Hóa Đơn"));
-
+        
+        JLabel customerLabel = new JLabel("Tên Khách Hàng:");
+        JLabel customerValue = new JLabel(customerName);
         JLabel totalLabel = new JLabel("Tổng Tiền:");
         JLabel totalValue = new JLabel(totalMoney);
         JLabel dateLabel = new JLabel("Ngày Xuất:");
         JLabel dateValue = new JLabel(issueDate);
 
+        customerLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        customerValue.setFont(new Font("Arial", Font.PLAIN, 14));
         totalLabel.setFont(new Font("Arial", Font.BOLD, 14));
         dateLabel.setFont(new Font("Arial", Font.BOLD, 14));
         totalValue.setFont(new Font("Arial", Font.PLAIN, 14));
         dateValue.setFont(new Font("Arial", Font.PLAIN, 14));
 
-        infoPanel.add(totalLabel);
-        infoPanel.add(totalValue);
-        infoPanel.add(dateLabel);
-        infoPanel.add(dateValue);
+        infoPanel.add(createInfoRow("Tên Khách Hàng:", customerName));
+        infoPanel.add(createInfoRow("Tổng Tiền:", totalMoney));
+        infoPanel.add(createInfoRow("Ngày Xuất:", issueDate));
+
 
         centerPanel.add(infoPanel, BorderLayout.NORTH);
 
@@ -112,4 +118,21 @@ public class GUI_DetailOrder extends JFrame {
             });
         }
     }
+    
+    private JPanel createInfoRow(String label, String value) {
+        JPanel rowPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        rowPanel.setBackground(Color.WHITE);
+
+        JLabel rowLabel = new JLabel(label);
+        rowLabel.setFont(new Font("Arial", Font.BOLD, 14));
+
+        JLabel rowValue = new JLabel(value);
+        rowValue.setFont(new Font("Arial", Font.PLAIN, 14));
+
+        rowPanel.add(rowLabel);
+        rowPanel.add(rowValue);
+
+        return rowPanel;
+    }
+
 }
