@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class EmployeeDAO {
 
     public static void addEmployee(EmployeeDTO employee) {
-        String sql = "INSERT INTO nhan_vien (ma_nhan_vien, ten_nhan_vien, dia_chi, so_dien_thoai) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO nhan_vien (ma_nhan_vien, ten_nhan_vien, dia_chi, so_dien_thoai, hinh_anh) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -21,6 +21,7 @@ public class EmployeeDAO {
             stmt.setString(2, employee.getFullName());
             stmt.setString(3, employee.getAddress());
             stmt.setString(4, employee.getPhone());
+            stmt.setString(5, employee.getImage());
 
             stmt.executeUpdate();
             System.out.println("Thêm nhân viên thành công với ID: " + newID);
@@ -30,17 +31,18 @@ public class EmployeeDAO {
         }
     }
 
-    public static EmployeeDTO getEmployee(int maNhanVien) {
+    public static EmployeeDTO getEmployee(String maNhanVien) {
         String query = "SELECT * FROM nhan_vien WHERE ma_nhan_vien = ?";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setInt(1, maNhanVien);
+            stmt.setString(1, maNhanVien);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return new EmployeeDTO(
                             rs.getString("ma_nhan_vien"),
                             rs.getString("ten_nhan_vien"),
                             rs.getString("dia_chi"),
-                            rs.getString("so_dien_thoai")
+                            rs.getString("so_dien_thoai"),
+                            rs.getString("hinh_anh")
                     );
                 }
             }
@@ -60,7 +62,8 @@ public class EmployeeDAO {
                         rs.getString("ma_nhan_vien"),
                         rs.getString("ten_nhan_vien"),
                         rs.getString("dia_chi"),
-                        rs.getString("so_dien_thoai")
+                        rs.getString("so_dien_thoai"),
+                        rs.getString("hinh_anh")
                 ));
             }
             System.out.println("Lấy danh sách nhân viên thành công.");
@@ -71,7 +74,7 @@ public class EmployeeDAO {
         return employees;
     }
 
-    public void updateEmployee(EmployeeDTO employee) {
+    public static void updateEmployee(EmployeeDTO employee) {
         String sql = "UPDATE nhan_vien SET ten_nhan_vien = ?, dia_chi = ?, so_dien_thoai = ?, ma_tai_khoan = ?, ma_quyen = ? WHERE ma_nhan_vien = ?";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
