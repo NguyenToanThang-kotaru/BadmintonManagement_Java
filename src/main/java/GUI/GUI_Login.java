@@ -3,7 +3,6 @@ package GUI;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import DAO.AccountDAO;
 import BUS.AccountBUS;
 
 public class GUI_Login extends JFrame {

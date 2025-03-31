@@ -118,13 +118,19 @@ public class GUI_Employee extends JPanel {
 
                 // Hiển thị dữ liệu trên giao diện
                 employeeLabel.setText(hoten);
-                employeeidLabel.setText(manv);
+//                employeeidLabel.setText(manv);
                 addressLabel.setText(diaChi);
                 phoneLabel.setText(sdt);
                 botPanel.add(buttonPanel, gbc);
             }   
         });
         
+        addButton.addActionListener(e -> {
+//            JOptionPane.showMessageDialog(this, "Chức năng thêm nhân viên chưa được triển khai!");
+            GUI_Form_Employee GFE = new GUI_Form_Employee(this,null);
+            GFE.setVisible(true);
+        });
+
         // Thêm các panel vào giao diện chính
         add(topPanel);
         add(Box.createVerticalStrut(10));
