@@ -13,7 +13,8 @@ public class GUI_Suppliers extends JPanel {
     private JPanel topPanel, midPanel, botPanel;
     private JTable supplierTable;
     private DefaultTableModel tableModel;
-    private CustomButton editButton, deleteButton, addButton;
+    private CustomButton editButton, deleteButton;
+    private CustomButton addButton;
     private CustomSearch searchField;
     private SuppliersBUS suppliersBUS;   
 
@@ -34,8 +35,6 @@ public class GUI_Suppliers extends JPanel {
         searchField.setBackground(Color.WHITE);
         topPanel.add(searchField, BorderLayout.CENTER);
 
-        addButton = new CustomButton("+ Thêm Nhà Cung Cấp"); // Nút thêm nhà cung cấp
-        topPanel.add(addButton, BorderLayout.EAST);
 
         // ========== BẢNG HIỂN THỊ DANH SÁCH NHÀ CUNG CẤP ==========
         midPanel = new JPanel(new BorderLayout());
@@ -98,7 +97,13 @@ public class GUI_Suppliers extends JPanel {
         editButton = new CustomButton("Sửa");
         editButton.setCustomColor(new Color(0, 230, 0));
         buttonPanel.add(editButton, BorderLayout.EAST);
+        addButton = new CustomButton("+ Thêm Nhà Cung Cấp"); 
+        topPanel.add(addButton, BorderLayout.EAST);
+     addButton.addActionListener(e -> {
+    new GUI_FormSuppliers(this).setVisible(true);
+});
 
+        topPanel.add(addButton, BorderLayout.EAST);
         gbc.gridx = 0;
         gbc.gridy = 4;
         gbc.gridwidth = 2;
@@ -137,7 +142,6 @@ public class GUI_Suppliers extends JPanel {
         List<SuppliersDTO> suppliers = suppliersBUS.getAllSuppliers();
         tableModel.setRowCount(0);
         //int index = 0;
-        String no = "";
         for (SuppliersDTO sps : suppliers) {
             tableModel.addRow(new Object[]{sps.getsuppliersID(), sps.getfullname(), sps.getaddress(), sps.getphone()});
         }
