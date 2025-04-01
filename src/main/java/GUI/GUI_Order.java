@@ -144,6 +144,23 @@ public class GUI_Order extends JPanel {
 
         loadOrder();
         
+        detailorderButton.addActionListener(e -> {
+            int selectedRow = orderTable.getSelectedRow();
+            if (selectedRow != -1) {
+                String orderID = (String) orderTable.getValueAt(selectedRow, 0);
+                String customerID = (String) orderTable.getValueAt(selectedRow, 2);
+                String totalMoney = (String) orderTable.getValueAt(selectedRow, 3);
+                String issueDate = (String) orderTable.getValueAt(selectedRow, 4);
+
+                // Lấy tên khách hàng từ mã khách hàng
+                String customerName = orderBUS.getCustomerNameByID(customerID);
+
+                GUI_DetailOrder GDO = new GUI_DetailOrder(orderID, customerName, totalMoney, issueDate);
+                GDO.setVisible(true);
+            } else {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn hóa đơn trước!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            }
+        });
     }
 
     private void loadOrder() {
@@ -155,5 +172,4 @@ public class GUI_Order extends JPanel {
             tableModel.addRow(new Object[]{odr.getorderID(), odr.getemployeeID(), odr.getcustomerID(), odr.gettotalmoney(), odr.getissuedate()});
         }
     }
-
 }

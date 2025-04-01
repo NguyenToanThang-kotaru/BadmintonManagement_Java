@@ -8,7 +8,7 @@ public class GUI_Form_Account extends JDialog {
 
     private JTextField txtEmployeeName, txtAccount;
     private JPasswordField txtPassword;
-    private JLabel title;
+    private JLabel title, lblEmployeeName;
     private CustomCombobox<String> cbRole;
     private CustomButton btnSave, btnCancel;
 
@@ -34,6 +34,7 @@ public class GUI_Form_Account extends JDialog {
         gbc.gridy = 1;
 
         // Nếu account != null => Sửa tài khoản
+        lblEmployeeName = new JLabel();
         txtEmployeeName = new JTextField(20);
         txtAccount = new JTextField(20);
         txtPassword = new JPasswordField(20);
@@ -41,7 +42,7 @@ public class GUI_Form_Account extends JDialog {
         cbRole = new CustomCombobox<>(new String[]{"Admin", "Nhân Viên Kho", "Nhân Viên Bán Hàng"});
         
         if (account != null) {
-            txtEmployeeName.setText(account.getFullname());
+            lblEmployeeName.setText(account.getFullname());
             txtAccount.setText(account.getUsername());
             txtPassword.setText(account.getPassword());
             cbRole.setSelectedItem(account.getTenquyen());
@@ -54,8 +55,11 @@ public class GUI_Form_Account extends JDialog {
 //                cbRole.setSelectedIndex(-1); // Không chọn mục nào nếu không hợp lệ
 //            }
         }
-
-        addComponent("Nhân Viên:", txtEmployeeName, gbc);
+        if (account != null){
+            addComponent("Nhân Viên:", lblEmployeeName, gbc);
+        }
+        else
+            addComponent("Nhân Viên:", txtEmployeeName, gbc);
         addComponent("Tên Đăng Nhập:", txtAccount, gbc);
         addComponent("Mật Khẩu:", txtPassword, gbc);
         addComponent("Quyền:", cbRole, gbc);

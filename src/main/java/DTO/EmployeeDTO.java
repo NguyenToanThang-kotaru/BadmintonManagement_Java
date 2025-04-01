@@ -6,6 +6,7 @@ public class EmployeeDTO {
     private String fullName;
     private String address;
     private String phone;
+    private String image;
    
 
     public EmployeeDTO() {
@@ -13,14 +14,24 @@ public class EmployeeDTO {
         this.fullName = "";
         this.address = "";
         this.phone = "";
+        this.image = "";
   
     }
 
-  public EmployeeDTO(String employeeID, String fullName, String address, String phone) {
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+  public EmployeeDTO(String employeeID, String fullName, String address, String phone, String image) {
     this.employeeID = employeeID;
     this.fullName = fullName;
     this.address = address;
     this.phone = phone;
+    this.image = image;
 }
 
 

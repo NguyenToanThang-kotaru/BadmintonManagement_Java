@@ -6,14 +6,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList; 
+import java.util.ArrayList;
 
 // Lớp này dùng để kết nối database và lấy dữ liệu sản phẩm
 public class GuaranteeDAO {
 
     // Lấy thông tin của một sản phẩm
     public static GuaranteeDTO getGuarantee(String BaohanhID) {
-        String query = "SELECT ma_bao_hanh, ma_serial, trang_thai, ly_do FROM bao_hanh WHERE ma_bao_hanh = ?";
+        String query = "SELECT ma_bao_hanh, ma_serial, ly_do_bao_hanh, thoi_gian_bao_hanh FROM bao_hanh WHERE ma_bao_hanh = ?";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, BaohanhID);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -21,8 +21,9 @@ public class GuaranteeDAO {
                     return new GuaranteeDTO(
                             rs.getString("ma_bao_hanh"),
                             rs.getString("ma_serial"),
-                            rs.getString("trang_thai"),
-                            rs.getString("ly_do")
+                            //rs.getString("trang_thai"),
+                            rs.getString("ly_do_bao_hanh"),
+                            rs.getString("thoi_gian_bao_hanh")
                     );
                 }
             }
@@ -42,8 +43,9 @@ public class GuaranteeDAO {
                 products.add(new GuaranteeDTO(
                         rs.getString("ma_bao_hanh"),
                         rs.getString("ma_serial"),
-                        rs.getString("trang_thai"),
-                        rs.getString("ly_do")
+                        //rs.getString("trang_thai"),
+                        rs.getString("ly_do_bao_hanh"),
+                        rs.getString("thoi_gian_bao_hanh")
                 ));
             }
             System.out.println("Lấy danh sách sản phẩm bảo hành thành công.");
@@ -56,12 +58,13 @@ public class GuaranteeDAO {
 
     // Cập nhật thông tin sản phẩm
     public void updateGuarantee(GuaranteeDTO product) {
-        String sql = "UPDATE bao_hanh SET ma_serial = ?, trang_thai = ?, ly_do = ? WHERE ma_bao_hanh = ?";
+        String sql = "UPDATE bao_hanh SET ma_serial = ?, ly_do_bao_hanh = ?, thoi_gian_bao_hanh WHERE ma_bao_hanh = ?";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, product.getBaohanhID());
             stmt.setString(2, product.getSerialID());
-            stmt.setString(3, product.gettrangthai());
+            stmt.setString(3, product.getTGBH());
+//            stmt.setString(3, product.gettrangthai());
             stmt.setString(4, product.getLydo());
             stmt.executeUpdate();
             System.out.println("Cập nhật sản phẩm thành công.");
