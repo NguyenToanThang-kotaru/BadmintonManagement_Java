@@ -1,3 +1,4 @@
+
 package DAO;
 
 import Connection.DatabaseConnection;
@@ -8,9 +9,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+
 public class EmployeeDAO {
 
-    public static void addEmployee(EmployeeDTO employee) {
+    public static Boolean addEmployee(EmployeeDTO employee) {
         String sql = "INSERT INTO nhan_vien (ma_nhan_vien, ten_nhan_vien, dia_chi, so_dien_thoai, hinh_anh) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -25,10 +27,25 @@ public class EmployeeDAO {
 
             stmt.executeUpdate();
             System.out.println("Thêm nhân viên thành công với ID: " + newID);
+            return true;
         } catch (SQLException e) {
             System.out.println("Lỗi thêm nhân viên: " + e.getMessage());
             e.printStackTrace();
+            return false;
         }
+    }
+
+    public static Boolean deleteEmployee(String employeeID) {
+        String queery = "UPDATE nhan_vien SET is_deleted = 1 WHERE ma_nhan_vien = ?;";
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(queery)) {
+            stmt.setString(1, employeeID);
+            stmt.executeUpdate();
+            System.out.println("Xoa thanh cong");
+            return true;
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public static EmployeeDTO getEmployee(String maNhanVien) {
@@ -54,7 +71,7 @@ public class EmployeeDAO {
 
     public static ArrayList<EmployeeDTO> getAllEmployees() {
         ArrayList<EmployeeDTO> employees = new ArrayList<>();
-        String query = "SELECT * FROM nhan_vien";
+        String query = "SELECT * FROM nhan_vien WHERE is_deleted = 0;";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
@@ -74,7 +91,7 @@ public class EmployeeDAO {
         return employees;
     }
 
-    public static void updateEmployee(EmployeeDTO employee) {
+    public static Boolean updateEmployee(EmployeeDTO employee) {
         String sql = "UPDATE nhan_vien SET ten_nhan_vien = ?, dia_chi = ?, so_dien_thoai = ?, ma_tai_khoan = ?, ma_quyen = ? WHERE ma_nhan_vien = ?";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -86,9 +103,11 @@ public class EmployeeDAO {
 
             stmt.executeUpdate();
             System.out.println("Cập nhật nhân viên thành công.");
+            return true;
         } catch (SQLException e) {
             System.out.println("Lỗi cập nhật nhân viên: " + e.getMessage());
             e.printStackTrace();
+            return false;
         }
 
     }

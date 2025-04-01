@@ -1,6 +1,5 @@
 package GUI;
 
-import BUS.AccountBUS;
 import DTO.AccountDTO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
