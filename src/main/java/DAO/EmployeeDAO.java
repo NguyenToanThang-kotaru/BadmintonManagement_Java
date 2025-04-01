@@ -48,10 +48,10 @@ public class EmployeeDAO {
         return false;
     }
 
-    public static EmployeeDTO getEmployee(String maNhanVien) {
-        String query = "SELECT * FROM nhan_vien WHERE ma_nhan_vien = ?";
+    public static EmployeeDTO getEmployee(String sdt) {
+        String query = "SELECT * FROM nhan_vien WHERE so_dien_thoai = ?";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, maNhanVien);
+            stmt.setString(1, sdt);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return new EmployeeDTO(
@@ -92,15 +92,15 @@ public class EmployeeDAO {
     }
 
     public static Boolean updateEmployee(EmployeeDTO employee) {
-        String sql = "UPDATE nhan_vien SET ten_nhan_vien = ?, dia_chi = ?, so_dien_thoai = ?, ma_tai_khoan = ?, ma_quyen = ? WHERE ma_nhan_vien = ?";
+        String sql = "UPDATE nhan_vien SET ten_nhan_vien = ?, dia_chi = ?, so_dien_thoai = ?, hinh_anh= ? WHERE ma_nhan_vien = ?";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, employee.getFullName());
-            stmt.setString(2, employee.getEmployeeID());
+            stmt.setString(2, employee.getAddress());
             stmt.setString(3, employee.getPhone());
-            stmt.setString(4, employee.getAddress());// Chuyển về vị trí đúng
-
+            stmt.setString(4, employee.getImage());// Chuyển về vị trí đúng
+            stmt.setString(5, employee.getEmployeeID());
             stmt.executeUpdate();
             System.out.println("Cập nhật nhân viên thành công.");
             return true;

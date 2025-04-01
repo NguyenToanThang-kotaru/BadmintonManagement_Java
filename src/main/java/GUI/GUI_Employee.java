@@ -133,15 +133,13 @@ public class GUI_Employee extends JPanel {
         employeeTable.getSelectionModel().addListSelectionListener(e -> {
             int selectedRow = employeeTable.getSelectedRow();
             if (selectedRow != -1) {
-
-                String manv = (String) employeeTable.getValueAt(selectedRow, 0);
                 String hoten = (String) employeeTable.getValueAt(selectedRow, 1);
                 String diaChi = (String) employeeTable.getValueAt(selectedRow, 2);
                 String sdt = (String) employeeTable.getValueAt(selectedRow, 3);
-                employeeChoosing = EmployeeDAO.getEmployee(manv);
+                employeeChoosing = EmployeeDAO.getEmployee(sdt);
                 // Hiển thị dữ liệu trên giao diện
                 employeeLabel.setText(hoten);
-//                employeeidLabel.setText(manv);
+                employeeidLabel.setText(employeeChoosing.getEmployeeID());
                 addressLabel.setText(diaChi);
                 phoneLabel.setText(sdt);
                 infoPanel.add(buttonPanel, gbc);
@@ -180,10 +178,15 @@ public class GUI_Employee extends JPanel {
             loadEmployees();
             tableModel.fireTableDataChanged();
         });
+
+        editButton.addActionListener(e -> {
+            GUI_Form_Employee GFE = new GUI_Form_Employee(this, employeeChoosing);
+            GFE.setVisible(true);
+        });
         // Thêm các panel vào giao diện chính
         add(topPanel);
         add(Box.createVerticalStrut(5));
-        add(scrollPane);    
+        add(scrollPane);
         add(Box.createVerticalStrut(5));
         add(botPanel);
 
@@ -214,9 +217,10 @@ public class GUI_Employee extends JPanel {
     private void loadEmployees() {
         List<EmployeeDTO> employees = EmployeeDAO.getAllEmployees();
         tableModel.setRowCount(0);
+        int index=1;
         for (EmployeeDTO emp : employees) {
             tableModel.addRow(new Object[]{
-                emp.getEmployeeID(),
+                index++,
                 emp.getFullName(),
                 emp.getAddress(),
                 emp.getPhone(),
@@ -225,4 +229,14 @@ public class GUI_Employee extends JPanel {
         }
     }
 
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Quản lý bảo hành");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setSize(900, 600);
+            frame.setLocationRelativeTo(null);
+            frame.setContentPane(new GUI_Employee());
+            frame.setVisible(true);
+        });
+    }
 }

@@ -58,7 +58,10 @@ public class GUI_Form_Employee extends JDialog {
             txtEmployeeName.setText(employee.getFullName());
             txtAddress.setText(employee.getAddress());
             txtPhone.setText(employee.getPhone());
-            displayImage(employee.getImage());
+            String imagePath = employee.getImage();
+            String directoryPath = "images/";
+            String finalPath = directoryPath + imagePath;
+            displayImage(finalPath);
         }
 
         addComponent("Tên Nhân Viên:", txtEmployeeName, gbc);
@@ -141,18 +144,14 @@ public class GUI_Form_Employee extends JDialog {
         } // Nếu là cập nhật nhân viên
         else {
             String imagePath = employee.getImage(); // Mặc định giữ ảnh cũ
-
-            // Nếu đã chọn ảnh mới thì lưu ảnh trước
             if (selectedImageFile != null) {
                 imagePath = saveImage(selectedImageFile); // Lưu ảnh vào thư mục
                 employee.setImage(imagePath); // Cập nhật ảnh mới
             }
-
             // Cập nhật thông tin nhân viên
             employee.setFullName(name);
             employee.setAddress(address);
             employee.setPhone(phone);
-
             boolean success = EmployeeDAO.updateEmployee(employee);
 
             if (success) {
@@ -161,7 +160,6 @@ public class GUI_Form_Employee extends JDialog {
             }
         }
     }
-    
 
     // Lưu ảnh vào thư mục resources/images và trả về đường dẫn
     private String saveImage(File imageFile) {
@@ -189,6 +187,7 @@ public class GUI_Form_Employee extends JDialog {
     private void displayImage(String imagePath) {
         if (imagePath == null || imagePath.isEmpty()) {
             lblImagePreview.setIcon(null);
+            System.out.println("Khong co anh");
             return;
         }
 

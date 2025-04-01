@@ -98,4 +98,6 @@ public class GUI_Form_Account extends JDialog {
         gbc.gridx = 1;
         add(component, gbc);
     }
+    
+    
 }
