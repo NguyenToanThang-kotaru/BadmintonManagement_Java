@@ -9,15 +9,15 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 
 import java.util.List;
-
 public class GUI_Import extends JPanel {
 
     private JPanel topPanel, midPanel, botPanel;
     private JTable importTable;
     private DefaultTableModel tableModel;
-    private CustomButton editButton, deleteButton, addButton, detailimportButton;
+    private CustomButton deleteButton, addButton, detailimportButton;
     private CustomSearch searchField;
     private ImportBUS importBUS;
+    private ImportDTO importChoosing;
 
     public GUI_Import() {
         importBUS = new ImportBUS();
@@ -26,7 +26,7 @@ public class GUI_Import extends JPanel {
         setBorder(new EmptyBorder(10, 10, 10, 10));
         setBackground(new Color(200, 200, 200));
 
-        // ========== PANEL TRÊN CÙNG (Thanh tìm kiếm & nút thêm) ==========
+        // ========== PANEL TRÊN CÙNG (Thanh tìm kiếm & nút thêm) ==========        
         topPanel = new JPanel(new BorderLayout(10, 10));
         topPanel.setPreferredSize(new Dimension(0, 60));
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -43,7 +43,7 @@ public class GUI_Import extends JPanel {
             GFI.setVisible(true);
         });
 
-        // ========== BẢNG HIỂN THỊ DANH SÁCH PHIẾU NHẬP ==========
+        // ========== BẢNG HIỂN THỊ DANH SÁCH PHIẾU NHẬP ==========        
         midPanel = new JPanel(new BorderLayout());
         midPanel.setBackground(Color.WHITE);
 
@@ -55,7 +55,8 @@ public class GUI_Import extends JPanel {
 
         midPanel.add(customTable, BorderLayout.CENTER);
         CustomScrollPane scrollPane = new CustomScrollPane(importTable);
-        // ========== PANEL CHI TIẾT PHIẾU NHẬP ==========
+
+        // ========== PANEL CHI TIẾT PHIẾU NHẬP ==========        
         botPanel = new JPanel(new GridBagLayout());
         botPanel.setBackground(Color.WHITE);
         botPanel.setBorder(BorderFactory.createTitledBorder("Hóa Đơn Nhập"));
@@ -100,7 +101,7 @@ public class GUI_Import extends JPanel {
         JLabel receiptdateLabel = new JLabel("");
         botPanel.add(receiptdateLabel, gbc);
 
-        // ========== PANEL BUTTON ==========
+        // ========== PANEL BUTTON ==========        
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 5));
         buttonPanel.setOpaque(false);
 
@@ -108,19 +109,26 @@ public class GUI_Import extends JPanel {
         deleteButton.setCustomColor(new Color(220, 0, 0));
         buttonPanel.add(deleteButton, BorderLayout.WEST);
 
-        editButton = new CustomButton("Sửa");
-        editButton.setCustomColor(new Color(0, 230, 0));
-        buttonPanel.add(editButton, BorderLayout.CENTER);
-
+    
         detailimportButton = new CustomButton("Xem Chi Tiết Hóa Đơn Nhập");
         detailimportButton.setCustomColor(new Color(0, 120, 215));
         buttonPanel.add(detailimportButton, BorderLayout.EAST);
-
+        detailimportButton.addActionListener(e -> {
+            if (importChoosing != null) {
+                GUI_Import_Detail detailDialog = new GUI_Import_Detail(
+                    (JFrame) SwingUtilities.getWindowAncestor(this), 
+                    importChoosing
+                );
+                detailDialog.setVisible(true);
+            } else {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn một phiếu nhập để xem chi tiết!");
+            }
+        });
         gbc.gridx = 0;
         gbc.gridy = 5;
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-
+        botPanel.add(buttonPanel, gbc);
         // Thêm các panel vào giao diện chính
         add(topPanel);
         add(Box.createVerticalStrut(10));
@@ -129,14 +137,52 @@ public class GUI_Import extends JPanel {
         add(botPanel);
 
         loadImport();
+       
+        
+        deleteButton.addActionListener(e -> {
+            if (importChoosing != null) {
+                int result = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn xóa phiếu nhập này?", "Xác nhận", JOptionPane.YES_NO_OPTION);
+                if (result == JOptionPane.YES_OPTION) {
+                    importBUS.deleteImport(importChoosing.getimportID());
+                    loadImport();
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn một phiếu nhập để xóa!");
+            }
+        });
 
+        
+        importTable.getSelectionModel().addListSelectionListener(e -> {
+            int selectedRow = importTable.getSelectedRow();
+            if (selectedRow != -1) {
+                String importID = (String) importTable.getValueAt(selectedRow, 0);
+                String employeeID = (String) importTable.getValueAt(selectedRow, 1);
+                String supplierID = (String) importTable.getValueAt(selectedRow, 2);
+                String totalMoney = (String) importTable.getValueAt(selectedRow, 3);
+                String receiptDate = (String) importTable.getValueAt(selectedRow, 4);
+
+                importChoosing = new ImportDTO(importID, employeeID, supplierID, totalMoney, receiptDate);
+
+                importidLabel.setText(importID);
+                employeeidLabel.setText(employeeID);
+                supplieridLabel.setText(supplierID);
+                totalmoneyLabel.setText(totalMoney);
+                receiptdateLabel.setText(receiptDate);
+            }
+        });
     }
 
-    private void loadImport() {
-        List<ImportDTO> Import = importBUS.getAllImport();
+    void loadImport() {
+        List<ImportDTO> importList = importBUS.getAllImport();
         tableModel.setRowCount(0);
-        for (ImportDTO ipt : Import) {
-            tableModel.addRow(new Object[]{ipt.getimportID(), ipt.getemployeeID(), ipt.getsupplierID(), ipt.gettotalmoney(), ipt.getreceiptdate()});
+        for (ImportDTO importDTO : importList) {
+            tableModel.addRow(new Object[]{
+                importDTO.getimportID(), 
+                importDTO.getemployeeID(),
+                importDTO.getsupplierID(), 
+                Utils.formatCurrency(importDTO.gettotalmoney()), 
+                importDTO.getreceiptdate()
+            });
         }
     }
 }

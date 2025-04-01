@@ -10,8 +10,7 @@ import java.util.ArrayList;
 
 public class SuppliersDAO {
 
-    // Lấy một nhà cung cấp theo mã
-    public static SuppliersDTO getSuppliers(int maNCC) {
+     public static SuppliersDTO getSuppliers(int maNCC) {
         String query = "SELECT * FROM nha_cung_cap WHERE ma_nha_cung_cap = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -32,7 +31,6 @@ public class SuppliersDAO {
         return null;
     }
 
-    // Tự động sinh mã nhà cung cấp
     public String generateSupplierID() {
         String newID = "NCC001";
         try (Connection conn = DatabaseConnection.getConnection();
