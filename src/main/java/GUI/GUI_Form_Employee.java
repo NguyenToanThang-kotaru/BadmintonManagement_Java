@@ -132,6 +132,7 @@ public class GUI_Form_Employee extends JDialog {
             }
 
             dispose();
+            
         });
     }
 
