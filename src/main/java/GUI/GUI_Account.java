@@ -16,7 +16,7 @@ public class GUI_Account extends JPanel {
     private JTable accountTable;
     private DefaultTableModel tableModel;
 //    private JComboBox<String> roleComboBox;
-    private CustomButton deleteButton, addButton, editButton;
+    private CustomButton deleteButton, addButton, editButton, reloadButton;
     private CustomSearch searchField;
     private AccountBUS accountBUS;
     private AccountDTO accountChoosing;
@@ -34,7 +34,10 @@ public class GUI_Account extends JPanel {
         topPanel.setPreferredSize(new Dimension(0, 60));
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         topPanel.setBackground(Color.WHITE);
-
+        
+        reloadButton = new CustomButton("Tải lại trang");
+        topPanel.add(reloadButton, BorderLayout.WEST);
+        
         searchField = new CustomSearch(275, 20); // Ô nhập tìm kiếm
         searchField.setBackground(Color.WHITE);
         topPanel.add(searchField, BorderLayout.CENTER);
@@ -152,6 +155,9 @@ public class GUI_Account extends JPanel {
             GFA.setVisible(true);
         });
 
+        reloadButton.addActionListener(e -> {
+            loadAccounts();
+        });
         
         deleteButton.addActionListener(e -> {
             AccountDAO.deleteAccount(accountChoosing.getUsername());
@@ -170,5 +176,16 @@ public class GUI_Account extends JPanel {
                 acc.getUsername(), acc.getPassword(), acc.getTenquyen()});
             
         }
+    }
+    
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Quản lý bảo hành");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setSize(900, 600);
+            frame.setLocationRelativeTo(null);
+            frame.setContentPane(new GUI_Account());
+            frame.setVisible(true);
+        });
     }
 }

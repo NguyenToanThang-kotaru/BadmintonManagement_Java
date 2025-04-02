@@ -42,7 +42,8 @@ public class AccountDAO {
         String query = "SELECT * "
                 + "FROM tai_khoan AS tk "
                 + "JOIN nhan_vien AS nv ON nv.ma_nhan_vien = tk.ten_dang_nhap "
-                + "JOIN quyen AS q ON q.ma_quyen = tk.ma_quyen;";
+                + "JOIN quyen AS q ON q.ma_quyen = tk.ma_quyen "
+                + "WHERE tk.is_deleted = 0;";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
@@ -54,13 +55,14 @@ public class AccountDAO {
                 ));
             }
         } catch (Exception e) {
-//            e.printStackTrace();
+            e.printStackTrace();
         }
         return accounts;
     }
 
     public static void deleteAccount(String username) {
-        String sql = "DELETE FROM tai_khoan WHERE ten_dang_nhap = ?";
+        String sql = "UPDATE tai_khoan SET is_deleted =1 WHERE ten_dang_nhap = ?;";
+                
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, username);
             stmt.executeUpdate();
