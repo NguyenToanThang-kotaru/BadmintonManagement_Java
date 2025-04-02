@@ -168,7 +168,7 @@ public class GUI_Account extends JPanel {
 
     // Phương thức tải danh sách tài khoản từ database lên bảng
     private void loadAccounts() {
-        List<AccountDTO> accounts = accountBUS.getAllAccounts(); // Lấy danh sách tài khoản
+        List<AccountDTO> accounts = AccountDAO.getAllAccounts(); // Lấy danh sách tài khoản
         tableModel.setRowCount(0); // Xóa dữ liệu cũ trước khi cập nhật
         int index = 1;
         for (AccountDTO acc : accounts) {

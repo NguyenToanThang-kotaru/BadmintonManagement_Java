@@ -7,7 +7,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
-import BUS.AccountBUS;
+import DAO.AccountDAO;
 
 public class GUI_Permission extends JPanel {
 
@@ -18,11 +18,8 @@ public class GUI_Permission extends JPanel {
     private JComboBox<String> roleComboBox;
     private CustomButton saveButton, addButton, deleteButton;
     private CustomSearch searchField;
-    private AccountBUS accountBUS;
 
     public GUI_Permission() {
-        accountBUS = new AccountBUS(); // Khởi tạo đối tượng BUS để lấy dữ liệu tài khoản
-
         // Cấu hình layout chính
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -162,7 +159,7 @@ public class GUI_Permission extends JPanel {
 
     // Phương thức tải danh sách tài khoản từ database lên bảng
     private void loadAccounts() {
-        List<AccountDTO> accounts = accountBUS.getAllAccounts(); // Lấy danh sách tài khoản
+        List<AccountDTO> accounts = AccountDAO.getAllAccounts(); // Lấy danh sách tài khoản
         tableModel.setRowCount(0); // Xóa dữ liệu cũ trước khi cập nhật
         int index = 1;
         String no = "";

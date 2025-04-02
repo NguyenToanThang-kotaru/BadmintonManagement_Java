@@ -56,9 +56,7 @@ public class GUI_MainLayout extends JFrame {
         
         Sidebar.importPanel = new GUI_Import();
         
-        Sidebar.rolePanel = new JPanel();
-        Sidebar.rolePanel.setBackground(Color.LIGHT_GRAY);
-        Sidebar.rolePanel.add(new JLabel("Phân quyền"));
+        Sidebar.rolePanel = new GUI_Permission();
         for (Component comp : Sidebar.panel2.getComponents()) {
             if (comp instanceof JLabel menuLabel) {
                 menuLabel.addMouseListener(new MouseAdapter() {

@@ -41,8 +41,9 @@ public class AccountBUS {
         }
     }
 
-    public List<AccountDTO> getAllAccounts() {
-        return AccountDAO.getAllAccounts();
+    public List<AccountDTO> getAllPlayers_No_Account() {
+        List<AccountDTO> a = AccountDAO.getAllAccounts();
+        return a;
     }
 
     public void updateAccount(AccountDTO account) {
