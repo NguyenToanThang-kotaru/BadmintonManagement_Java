@@ -1,8 +1,11 @@
 package GUI;
 
+import DAO.PermissionDAO;
 import javax.swing.*;
 import java.awt.*;
 import DTO.AccountDTO;
+import DTO.PermissionDTO;
+import java.util.ArrayList;
 
 public class GUI_Form_Account extends JDialog {
 
@@ -39,8 +42,20 @@ public class GUI_Form_Account extends JDialog {
         txtAccount = new JTextField(20);
         txtPassword = new JPasswordField(20);
 
-        cbRole = new CustomCombobox<>(new String[]{"Admin", "Nhân Viên Kho", "Nhân Viên Bán Hàng"});
-        
+//        cbRole = new CustomCombobox<>();
+        java.util.List<PermissionDTO> permissions = PermissionDAO.getAllPermissions();
+        String[] roles = new String[permissions.size()];
+        int i = 0;
+        for (PermissionDTO per : permissions) {
+            roles[i] = per.getName(); // Lấy tên quyền và gán vào mảng roles
+            i++;
+        }
+//        for (String role : roles) {
+//            cbRole.addItem(role);
+//        }
+//        cbRole = new CustomCombobox<>(roles.toArray(new String[0]));
+        cbRole = new CustomCombobox<>(roles);
+
         if (account != null) {
             lblEmployeeName.setText(account.getFullname());
             txtAccount.setText(account.getUsername());
@@ -48,18 +63,18 @@ public class GUI_Form_Account extends JDialog {
             cbRole.setSelectedItem(account.getTenquyen());
 //            String quyen = account.getTenquyen();
 //            System.out.println(quyen);
-      
+
 //            if (quyen != null) {
 //                cbRole.setSelectedItem(quyen);
 //            } else {
 //                cbRole.setSelectedIndex(-1); // Không chọn mục nào nếu không hợp lệ
 //            }
         }
-        if (account != null){
+        if (account != null) {
             addComponent("Nhân Viên:", lblEmployeeName, gbc);
-        }
-        else
+        } else {
             addComponent("Nhân Viên:", txtEmployeeName, gbc);
+        }
         addComponent("Tên Đăng Nhập:", txtAccount, gbc);
         addComponent("Mật Khẩu:", txtPassword, gbc);
         addComponent("Quyền:", cbRole, gbc);
@@ -98,6 +113,5 @@ public class GUI_Form_Account extends JDialog {
         gbc.gridx = 1;
         add(component, gbc);
     }
-    
-    
+
 }
