@@ -1,18 +1,19 @@
 package GUI;
 
 import DAO.PermissionDAO;
+import DTO.EmployeeDTO;
 import javax.swing.*;
 import java.awt.*;
 import DTO.AccountDTO;
+import DAO.EmployeeDAO;
 import DTO.PermissionDTO;
 import java.util.ArrayList;
 
 public class GUI_Form_Account extends JDialog {
 
-    private JTextField txtEmployeeName, txtAccount;
-    private JPasswordField txtPassword;
-    private JLabel title, lblEmployeeName;
-    private CustomCombobox<String> cbRole;
+    private JPasswordField txtRePassword, txtPassword;
+    private JLabel title, lblEmployeeName, txtAccount;
+    private CustomCombobox<String> cbRole, cbEmployeeName;
     private CustomButton btnSave, btnCancel;
 
     public GUI_Form_Account(JPanel parent, AccountDTO account) {
@@ -38,9 +39,18 @@ public class GUI_Form_Account extends JDialog {
 
         // Nếu account != null => Sửa tài khoản
         lblEmployeeName = new JLabel();
-        txtEmployeeName = new JTextField(20);
-        txtAccount = new JTextField(20);
+        java.util.List<EmployeeDTO> employees = EmployeeDAO.getEmployeesWithoutAccount();
+        String[] names = new String[employees.size()];
+        int i1 = 0;
+        for(EmployeeDTO emp : employees) {
+            names[i1] = emp.getFullName();
+            System.out.println("names[i]");
+            i1++;
+        }        
+        cbEmployeeName = new CustomCombobox<>(names);
+        txtAccount = new JLabel();
         txtPassword = new JPasswordField(20);
+        txtRePassword = new JPasswordField(20);
 
 //        cbRole = new CustomCombobox<>();
         java.util.List<PermissionDTO> permissions = PermissionDAO.getAllPermissions();
@@ -60,6 +70,7 @@ public class GUI_Form_Account extends JDialog {
             lblEmployeeName.setText(account.getFullname());
             txtAccount.setText(account.getUsername());
             txtPassword.setText(account.getPassword());
+            txtRePassword.setText(account.getPassword());
             cbRole.setSelectedItem(account.getTenquyen());
 //            String quyen = account.getTenquyen();
 //            System.out.println(quyen);
@@ -72,11 +83,13 @@ public class GUI_Form_Account extends JDialog {
         }
         if (account != null) {
             addComponent("Nhân Viên:", lblEmployeeName, gbc);
+            addComponent("Tài Khoản: ", txtAccount, gbc);
         } else {
-            addComponent("Nhân Viên:", txtEmployeeName, gbc);
+            addComponent("Nhân Viên:", cbEmployeeName, gbc);
+            addComponent("Mật Khẩu: ", txtPassword, gbc);
         }
-        addComponent("Tên Đăng Nhập:", txtAccount, gbc);
-        addComponent("Mật Khẩu:", txtPassword, gbc);
+        
+        addComponent("Nhập Lại Mật Khẩu:", txtRePassword, gbc);
         addComponent("Quyền:", cbRole, gbc);
 
         JPanel buttonPanel = new JPanel(new FlowLayout());
