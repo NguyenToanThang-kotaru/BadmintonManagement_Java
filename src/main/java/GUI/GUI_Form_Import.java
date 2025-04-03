@@ -3,23 +3,18 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
+import BUS.Form_ImportBUS;
+
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import Connection.DatabaseConnection;
-import DTO.ImportDTO;
+import DAO.Form_ImportDAO;
 import DTO.ProductDTO;
 
 public class GUI_Form_Import extends JDialog {
-    private final JLabel lblMaNhapHang, lblNgayNhap, lblNhanVien, lblTongTien;
+    private final JLabel lblMaNhapHang, lblTongTien;
     private JTable productsTable;
     private DefaultTableModel tableModel;
     private CustomButton btnThemSP, btnLuu, btnHuy;
@@ -27,6 +22,9 @@ public class GUI_Form_Import extends JDialog {
     private String currentUser;
     private Map<String, List<ProductDTO>> supplierProductsMap;
     private int totalAmount;
+    private Form_ImportDAO dao;
+    private Form_ImportBUS bus;
+
 
     public GUI_Form_Import(JPanel parent) {
         super((Frame) SwingUtilities.getWindowAncestor(parent), "Nhập Hàng Mới", true);
@@ -34,10 +32,11 @@ public class GUI_Form_Import extends JDialog {
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout());
         setBackground(Color.WHITE);
+        bus = new Form_ImportBUS();
+        dao = new Form_ImportDAO();
 
-        // Initialize data
         currentUser = getCurrentUser();
-        supplierProductsMap = loadSupplierProducts();
+        supplierProductsMap = bus.loadSupplierProducts();
         totalAmount = 0;
 
         // Top panel - basic info
@@ -50,13 +49,13 @@ public class GUI_Form_Import extends JDialog {
         gbc.anchor = GridBagConstraints.WEST;
 
         // Generate next import ID
-        String nextImportID = generateNextImportID();
+        String nextImportID = bus.generateNextImportID();
 
         // Add components
         addLabelAndField(topPanel, gbc, "Mã nhập hàng:", lblMaNhapHang = new JLabel(nextImportID));
-        addLabelAndField(topPanel, gbc, "Nhân viên:", lblNhanVien = new JLabel(currentUser + " - " + getEmployeeName(currentUser)));
-        addLabelAndField(topPanel, gbc, "Ngày nhập:", lblNgayNhap = new JLabel(LocalDate.now().toString()));
-        addLabelAndField(topPanel, gbc, "Nhà cung cấp:", cbNhaCungCap = new CustomCombobox<>(getSupplierNames()));
+        addLabelAndField(topPanel, gbc, "Nhân viên:", new JLabel(currentUser + " - " + dao.getEmployeeName(currentUser)));
+        addLabelAndField(topPanel, gbc, "Ngày nhập:", new JLabel(LocalDate.now().toString()));
+        addLabelAndField(topPanel, gbc, "Nhà cung cấp:", cbNhaCungCap = new CustomCombobox<>(dao.getSupplierNames()));
         addLabelAndField(topPanel, gbc, "Tổng tiền:", lblTongTien = new JLabel("0"));
 
         // Add product button
@@ -132,81 +131,9 @@ public class GUI_Form_Import extends JDialog {
         panel.add(component, gbc);
     }
 
-    private String generateNextImportID() {
-        String query = "SELECT ma_nhap_hang FROM nhap_hang ORDER BY ma_nhap_hang DESC LIMIT 1";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query);
-             ResultSet rs = stmt.executeQuery()) {
-            
-            if (rs.next()) {
-                String lastID = rs.getString("ma_nhap_hang");
-                int num = Integer.parseInt(lastID.substring(4)) + 1;
-                return String.format("NH%03d", num);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "NH001"; // Default if no records exist
-    }
-
     private String getCurrentUser() {
         // In a real application, this would come from the login session
         return "NV016"; // Example user
-    }
-
-    private String getEmployeeName(String employeeID) {
-        String query = "SELECT ten_nhan_vien FROM nhan_vien WHERE ma_nhan_vien = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, employeeID);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getString("ten_nhan_vien");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "";
-    }
-
-    private String[] getSupplierNames() {
-        List<String> suppliers = new ArrayList<>();
-        String query = "SELECT ma_nha_cung_cap, ten_nha_cung_cap FROM nha_cung_cap";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query);
-             ResultSet rs = stmt.executeQuery()) {
-            
-            while (rs.next()) {
-                suppliers.add(rs.getString("ma_nha_cung_cap") + " - " + rs.getString("ten_nha_cung_cap"));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return suppliers.toArray(new String[0]);
-    }
-
-    private Map<String, List<ProductDTO>> loadSupplierProducts() {
-        Map<String, List<ProductDTO>> map = new HashMap<>();
-        String query = "SELECT ma_san_pham, ten_san_pham, gia, ma_nha_cung_cap FROM san_pham ORDER BY ma_nha_cung_cap, ma_san_pham";
-        
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query);
-             ResultSet rs = stmt.executeQuery()) {
-            
-            while (rs.next()) {
-                String supplierID = rs.getString("ma_nha_cung_cap");
-                ProductDTO product = new ProductDTO();
-                product.setProductID(rs.getString("ma_san_pham"));
-                product.setProductName(rs.getString("ten_san_pham"));
-                product.setGia(rs.getString("gia"));
-                product.setMaNCC(supplierID);
-                
-                map.computeIfAbsent(supplierID, k -> new ArrayList<>()).add(product);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return map;
     }
 
     private void showAddProductDialog() {
@@ -382,57 +309,25 @@ public class GUI_Form_Import extends JDialog {
         String supplierID = ((String) cbNhaCungCap.getSelectedItem()).split(" - ")[0];
         String receiptDate = LocalDate.now().toString();
 
+        // Prepare product data
+        List<Object[]> productData = new ArrayList<>();
+        for (int i = 0; i < tableModel.getRowCount(); i++) {
+            productData.add(new Object[]{
+                tableModel.getValueAt(i, 0),
+                tableModel.getValueAt(i, 1),
+                tableModel.getValueAt(i, 2),
+                tableModel.getValueAt(i, 3)
+            });
+        }
+
         // Save to database
-        try {
-            // 1. Save main import record
-            String importQuery = "INSERT INTO nhap_hang (ma_nhap_hang, ma_nhan_vien, ma_nha_cung_cap, tong_tien, ngay_nhap) " +
-                               "VALUES (?, ?, ?, ?, ?)";
-            
-            // 2. Save import details
-            String detailQuery = "INSERT INTO chi_tiet_nhap_hang (ma_chi_tiet_nhap_hang, ma_nhap_hang, ma_san_pham, so_luong, gia) " +
-                               "VALUES (?, ?, ?, ?, ?)";
-            
-            Connection conn = DatabaseConnection.getConnection();
-            conn.setAutoCommit(false); // Start transaction
-            
-            try (PreparedStatement importStmt = conn.prepareStatement(importQuery);
-                 PreparedStatement detailStmt = conn.prepareStatement(detailQuery)) {
-                
-                // Insert main import record
-                importStmt.setString(1, importID);
-                importStmt.setString(2, employeeID);
-                importStmt.setString(3, supplierID);
-                importStmt.setInt(4, totalAmount);
-                importStmt.setString(5, receiptDate);
-                importStmt.executeUpdate();
-                
-                // Insert each product detail
-                for (int i = 0; i < tableModel.getRowCount(); i++) {
-                    String detailID = importID + String.format("%02d", i+1);
-                    String productID = (String) tableModel.getValueAt(i, 0);
-                    int quantity = (Integer) tableModel.getValueAt(i, 2);
-                    int price = Integer.parseInt(tableModel.getValueAt(i, 3).toString().replaceAll("[^0-9]", ""));
-                    
-                    detailStmt.setString(1, detailID);
-                    detailStmt.setString(2, importID);
-                    detailStmt.setString(3, productID);
-                    detailStmt.setInt(4, quantity);
-                    detailStmt.setInt(5, price);
-                    detailStmt.executeUpdate();
-                }
-                
-                conn.commit(); // Commit transaction
-                JOptionPane.showMessageDialog(this, "Lưu phiếu nhập thành công!");
-                dispose();
-            } catch (Exception e) {
-                conn.rollback(); // Rollback on error
-                throw e;
-            } finally {
-                conn.setAutoCommit(true);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Lỗi khi lưu phiếu nhập: " + e.getMessage());
+        boolean success = bus.saveImport(importID, employeeID, supplierID, totalAmount, receiptDate, productData);
+      
+        if (success) {
+            JOptionPane.showMessageDialog(this, "Lưu phiếu nhập thành công!");
+            dispose();
+        } else {
+            JOptionPane.showMessageDialog(this, "Lỗi khi lưu phiếu nhập! Vui lòng kiểm tra lại dữ liệu.");
         }
     }
 }
