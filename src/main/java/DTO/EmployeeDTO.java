@@ -7,7 +7,16 @@ public class EmployeeDTO {
     private String address;
     private String phone;
     private String image;
-   
+
+    public EmployeeDTO(EmployeeDTO a) {
+        this.employeeID = a.getEmployeeID();
+        this.fullName = a.getFullName();
+        this.address = a.getAddress();
+        this.phone = a.getPhone();
+        this.image = a.getImage();
+    }
+
+    
 
     public EmployeeDTO() {
         this.employeeID = "";
@@ -15,7 +24,7 @@ public class EmployeeDTO {
         this.address = "";
         this.phone = "";
         this.image = "";
-  
+
     }
 
     public String getImage() {
@@ -26,14 +35,13 @@ public class EmployeeDTO {
         this.image = image;
     }
 
-  public EmployeeDTO(String employeeID, String fullName, String address, String phone, String image) {
-    this.employeeID = employeeID;
-    this.fullName = fullName;
-    this.address = address;
-    this.phone = phone;
-    this.image = image;
-}
-
+    public EmployeeDTO(String employeeID, String fullName, String address, String phone, String image) {
+        this.employeeID = employeeID;
+        this.fullName = fullName;
+        this.address = address;
+        this.phone = phone;
+        this.image = image;
+    }
 
     public String getEmployeeID() {
         return employeeID;

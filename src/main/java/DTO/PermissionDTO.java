@@ -1,22 +1,32 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package DTO;
+
+import java.util.List;
 
 /**
  *
  * @author ADMIN
  */
 public class PermissionDTO {
-    String ID;
-    String Name;
 
-    public PermissionDTO(String ID, String Name) {
+    private String ID;
+    private String Name;
+    private List<String> chucNang; // Danh sách chức năng
+
+    // Constructor đầy đủ
+    public PermissionDTO(String ID, String Name, List<String> chucNang) {
         this.ID = ID;
         this.Name = Name;
+        this.chucNang = chucNang;
     }
 
+    // Constructor sao chép
+    public PermissionDTO(PermissionDTO a) {
+        this.ID = a.getID();
+        this.Name = a.getName();
+        this.chucNang = a.getChucNang();
+    }
+
+    // Getters
     public String getID() {
         return ID;
     }
@@ -25,11 +35,20 @@ public class PermissionDTO {
         return Name;
     }
 
+    public List<String> getChucNang() {
+        return chucNang;
+    }
+
+    // Setters
     public void setID(String ID) {
         this.ID = ID;
     }
 
     public void setName(String Name) {
         this.Name = Name;
+    }
+
+    public void setChucNang(List<String> chucNang) {
+        this.chucNang = chucNang;
     }
 }

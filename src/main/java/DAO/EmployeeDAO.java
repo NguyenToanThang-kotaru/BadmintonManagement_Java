@@ -1,4 +1,3 @@
-
 package DAO;
 
 import Connection.DatabaseConnection;
@@ -8,7 +7,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-
 
 public class EmployeeDAO {
 
@@ -42,10 +40,31 @@ public class EmployeeDAO {
             stmt.executeUpdate();
             System.out.println("Xoa thanh cong");
             return true;
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public static EmployeeDTO getEmployeeByName(String Name) {
+        String query = "SELECT * FROM nhan_vien WHERE ten_nhan_vien = ?";
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, Name);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new EmployeeDTO(
+                            rs.getString("ma_nhan_vien"),
+                            rs.getString("ten_nhan_vien"),
+                            rs.getString("dia_chi"),
+                            rs.getString("so_dien_thoai"),
+                            rs.getString("hinh_anh")
+                    );
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static EmployeeDTO getEmployee(String sdt) {
@@ -135,32 +154,29 @@ public class EmployeeDAO {
         return "NV001"; // Nếu không có nhân viên nào, bắt đầu từ "NV001"
     }
 
-    
     public static ArrayList<EmployeeDTO> getEmployeesWithoutAccount() {
-    ArrayList<EmployeeDTO> employees = new ArrayList<>();
-    String query = "SELECT * FROM nhan_vien nv "
-                 + "LEFT JOIN tai_khoan tk ON nv.ma_nhan_vien = tk.ten_dang_nhap "
-                 + "WHERE tk.ten_dang_nhap IS NULL AND nv.is_deleted = 0;";
+        ArrayList<EmployeeDTO> employees = new ArrayList<>();
+        String query = "SELECT * FROM nhan_vien nv "
+                + "LEFT JOIN tai_khoan tk ON nv.ma_nhan_vien = tk.ten_dang_nhap "
+                + "WHERE tk.ten_dang_nhap IS NULL AND nv.is_deleted = 0;";
 
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement stmt = conn.prepareStatement(query);
-         ResultSet rs = stmt.executeQuery()) {
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
 
-        while (rs.next()) {
-            employees.add(new EmployeeDTO(
-                    rs.getString("ma_nhan_vien"),
-                    rs.getString("ten_nhan_vien"),
-                    rs.getString("dia_chi"),
-                    rs.getString("so_dien_thoai"),
-                    rs.getString("hinh_anh")
-            ));
+            while (rs.next()) {
+                employees.add(new EmployeeDTO(
+                        rs.getString("ma_nhan_vien"),
+                        rs.getString("ten_nhan_vien"),
+                        rs.getString("dia_chi"),
+                        rs.getString("so_dien_thoai"),
+                        rs.getString("hinh_anh")
+                ));
+            }
+            System.out.println("Lấy danh sách nhân viên chưa có tài khoản thành công.");
+        } catch (SQLException e) {
+            System.out.println("Lỗi lấy danh sách nhân viên chưa có tài khoản: " + e.getMessage());
+            e.printStackTrace();
         }
-        System.out.println("Lấy danh sách nhân viên chưa có tài khoản thành công.");
-    } catch (SQLException e) {
-        System.out.println("Lỗi lấy danh sách nhân viên chưa có tài khoản: " + e.getMessage());
-        e.printStackTrace();
+        return employees;
     }
-    return employees;
-}
 
 }

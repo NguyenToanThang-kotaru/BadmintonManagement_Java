@@ -10,6 +10,26 @@ import java.util.ArrayList;
 
 public class AccountDAO {
 
+    public static Boolean addAccount(String username, String password, String maquyen) {
+        String query = "INSERT INTO tai_khoan (ma_tai_khoan, ten_dang_nhap, mat_khau, ma_quyen, is_deleted) "
+                + "VALUES (?, ?, ?, ?, 0);";
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, generateNewAccountID());
+            stmt.setString(2, username);
+            stmt.setString(3, password);
+            stmt.setString(4, maquyen);
+
+            int rowsInserted = stmt.executeUpdate(); // SỬA executeQuery() thành executeUpdate()
+            return rowsInserted > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public static AccountDTO getAccount(String username, String password) {
         String query = "SELECT * " // Thêm khoảng trắng
                 + "FROM tai_khoan AS tk "
@@ -62,7 +82,7 @@ public class AccountDAO {
 
     public static void deleteAccount(String username) {
         String sql = "UPDATE tai_khoan SET is_deleted =1 WHERE ten_dang_nhap = ?;";
-                
+
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, username);
             stmt.executeUpdate();
@@ -71,18 +91,42 @@ public class AccountDAO {
         }
     }
 
-    public static void updateAccount(AccountDTO account) {
-        String sql = "UPDATE tai_khoan SET ten_dang_nhap = ?, mat_khau = ?, ma_quyen = ? WHERE ten_dang_nhap = ?";
+    public static Boolean updateAccount(String username,String password, String maquyen) {
+        String sql = "UPDATE tai_khoan SET mat_khau = ?, ma_quyen = ? WHERE ten_dang_nhap = ?;";
+        
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, account.getUsername());
-            stmt.setString(2, account.getPassword());
-            stmt.setString(3, account.getTenquyen()); // Chưa rõ cách bạn lưu quyền, có thể cần sửa
-            stmt.setString(4, account.getUsername()); // WHERE điều kiện phải đúng
-
+            stmt.setString(1, password);
+            stmt.setString(2, maquyen);
+            stmt.setString(3, username);
             stmt.executeUpdate();
+            return true;
         } catch (SQLException e) {
             e.printStackTrace(); // Nên log lỗi để debug dễ hơn
+            return false;
         }
+    }
+
+    private static String generateNewAccountID() {
+        String query = "SELECT ma_tai_khoan FROM tai_khoan ORDER BY ma_tai_khoan DESC LIMIT 1";
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
+
+            if (rs.next()) {
+                String lastID = rs.getString("ma_tai_khoan"); // Ví dụ: "NV005"
+
+                // Cắt bỏ "TK", chỉ lấy số
+                int number = Integer.parseInt(lastID.substring(2));
+
+                // Tạo ID mới với định dạng NVXXX
+                return String.format("TK%03d", number + 1); // Ví dụ: "NV006"
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Lỗi khi tạo mã nhân viên mới: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return "TK001"; // Nếu không có nhân viên nào, bắt đầu từ "NV001"
     }
 
 }
