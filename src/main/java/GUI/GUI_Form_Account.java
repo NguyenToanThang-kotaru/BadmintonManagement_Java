@@ -76,7 +76,7 @@ public class GUI_Form_Account extends JDialog {
             txtAccount.setText(account.getUsername());
             txtPassword.setText(account.getPassword());
             txtRePassword.setText(account.getPassword());
-            cbRole.setSelectedItem(account.getTenquyen());
+            cbRole.setSelectedItem(account.getPermission().getName());
             txtEditPassword.setText(account.getPassword());
 //            String quyen = account.getTenquyen();
 //            System.out.println(quyen);

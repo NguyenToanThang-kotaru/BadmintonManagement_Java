@@ -52,7 +52,7 @@ public class AccountBUS {
 
     public static Boolean addAccount(String username, String password, String tenquyen) {
         System.out.println(tenquyen);
-        PermissionDTO a= new PermissionDTO(PermissionDAO.getPermissionID(tenquyen));
+        PermissionDTO a= new PermissionDTO(PermissionDAO.getPermissionByName(tenquyen));
         EmployeeDTO e = new EmployeeDTO(EmployeeDAO.getEmployeeByName(username));
         if (AccountDAO.addAccount(e.getEmployeeID(), password, a.getID())==true)
             return true;
@@ -62,7 +62,7 @@ public class AccountBUS {
     }
 
     public static Boolean updateAccount(String username,String password, String maquyen) {
-        PermissionDTO a = new PermissionDTO(PermissionDAO.getPermissionID(maquyen));
+        PermissionDTO a = new PermissionDTO(PermissionDAO.getPermissionByName(maquyen));
         return AccountDAO.updateAccount(username, password, a.getID())==true;
     }
 

@@ -171,6 +171,24 @@ public class GUI_Employee extends JPanel {
             if (deleteEmployee(employeeChoosing.getEmployeeID(), employeeChoosing.getImage()) == true) {
                 loadEmployees();
                 tableModel.fireTableDataChanged();
+                employeeLabel.setText("Chọn nhân viên");
+                employeeidLabel.setText("");
+                addressLabel.setText("");
+                phoneLabel.setText("");
+                String employeeImg = employeeChoosing.getImage();
+                String imagePath = "images/Avatar.png"; // Đường dẫn mặc 
+
+                if (employeeImg != null && !employeeImg.isEmpty()) {
+                    String tempPath = "images/" + employeeImg;
+                    File imageFile = new File(tempPath);
+                    if (imageFile.exists()) {
+                        imagePath = tempPath;
+                    }
+                }
+                ImageIcon employeeIcon = new ImageIcon(imagePath);
+                Image img = employeeIcon.getImage().getScaledInstance(220, 220, Image.SCALE_SMOOTH);
+                imageLabel.setIcon(new ImageIcon(img));
+
             }
         });
 
@@ -217,7 +235,7 @@ public class GUI_Employee extends JPanel {
     private void loadEmployees() {
         List<EmployeeDTO> employees = EmployeeDAO.getAllEmployees();
         tableModel.setRowCount(0);
-        int index=1;
+        int index = 1;
         for (EmployeeDTO emp : employees) {
             tableModel.addRow(new Object[]{
                 index++,
