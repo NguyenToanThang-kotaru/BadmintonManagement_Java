@@ -15,9 +15,10 @@ public class GUI_Permission extends JPanel {
     private JTable permissionTable;
     private DefaultTableModel tableModel;
     private JComboBox<String> roleComboBox;
-    private CustomButton detailPermissionButton, editButton, addButton, deleteButton,reloadButton;
+    private CustomButton detailPermissionButton, editButton, addButton, deleteButton, reloadButton;
     private CustomSearch searchField;
     private PermissionDTO permissionChoosing;
+
     public GUI_Permission() {
         // Cấu hình layout chính
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -32,7 +33,7 @@ public class GUI_Permission extends JPanel {
 
         reloadButton = new CustomButton("Tải lại trang");
         topPanel.add(reloadButton, BorderLayout.WEST);
-        
+
         searchField = new CustomSearch(275, 20); // Ô nhập tìm kiếm
         searchField.setBackground(Color.white);
         topPanel.add(searchField, BorderLayout.CENTER);
@@ -112,9 +113,9 @@ public class GUI_Permission extends JPanel {
                 String tenQuyen = (String) permissionTable.getValueAt(selectedRow, 1);
                 String soluongQuyen = (String) permissionTable.getValueAt(selectedRow, 2);
                 String soluongTaiKhoan = (String) permissionTable.getValueAt(selectedRow, 3);
-                
+
                 permissionChoosing = new PermissionDTO(PermissionDAO.getPermissionByName(tenQuyen));
-                        
+
                 // Hiển thị dữ liệu trên giao diện
                 permissionLabel.setText(tenQuyen);
                 countFunction.setText(soluongQuyen);
@@ -136,12 +137,19 @@ public class GUI_Permission extends JPanel {
             GUI_Form_Permission a = new GUI_Form_Permission(this, null);
             a.setVisible(true);
         });
+
+        editButton.addActionListener(e -> {
+            GUI_Form_Permission a = new GUI_Form_Permission(this, permissionChoosing);
+            a.setVisible(true);
+        });
+
         deleteButton.addActionListener(e -> {
-            if(PermissionDAO.deletePermission(permissionChoosing.getID())==true)
+            if (PermissionDAO.deletePermission(permissionChoosing.getID()) == true) {
                 System.out.println("Da xoa thanh cong");
+            }
             loadPermissions();
         });
-        
+
         reloadButton.addActionListener(e -> {
             loadPermissions();
         });

@@ -2,25 +2,27 @@ package GUI;
 
 import DAO.PermissionDAO;
 import DTO.PermissionDTO;
+import BUS.PermissionBUS;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GUI_Form_Permission extends JDialog {
 
     private JTextField txtPermissionName;
     private JLabel title;
-    private JList<String> functionList;
-    private DefaultListModel<String> listModel;
+    private JPanel checkBoxPanel;
+    private List<JCheckBox> allCheckBoxes = new ArrayList<>();
     private CustomButton btnSave, btnCancel;
 
     public GUI_Form_Permission(JPanel parent, PermissionDTO permission) {
         super((Frame) SwingUtilities.getWindowAncestor(parent),
                 permission == null ? "Thêm Quyền" : "Sửa Quyền", true);
 
-        setSize(400, 450);
+        setSize(400, 500); // Tăng chiều cao để hiển thị rõ hơn
         setLocationRelativeTo(parent);
         setLayout(new GridBagLayout());
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -45,20 +47,22 @@ public class GUI_Form_Permission extends JDialog {
         txtPermissionName = new JTextField(20);
         addComponent("Tên Quyền:", txtPermissionName, gbc);
 
-        // Danh sách chức năng
-        listModel = new DefaultListModel<>();
-        functionList = new JList<>(listModel);
-        functionList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        // Danh sách chức năng với checkbox
+        checkBoxPanel = new JPanel();
+        checkBoxPanel.setLayout(new BoxLayout(checkBoxPanel, BoxLayout.Y_AXIS));
 
-        // Thêm tất cả chức năng có sẵn (CN001-CN032)
-        for (int i = 1; i <= 32; i++) {
-            String code = String.format("CN%03d", i);
-            listModel.addElement(code);
+        // Thêm checkbox cho tất cả chức năng
+        PermissionDTO allFunctions = new PermissionDTO(PermissionDAO.getPermission("1"));
+        for (String chucNang : allFunctions.getChucNang()) {
+            JCheckBox checkBox = new JCheckBox(PermissionBUS.decodeFunctionName(chucNang));
+            checkBox.setName(chucNang); // Lưu mã gốc vào thuộc tính name
+            allCheckBoxes.add(checkBox);
+            checkBoxPanel.add(checkBox);
         }
 
-        JScrollPane scrollPane = new JScrollPane(functionList);
-        scrollPane.setPreferredSize(new Dimension(350, 200));
-
+        // Thêm vào ScrollPane
+        CustomScrollPane scrollPane = new CustomScrollPane(checkBoxPanel);
+        scrollPane.setPreferredSize(new Dimension(350, 250));
         gbc.gridx = 0;
         gbc.gridy++;
         gbc.gridwidth = 2;
@@ -83,18 +87,44 @@ public class GUI_Form_Permission extends JDialog {
         if (permission != null) {
             txtPermissionName.setText(permission.getName());
 
-            // Chọn các chức năng hiện có
-            List<String> selectedFunctions = permission.getChucNang();
-            int[] selectedIndices = new int[selectedFunctions.size()];
-
-            for (int i = 0; i < selectedFunctions.size(); i++) {
-                selectedIndices[i] = listModel.indexOf(selectedFunctions.get(i));
+            // Chọn các checkbox tương ứng với quyền hiện có
+            for (JCheckBox checkBox : allCheckBoxes) {
+                if (permission.getChucNang().contains(checkBox.getName())) {
+                    checkBox.setSelected(true);
+                }
             }
-
-            functionList.setSelectedIndices(selectedIndices);
         }
-
         btnCancel.addActionListener(e -> dispose());
+        btnSave.addActionListener(e -> {
+            PermissionDTO NewPermission = new PermissionDTO("1", txtPermissionName.getText(), getSelectedFunctions(), "0");
+            if (permission == null) {
+                if (PermissionDAO.addPermission(NewPermission) == true) {
+                    System.out.println(txtPermissionName.getText());
+                    System.out.println(NewPermission.getName());
+                    System.out.println("Them thanh cong");
+                    dispose();
+                } else {
+                    System.out.println("Them that bai...");
+                }
+            } else if (PermissionDAO.editPermission(permission,txtPermissionName.getText(),getSelectedFunctions()) == true) {
+                System.out.println(txtPermissionName.getText());
+
+                System.out.println("Sua thanh cong");
+                dispose();
+            } else {
+                System.out.println("Sua that bai...");
+            }
+        });
+    }
+
+    public List<String> getSelectedFunctions() {
+        List<String> selected = new ArrayList<>();
+        for (JCheckBox checkBox : allCheckBoxes) {
+            if (checkBox.isSelected()) {
+                selected.add(checkBox.getName()); // Lấy mã chức năng từ thuộc tính name
+            }
+        }
+        return selected;
     }
 
     private void addComponent(String label, JComponent component, GridBagConstraints gbc) {

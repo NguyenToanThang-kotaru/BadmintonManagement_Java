@@ -18,8 +18,17 @@ public class PermissionDTO {
         this.ID = ID;
         this.Name = Name;
         this.chucNang = List.copyOf(chucNang); // Tạo bản sao bất biến
-        this.slChucNang =  String.valueOf(chucNang.size());
+        this.slChucNang = String.valueOf(chucNang.size());
         this.slTk = slTk;
+    }
+
+    public PermissionDTO() {
+        this.ID = "";
+        this.Name = "Test";
+        this.chucNang = new ArrayList<>();
+        this.chucNang.add("xem_sp"); // Thêm phần tử sau khi khởi tạo
+        this.slChucNang = String.valueOf(this.chucNang.size());
+        this.slTk = "0";
     }
 
     public PermissionDTO(PermissionDTO a) {
