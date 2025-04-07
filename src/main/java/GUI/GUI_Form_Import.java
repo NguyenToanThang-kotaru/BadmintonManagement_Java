@@ -30,7 +30,7 @@ public class GUI_Form_Import extends JDialog {
  
     public GUI_Form_Import(JPanel parent, String username) {
         super((Frame) SwingUtilities.getWindowAncestor(parent), "Nhập Hàng Mới", true);
-        setSize(1100, 750); // Tăng kích thước cửa sổ
+        setSize(1100, 750);
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout(10, 10));
         setBackground(Color.WHITE);
@@ -39,6 +39,10 @@ public class GUI_Form_Import extends JDialog {
         dao = new Form_ImportDAO();
         currentUser = username;
         totalAmount = 0;
+        
+        // Gán mã nhập hàng tự động
+        lblMaNhapHang = new JLabel(dao.generateNextImportID());
+        lblMaNhapHang.setFont(new Font("Segoe UI", Font.BOLD, 14)); 
         
         // Main panel với BoxLayout để kiểm soát chiều cao tốt hơn
         JPanel mainPanel = new JPanel();
@@ -98,9 +102,7 @@ public class GUI_Form_Import extends JDialog {
         JPanel maNhapHangPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         maNhapHangPanel.setBackground(Color.WHITE);
         maNhapHangPanel.add(new JLabel("Mã nhập hàng:"));
-        lblMaNhapHang = new JLabel();
-        lblMaNhapHang.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        maNhapHangPanel.add(lblMaNhapHang);
+        maNhapHangPanel.add(lblMaNhapHang); // Sử dụng lblMaNhapHang đã khởi tạo
         panel.add(maNhapHangPanel);
         
         JPanel nhanVienPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -250,10 +252,14 @@ public class GUI_Form_Import extends JDialog {
         ));
         
         // Thêm placeholder khi chưa có ảnh
-        ImageIcon defaultIcon = new ImageIcon(getClass().getResource("/images/default_product.png"));
-        if (defaultIcon.getImage() != null) {
+        java.net.URL defaultImageUrl = getClass().getResource("/images/default_product.png");
+        if (defaultImageUrl != null) {
+            ImageIcon defaultIcon = new ImageIcon(defaultImageUrl);
             Image img = defaultIcon.getImage().getScaledInstance(180, 180, Image.SCALE_SMOOTH);
             lblProductImage.setIcon(new ImageIcon(img));
+        } else {
+            lblProductImage.setIcon(null);
+            lblProductImage.setText("Không có ảnh mặc định");
         }
         
         imagePanel.add(lblProductImage, BorderLayout.CENTER);
@@ -262,7 +268,6 @@ public class GUI_Form_Import extends JDialog {
         JPanel detailPanel = new JPanel(new GridLayout(5, 2, 10, 10));
         detailPanel.setBackground(Color.WHITE);
         
-        // Thêm các thành phần thông tin
         detailPanel.add(createInfoLabel("Mã sản phẩm:"));
         lblProductId = new JLabel("Chọn sản phẩm từ danh sách");
         lblProductId.setFont(new Font("Segoe UI", Font.PLAIN, 13));
@@ -286,7 +291,7 @@ public class GUI_Form_Import extends JDialog {
         detailPanel.add(createInfoLabel("Số lượng:"));
         JPanel quantityPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
         quantityPanel.setBackground(Color.WHITE);
-        txtQuantity = new JTextField(8);
+        txtQuantity = new JTextField(5); 
         txtQuantity.setHorizontalAlignment(JTextField.RIGHT);
         txtQuantity.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         quantityPanel.add(txtQuantity);
@@ -301,12 +306,11 @@ public class GUI_Form_Import extends JDialog {
         // Panel chứa nút thêm
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonPanel.setBackground(Color.WHITE);
-        btnThemSP = new CustomButton("Thêm vào phiếu nhập");
-        btnThemSP.setPreferredSize(new Dimension(180, 35));
+        btnThemSP = new CustomButton("Thêm SP"); 
+        btnThemSP.setPreferredSize(new Dimension(120, 35));
         btnThemSP.addActionListener(e -> addProductToImport());
         buttonPanel.add(btnThemSP);
         
-        // Panel chính chứa thông tin
         JPanel infoPanel = new JPanel(new BorderLayout());
         infoPanel.setBackground(Color.WHITE);
         infoPanel.add(detailPanel, BorderLayout.CENTER);
@@ -402,10 +406,29 @@ public class GUI_Form_Import extends JDialog {
                 lblSupplier.setText(rs.getString("ten_nha_cung_cap"));
                 lblPrice.setText(price);
                 
-                // Load image
-                ImageIcon icon = new ImageIcon("images/" + rs.getString("hinh_anh"));
-                Image img = icon.getImage().getScaledInstance(140, 140, Image.SCALE_SMOOTH);
-                lblProductImage.setIcon(new ImageIcon(img));
+                // Load image from resources based on hinh_anh column
+                String imageFileName = rs.getString("hinh_anh");
+                String imagePath = "/images/" + imageFileName; // Đường dẫn tài nguyên bắt đầu bằng "/"
+                java.net.URL imageUrl = getClass().getResource(imagePath);
+                
+                if (imageUrl != null) {
+                    ImageIcon icon = new ImageIcon(imageUrl);
+                    Image img = icon.getImage().getScaledInstance(140, 140, Image.SCALE_SMOOTH);
+                    lblProductImage.setIcon(new ImageIcon(img));
+                    lblProductImage.setText(""); // Xóa text nếu có ảnh
+                } else {
+                    // Nếu không tìm thấy ảnh, dùng ảnh mặc định
+                    java.net.URL defaultImageUrl = getClass().getResource("/images/default_product.png");
+                    if (defaultImageUrl != null) {
+                        ImageIcon defaultIcon = new ImageIcon(defaultImageUrl);
+                        Image img = defaultIcon.getImage().getScaledInstance(140, 140, Image.SCALE_SMOOTH);
+                        lblProductImage.setIcon(new ImageIcon(img));
+                        lblProductImage.setText("");
+                    } else {
+                        lblProductImage.setIcon(null);
+                        lblProductImage.setText("Không có ảnh");
+                    }
+                }
                 
                 // Reset quantity and total
                 txtQuantity.setText("");
@@ -416,7 +439,6 @@ public class GUI_Form_Import extends JDialog {
             JOptionPane.showMessageDialog(this, "Lỗi khi tải chi tiết sản phẩm", "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
-
     private void addProductToImport() {
         try {
             String productId = lblProductId.getText();

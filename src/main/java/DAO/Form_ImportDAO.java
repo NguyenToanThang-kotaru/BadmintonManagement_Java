@@ -20,7 +20,7 @@ public class Form_ImportDAO {
             
             if (rs.next()) {
                 String lastID = rs.getString("ma_nhap_hang");
-                int num = Integer.parseInt(lastID.substring(4)) + 1;
+                int num = Integer.parseInt(lastID.substring(2)) + 1;
                 return String.format("NH%03d", num);
             }
         } catch (Exception e) {
