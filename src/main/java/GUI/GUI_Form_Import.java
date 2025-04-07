@@ -558,7 +558,8 @@ public class GUI_Form_Import extends JDialog {
 
     private void saveImport() {
         if (importTableModel.getRowCount() == 0) {
-            JOptionPane.showMessageDialog(this, "Vui lòng thêm ít nhất một sản phẩm", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Vui lòng thêm ít nhất một sản phẩm", 
+                "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
         
@@ -579,7 +580,7 @@ public class GUI_Form_Import extends JDialog {
                 });
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this, "Dữ liệu sản phẩm không hợp lệ ở dòng " + (i+1), 
-                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    "Lỗi", JOptionPane.ERROR_MESSAGE);
                 return;
             }
         }
@@ -598,19 +599,26 @@ public class GUI_Form_Import extends JDialog {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Lỗi khi lấy mã nhà cung cấp", 
+                "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
         }
         
         boolean success = bus.saveImport(importID, currentUser, supplierID, totalAmount, receiptDate, productData);
         
         if (success) {
-            JOptionPane.showMessageDialog(this, "Lưu phiếu nhập thành công", "Thành công", JOptionPane.INFORMATION_MESSAGE);
-            // Refresh product list after saving
-            loadAllProducts();
-            // Cập nhật danh sách phiếu nhập trong GUI_Import
+            JOptionPane.showMessageDialog(this, "Lưu phiếu nhập thành công", 
+                "Thành công", JOptionPane.INFORMATION_MESSAGE);
+            // Làm mới danh sách phiếu nhập và sản phẩm
             parentImportPanel.loadImport();
+            loadAllProducts();
+            importTableModel.setRowCount(0); // Xóa danh sách sản phẩm nhập trên giao diện
+            totalAmount = 0;
+            lblTongTien.setText("0");
             dispose();
         } else {
-            JOptionPane.showMessageDialog(this, "Lỗi khi lưu phiếu nhập", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Lỗi khi lưu phiếu nhập", 
+                "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
 }
