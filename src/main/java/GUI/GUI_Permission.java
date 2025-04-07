@@ -1,28 +1,25 @@
 package GUI;
 
-import BUS.AccountBUS;
-import DTO.AccountDTO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
-import BUS.AccountBUS;
+import DAO.PermissionDAO;
+import DTO.PermissionDTO;
 
 public class GUI_Permission extends JPanel {
 
     // Khai báo các thành phần giao diện
     private JPanel midPanel, topPanel, botPanel;
-    private JTable accountTable;
+    private JTable permissionTable;
     private DefaultTableModel tableModel;
     private JComboBox<String> roleComboBox;
-    private CustomButton saveButton, addButton, deleteButton;
+    private CustomButton detailPermissionButton, editButton, addButton, deleteButton, reloadButton;
     private CustomSearch searchField;
-    private AccountBUS accountBUS;
+    private PermissionDTO permissionChoosing;
 
     public GUI_Permission() {
-        accountBUS = new AccountBUS(); // Khởi tạo đối tượng BUS để lấy dữ liệu tài khoản
-
         // Cấu hình layout chính
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -34,7 +31,10 @@ public class GUI_Permission extends JPanel {
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         topPanel.setBackground(Color.WHITE);
 
-        searchField = new CustomSearch(275,20); // Ô nhập tìm kiếm
+        reloadButton = new CustomButton("Tải lại trang");
+        topPanel.add(reloadButton, BorderLayout.WEST);
+
+        searchField = new CustomSearch(275, 20); // Ô nhập tìm kiếm
         searchField.setBackground(Color.white);
         topPanel.add(searchField, BorderLayout.CENTER);
 
@@ -46,9 +46,9 @@ public class GUI_Permission extends JPanel {
         midPanel.setBackground(Color.WHITE);
 
         // Định nghĩa tiêu đề cột
-        String[] columnNames = {"STT", "Tên quyền", "Mô tả", "Số lượng tài khoản"};
+        String[] columnNames = {"STT", "Tên quyền", "Số lượng quyền", "Số lượng tài khoản"};
         CustomTable customTable = new CustomTable(columnNames);
-        accountTable = customTable.getAccountTable(); // Lấy JTable từ CustomTable
+        permissionTable = customTable.getAccountTable(); // Lấy JTable từ CustomTable
         tableModel = customTable.getTableModel(); // Lấy model của bảng
 
         midPanel.add(customTable, BorderLayout.CENTER);
@@ -67,87 +67,62 @@ public class GUI_Permission extends JPanel {
         gbc.gridy = 0;
         botPanel.add(new JLabel("Tên quyền: "), gbc);
         gbc.gridx = 1;
-        JLabel employeeLabel = new JLabel("Chọn quyền");
-        botPanel.add(employeeLabel, gbc);
+        JLabel permissionLabel = new JLabel("Chọn quyền");
+        botPanel.add(permissionLabel, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 1;
-        botPanel.add(new JLabel("Mô tả: "), gbc);
+        botPanel.add(new JLabel("Số lượng quyền: "), gbc);
         gbc.gridx = 1;
-        JLabel usernameLabel = new JLabel("");
-        botPanel.add(usernameLabel, gbc);
+        JLabel countFunction = new JLabel("");
+        botPanel.add(countFunction, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 2;
-        botPanel.add(new JLabel("Mật khẩu: "), gbc);
+        botPanel.add(new JLabel("Số lượng tài khoản: "), gbc);
         gbc.gridx = 1;
-        JLabel passwordLabel = new JLabel("");
-        botPanel.add(passwordLabel, gbc);
+        JLabel countAccount = new JLabel("");
+        botPanel.add(countAccount, gbc);
+
+        // ========== PANEL BUTTON ==========
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 5));
+        buttonPanel.setOpaque(false);
+
+        deleteButton = new CustomButton("Xóa");
+        deleteButton.setCustomColor(new Color(220, 0, 0));
+        buttonPanel.add(deleteButton, BorderLayout.WEST);
+
+        editButton = new CustomButton("Sửa");
+        editButton.setCustomColor(new Color(0, 230, 0));
+        buttonPanel.add(editButton, BorderLayout.CENTER);
+
+        detailPermissionButton = new CustomButton("Xem Chi Tiết Quyền");
+        detailPermissionButton.setCustomColor(new Color(0, 120, 215));
+        buttonPanel.add(detailPermissionButton, BorderLayout.EAST);
 
         gbc.gridx = 0;
         gbc.gridy = 3;
-        botPanel.add(new JLabel("Quyền tài khoản: "), gbc);
-        gbc.gridx = 1;
-        roleComboBox = new JComboBox<>(new String[]{"ADMIN1", "ADMIN2", "QUANLY1", "NHANVIEN1"});
-        botPanel.add(roleComboBox, gbc);
+        gbc.gridwidth = 2;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        deleteButton = new CustomButton("Xoá"); // Nút lưu thông tin tài khoản
-        deleteButton.setCustomColor(Color.red);
-        botPanel.add(deleteButton, gbc);
-                                                    
-        gbc.gridx = 1;
-        gbc.gridy = 4;
-        saveButton = new CustomButton("💾 Lưu"); // Nút lưu thông tin tài khoản
-        botPanel.add(saveButton, gbc);
-        
-        
+//         Xử lý sự kiện chọn tài khoản trong bảng
+        permissionTable.getSelectionModel().addListSelectionListener(e -> {
+            int selectedRow = permissionTable.getSelectedRow();
+            if (selectedRow != -1) {
+                // Lấy dữ liệu từ bảng và chuyển đổi sang String một cách an toàn
+                String tenQuyen = (String) permissionTable.getValueAt(selectedRow, 1);
+                String soluongQuyen = (String) permissionTable.getValueAt(selectedRow, 2);
+                String soluongTaiKhoan = (String) permissionTable.getValueAt(selectedRow, 3);
 
-        // Xử lý sự kiện chọn tài khoản trong bảng
-//        accountTable.getSelectionModel().addListSelectionListener(e -> {
-//            int selectedRow = accountTable.getSelectedRow();
-//            if (selectedRow != -1) {
-//                // Lấy dữ liệu từ bảng và chuyển đổi sang String một cách an toàn
-//                Object value = accountTable.getValueAt(selectedRow, 0);
-//                String valueStr = String.valueOf(value);
-//                String tenNhanVien = (String) accountTable.getValueAt(selectedRow, 1);
-//                String taiKhoan = (String) accountTable.getValueAt(selectedRow, 2);
-//                String matKhau = (String) accountTable.getValueAt(selectedRow, 3);
-//                String quyen = (String) accountTable.getValueAt(selectedRow, 4);
-//
-//                // Hiển thị dữ liệu trên giao diện
-//                employeeLabel.setText(valueStr + " - " + tenNhanVien);
-//                usernameLabel.setText(taiKhoan);
-//                passwordLabel.setText(matKhau);
-//                roleComboBox.setSelectedItem(quyen);
-//            }
-//        });
+                permissionChoosing = new PermissionDTO(PermissionDAO.getPermissionByName(tenQuyen));
 
-//        saveButton.addActionListener(e -> {
-//            int selectedRow = accountTable.getSelectedRow();
-//            if (selectedRow != -1) {
-//                // Lấy dữ liệu từ giao diện
-////                int employeeID = Integer.parseInt(employeeLabel.getText().split(" - ")[0]);
-//                String employeeID = employeeLabel.getText();
-//                String username = usernameLabel.getText();
-//                String password = passwordLabel.getText();
-//                String fullname = passwordLabel.getText();
-//                String role = (String) roleComboBox.getSelectedItem();
-//
-//                // Tạo đối tượng DTO
-//                AccountDTO account = new AccountDTO(employeeID, username, password,fullname, role);
-//
-//                // Cập nhật vào database
-//                accountBUS.updateAccount(account);
-//
-//                // Tải lại bảng
-//                loadAccounts();
-//                JOptionPane.showMessageDialog(this, "Cập nhật tài khoản thành công!");
-//            } else {
-//                JOptionPane.showMessageDialog(this, "Vui lòng chọn tài khoản để chỉnh sửa!");
-//            }
-//        });
+                // Hiển thị dữ liệu trên giao diện
+                permissionLabel.setText(tenQuyen);
+                countFunction.setText(soluongQuyen);
+                countAccount.setText(soluongTaiKhoan);
+                botPanel.add(buttonPanel, gbc);
+            }
+        });
 
         // Thêm các panel vào giao diện chính
         add(topPanel);
@@ -157,19 +132,47 @@ public class GUI_Permission extends JPanel {
         add(botPanel);
 
         // Tải dữ liệu tài khoản lên bảng
-        loadAccounts();
+        loadPermissions();
+        addButton.addActionListener(e -> {
+            GUI_Form_Permission a = new GUI_Form_Permission(this, null);
+            a.setVisible(true);
+        });
+
+        editButton.addActionListener(e -> {
+            GUI_Form_Permission a = new GUI_Form_Permission(this, permissionChoosing);
+            a.setVisible(true);
+        });
+
+        deleteButton.addActionListener(e -> {
+            if (PermissionDAO.deletePermission(permissionChoosing.getID()) == true) {
+                System.out.println("Da xoa thanh cong");
+            }
+            loadPermissions();
+        });
+
+        reloadButton.addActionListener(e -> {
+            loadPermissions();
+        });
     }
 
     // Phương thức tải danh sách tài khoản từ database lên bảng
-    private void loadAccounts() {
-        List<AccountDTO> accounts = accountBUS.getAllAccounts(); // Lấy danh sách tài khoản
+    private void loadPermissions() {
+        List<PermissionDTO> permissions = PermissionDAO.getAllPermissions(); // Lấy danh sách tài khoản
         tableModel.setRowCount(0); // Xóa dữ liệu cũ trước khi cập nhật
         int index = 1;
-        String no = "";
-        for (AccountDTO acc : accounts) {
-            tableModel.addRow(new Object[]{index++,acc.getFullname() ,
-                acc.getUsername(), acc.getPassword(), acc.getTenquyen()});
+        for (PermissionDTO per : permissions) {
+            tableModel.addRow(new Object[]{index++, per.getName(), per.getSlChucNang(), per.getSlTk()});
         }
     }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Quản lý bảo hành");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setSize(900, 600);
+            frame.setLocationRelativeTo(null);
+            frame.setContentPane(new GUI_Permission());
+            frame.setVisible(true);
+        });
+    }
 }
-    

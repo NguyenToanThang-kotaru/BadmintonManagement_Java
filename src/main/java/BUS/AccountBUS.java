@@ -1,7 +1,11 @@
 package BUS;
 
 import DAO.AccountDAO;
+import DAO.EmployeeDAO;
+import DAO.PermissionDAO;
 import DTO.AccountDTO;
+import DTO.EmployeeDTO;
+import DTO.PermissionDTO;
 import java.util.List;
 import javax.swing.JOptionPane;
 
@@ -41,13 +45,25 @@ public class AccountBUS {
         }
     }
 
-    public List<AccountDTO> getAllAccounts() {
-        return AccountDAO.getAllAccounts();
+    public List<AccountDTO> getAllPlayers_No_Account() {
+        List<AccountDTO> a = AccountDAO.getAllAccounts();
+        return a;
     }
 
-    public void updateAccount(AccountDTO account) {
-        AccountDAO dao = new AccountDAO();
-        dao.updateAccount(account);
+    public static Boolean addAccount(String username, String password, String tenquyen) {
+        System.out.println(tenquyen);
+        PermissionDTO a= new PermissionDTO(PermissionDAO.getPermissionByName(tenquyen));
+        EmployeeDTO e = new EmployeeDTO(EmployeeDAO.getEmployeeByName(username));
+        if (AccountDAO.addAccount(e.getEmployeeID(), password, a.getID())==true)
+            return true;
+        else
+            System.out.println("Khong co cc j het");
+        return false;
+    }
+
+    public static Boolean updateAccount(String username,String password, String maquyen) {
+        PermissionDTO a = new PermissionDTO(PermissionDAO.getPermissionByName(maquyen));
+        return AccountDAO.updateAccount(username, password, a.getID())==true;
     }
 
 }

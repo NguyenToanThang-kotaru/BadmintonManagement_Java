@@ -99,9 +99,27 @@ public class GUI_FixFormProduct extends JDialog {
         anhField.setText(product.getAnh());
         add(anhField, gbc);
 
+        gbc.gridx = 2;
+        JButton chooseImageButton = new JButton("Chọn ảnh");
+        chooseImageButton.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            fileChooser.setDialogTitle("Chọn ảnh sản phẩm");
+
+            int returnValue = fileChooser.showOpenDialog(this);
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
+                String fileName = fileChooser.getSelectedFile().getName(); // Chỉ lấy tên tệp
+                anhField.setText(fileName); // Đặt tên ảnh vào ô nhập liệu
+            }
+        });
+
+        add(chooseImageButton, gbc);
+
         gbc.gridx = 1;
         gbc.gridy = 8;
         gbc.gridwidth = 2;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.WEST;
         saveButton = new CustomButton("Lưu");
         saveButton.addActionListener(e -> {
             // Lấy dữ liệu từ form
@@ -111,7 +129,7 @@ public class GUI_FixFormProduct extends JDialog {
             String soluong = soluongField.getText();
             String tskt = tsktField.getText();
             String tenLoai = (String) TLField.getSelectedItem(); // Lấy tên loại từ combobox
-            String anh = anhField.getText();
+            String anh = anhField.getText(); // Lấy đường dẫn ảnh từ JLabel
 
             // Cập nhật vào ProductDTO
             product.setProductName(name);
@@ -121,7 +139,7 @@ public class GUI_FixFormProduct extends JDialog {
             product.setTSKT(tskt);
             product.setTL(tenLoai);
             product.setAnh(anh);
-                
+
             // Gọi updateProduct để cập nhật sản phẩm với mã loại tương ứng
             ProductDAO.updateProduct(product);
 

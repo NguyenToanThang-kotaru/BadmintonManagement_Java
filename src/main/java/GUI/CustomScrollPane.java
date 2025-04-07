@@ -19,7 +19,7 @@ public class CustomScrollPane extends JScrollPane {
 
     private void customizeScrollBar() {
         JScrollBar verticalScrollBar = getVerticalScrollBar();
-        verticalScrollBar.setPreferredSize(new Dimension(0, 0)); // Giảm độ rộng
+        verticalScrollBar.setPreferredSize(new Dimension(3, 0)); // Giảm độ rộng
         verticalScrollBar.setUnitIncrement(10);
         verticalScrollBar.setBorder(BorderFactory.createLineBorder(new Color(180, 180, 180), 1));
 
