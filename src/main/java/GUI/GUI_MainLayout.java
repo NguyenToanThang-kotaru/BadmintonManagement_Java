@@ -1,5 +1,9 @@
 package GUI;
 
+import BUS.PermissionBUS;
+import DAO.AccountDAO;
+import DAO.PermissionDAO;
+import DTO.AccountDTO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -9,19 +13,22 @@ public class GUI_MainLayout extends JFrame {
     private CustomSidebar Sidebar;
     private CustomTittleBar tittleBar;
 
-    public GUI_MainLayout(JFrame login) {
+    public GUI_MainLayout(JFrame login, String username, String password) {
+        AccountDTO logned = AccountDAO.getAccount(username, password);
+        
+        System.out.println(PermissionDAO.getFunctionByID(logned.getPermission().getChucNang().get(1)));
         setTitle("Quản Lý Kho Hàng");
         setSize(1000, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
+        setLocationRelativeTo(null);    
         setLayout(new BorderLayout(0, 0));
         setUndecorated(true);
 
         // ================================ Title Bar ================================
         tittleBar = new CustomTittleBar(this);
-
+        System.out.println();
         // ================================ CustomSidebar ================================
-        Sidebar = new CustomSidebar(login, this);
+        Sidebar = new CustomSidebar(login, this,PermissionBUS.getModule(logned.getPermission().getChucNang()));
 
         // ================================ Content ================================
         JPanel contentPanel = new JPanel(new BorderLayout());

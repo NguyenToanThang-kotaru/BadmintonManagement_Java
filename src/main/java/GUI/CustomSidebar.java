@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.List;
 import javax.swing.border.MatteBorder;
 
 /**
@@ -11,8 +12,9 @@ import javax.swing.border.MatteBorder;
  * @author Thang Nguyen
  */
 public class CustomSidebar extends JPanel {
+
     private JLabel selectedLabel = null;
-    private ArrayList<String> menuItems;
+    private List<String> menuItems;
     public JPanel statisticsPanel, productPanel, orderPanel,
             supplierPanel, importPanel, promotionPanel,
             customerPanel, accountPanel, rolePanel,
@@ -22,7 +24,7 @@ public class CustomSidebar extends JPanel {
 
     public CustomScrollPane scrollPane;
 
-    public CustomSidebar(JFrame login, JFrame Main_Layout) {
+    public CustomSidebar(JFrame login, JFrame Main_Layout, List<String> userFunctions) {
         setLayout(new BorderLayout());
         setBackground(Color.LIGHT_GRAY);
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -39,21 +41,66 @@ public class CustomSidebar extends JPanel {
         // ====== panel2: Danh sách menu ======
 
         // ====== Danh sách menu từ ArrayList ======
-        menuItems = new ArrayList<>();
-        menuItems.add("Thống kê");
-        menuItems.add("Sản Phẩm");
-        menuItems.add("Đơn Hàng");
-        menuItems.add("Nhân Viên");
-        menuItems.add("Nhà Cung Cấp");
-        menuItems.add("Hóa Đơn Nhập");
-        menuItems.add("Khách Hàng");
-        menuItems.add("Tài Khoản");
-        menuItems.add("Bảo Hành");
-        menuItems.add("Phân Quyền");
+        menuItems = new ArrayList<String>();
+
+// Kiểm tra và thêm từng mục dựa trên userFunctions
+        for (String funcCode : userFunctions) {
+            switch (funcCode) {
+                case"thongke":
+                        menuItems.add("Thống kê");
+                    break;
+                case "sp":
+                    if (!menuItems.contains("Sản Phẩm")) {
+                        menuItems.add("Sản Phẩm");
+                    }
+                    break;
+                case "tk":
+                    if (!menuItems.contains("Tài Khoản")) {
+                        menuItems.add("Tài Khoản");
+                    }
+                    break;
+                case "ncc":
+                    if (!menuItems.contains("Nhà Cung Cấp")) {
+                        menuItems.add("Nhà Cung Cấp");
+                    }
+                    break;
+                case "dh":
+                    if (!menuItems.contains("Đơn Hàng")) {
+                        menuItems.add("Đơn Hàng");
+                    }
+                    break;
+                case "nv":
+                    if (!menuItems.contains("Nhân Viên")) {
+                        menuItems.add("Nhân Viên");
+                    }
+                    break;
+                case "hdn":
+                    if (!menuItems.contains("Hóa Đơn Nhập")) {
+                        menuItems.add("Hóa Đơn Nhập");
+                    }
+                    break;
+                case "kh":
+                    if (!menuItems.contains("Khách Hàng")) {
+                        menuItems.add("Khách Hàng");
+                    }
+                    break;
+                case "bh":
+                    if (!menuItems.contains("Bảo Hành")) {
+                        menuItems.add("Bảo Hành");
+                    }
+                    break;
+                case "pq":
+                    if (!menuItems.contains("Phân Quyền")) {
+                        menuItems.add("Phân Quyền");
+                    }
+                    break;
+            }
+        }
+
         panel2 = new JPanel();
         panel2.setLayout(new BoxLayout(panel2, BoxLayout.Y_AXIS));
         panel2.setBackground(Color.LIGHT_GRAY);
-        
+
         for (String item : menuItems) {
             // Định nghĩa đường dẫn của icon tương ứng
             String iconPath = "src/main/resources/images/";
@@ -110,7 +157,7 @@ public class CustomSidebar extends JPanel {
             label.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
             label.setPreferredSize(new Dimension(200, 40));
 //            final boolean[] isClicked = {false};
-            
+
             // Hiệu ứng hover
             label.addMouseListener(new MouseAdapter() {
                 @Override
