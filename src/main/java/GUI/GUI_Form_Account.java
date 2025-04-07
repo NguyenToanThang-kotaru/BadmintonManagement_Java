@@ -1,18 +1,24 @@
 package GUI;
 
+import BUS.AccountBUS;
+import DAO.AccountDAO;
 import DAO.PermissionDAO;
+import DTO.EmployeeDTO;
 import javax.swing.*;
 import java.awt.*;
 import DTO.AccountDTO;
+import DAO.EmployeeDAO;
 import DTO.PermissionDTO;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 public class GUI_Form_Account extends JDialog {
 
-    private JTextField txtEmployeeName, txtAccount;
-    private JPasswordField txtPassword;
-    private JLabel title, lblEmployeeName;
-    private CustomCombobox<String> cbRole;
+    private JTextField txtEditPassword;
+    private JPasswordField txtRePassword, txtPassword;
+    private JLabel title, lblEmployeeName, txtAccount;
+    private CustomCombobox<String> cbRole, cbEmployeeName;
     private CustomButton btnSave, btnCancel;
 
     public GUI_Form_Account(JPanel parent, AccountDTO account) {
@@ -38,10 +44,19 @@ public class GUI_Form_Account extends JDialog {
 
         // Nếu account != null => Sửa tài khoản
         lblEmployeeName = new JLabel();
-        txtEmployeeName = new JTextField(20);
-        txtAccount = new JTextField(20);
+        java.util.List<EmployeeDTO> employees = EmployeeDAO.getEmployeesWithoutAccount();
+        String[] names = new String[employees.size()];
+        int i1 = 0;
+        for (EmployeeDTO emp : employees) {
+            names[i1] = emp.getFullName();
+            System.out.println("names[i]");
+            i1++;
+        }
+        cbEmployeeName = new CustomCombobox<>(names);
+        txtAccount = new JLabel();
         txtPassword = new JPasswordField(20);
-
+        txtRePassword = new JPasswordField(20);
+        txtEditPassword = new JTextField(20);
 //        cbRole = new CustomCombobox<>();
         java.util.List<PermissionDTO> permissions = PermissionDAO.getAllPermissions();
         String[] roles = new String[permissions.size()];
@@ -60,7 +75,9 @@ public class GUI_Form_Account extends JDialog {
             lblEmployeeName.setText(account.getFullname());
             txtAccount.setText(account.getUsername());
             txtPassword.setText(account.getPassword());
-            cbRole.setSelectedItem(account.getTenquyen());
+            txtRePassword.setText(account.getPassword());
+            cbRole.setSelectedItem(account.getPermission().getName());
+            txtEditPassword.setText(account.getPassword());
 //            String quyen = account.getTenquyen();
 //            System.out.println(quyen);
 
@@ -72,11 +89,14 @@ public class GUI_Form_Account extends JDialog {
         }
         if (account != null) {
             addComponent("Nhân Viên:", lblEmployeeName, gbc);
+            addComponent("Tài Khoản: ", txtAccount, gbc);
+            addComponent("Mật Khẩu:", txtEditPassword, gbc);
         } else {
-            addComponent("Nhân Viên:", txtEmployeeName, gbc);
+            addComponent("Nhân Viên:", cbEmployeeName, gbc);
+            addComponent("Mật Khẩu: ", txtPassword, gbc);
+            addComponent("Nhập Lại Mật Khẩu:", txtRePassword, gbc);
         }
-        addComponent("Tên Đăng Nhập:", txtAccount, gbc);
-        addComponent("Mật Khẩu:", txtPassword, gbc);
+
         addComponent("Quyền:", cbRole, gbc);
 
         JPanel buttonPanel = new JPanel(new FlowLayout());
@@ -93,13 +113,35 @@ public class GUI_Form_Account extends JDialog {
 
         btnCancel.addActionListener(e -> dispose());
 
-//        btnSave.addActionListener(e -> {
-//            if (account == null) {
-//                saveNewAccount();
-//            } else {
-//                updateAccount(account);
-//            }
-//        });
+        btnSave.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (account == null) {
+                    System.out.println(cbEmployeeName.getSelectedItem().toString());
+                    char[] passwordChars = txtPassword.getPassword();
+                    String password = new String(passwordChars);
+                    System.out.println(password);
+                    if (AccountBUS.addAccount(cbEmployeeName.getSelectedItem().toString(), password, cbRole.getSelectedItem().toString())) {
+                        System.out.println("Thanh cong");
+                    } else {
+                        System.out.println("That bai");
+                    }
+                } else { 
+                    String username = txtAccount.getText();
+                    String password = txtEditPassword.getText();
+                    String role = cbRole.getSelectedItem().toString();
+                    System.out.println(username+password+role);
+                    if (AccountBUS.updateAccount(username, password, role) == true) {
+                        System.out.println("Thanh cong");
+                        dispose();
+                        
+                    }
+                    else {
+                        System.out.println("That bai");
+                    }
+                }
+            }
+        });
     }
 
     private void addComponent(String label, JComponent component, GridBagConstraints gbc) {

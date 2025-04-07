@@ -8,6 +8,8 @@ import java.awt.*;
 import java.util.List;
 import BUS.AccountBUS;
 import DAO.AccountDAO;
+import DAO.PermissionDAO;
+import DTO.PermissionDTO;
 
 public class GUI_Account extends JPanel {
 
@@ -124,7 +126,8 @@ public class GUI_Account extends JPanel {
                 String taikhoan = (String) accountTable.getValueAt(selectedRow, 2);
                 String matkhau = (String) accountTable.getValueAt(selectedRow, 3);
                 String quyen = (String) accountTable.getValueAt(selectedRow, 4);
-                accountChoosing = new AccountDTO(taikhoan, matkhau,tenNhanVien,quyen);
+                PermissionDTO temp = PermissionDAO.getPermissionByName(quyen);
+                accountChoosing = new AccountDTO(taikhoan, matkhau,tenNhanVien,temp);
                 // Hiển thị dữ liệu trên giao diện
                 employeeLabel.setText(tenNhanVien);
                 usernameLabel.setText(taikhoan);
@@ -168,12 +171,12 @@ public class GUI_Account extends JPanel {
 
     // Phương thức tải danh sách tài khoản từ database lên bảng
     private void loadAccounts() {
-        List<AccountDTO> accounts = accountBUS.getAllAccounts(); // Lấy danh sách tài khoản
+        List<AccountDTO> accounts = AccountDAO.getAllAccounts(); // Lấy danh sách tài khoản
         tableModel.setRowCount(0); // Xóa dữ liệu cũ trước khi cập nhật
         int index = 1;
         for (AccountDTO acc : accounts) {
             tableModel.addRow(new Object[]{index++, acc.getFullname(),
-                acc.getUsername(), acc.getPassword(), acc.getTenquyen()});
+                acc.getUsername(), acc.getPassword(), acc.getPermission().getName()});
             
         }
     }
