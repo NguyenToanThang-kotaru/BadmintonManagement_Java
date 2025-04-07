@@ -149,7 +149,12 @@ public class GUI_Permission extends JPanel {
             }
             loadPermissions();
         });
-
+        
+        detailPermissionButton.addActionListener(e -> {
+            GUI_DetailPermission dp = new GUI_DetailPermission(permissionChoosing);
+            dp.setVisible(true);
+        });
+        
         reloadButton.addActionListener(e -> {
             loadPermissions();
         });
