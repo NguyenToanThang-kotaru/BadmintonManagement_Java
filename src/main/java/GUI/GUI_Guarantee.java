@@ -5,7 +5,7 @@ import DTO.GuaranteeDTO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import javax.swing.table.TableColumnModel;  
+import javax.swing.table.TableColumnModel;
 import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
 
@@ -33,7 +33,23 @@ public class GUI_Guarantee extends JPanel {
         searchField = new CustomSearch(250, 30);
         searchField.setFont(new Font("Arial", Font.PLAIN, 14));
         searchField.setBackground(Color.WHITE);
+
+        ImageIcon reloadIcon = new ImageIcon(getClass().getResource("/images/reload.png"));
+        Image img = reloadIcon.getImage().getScaledInstance(45, 45, Image.SCALE_SMOOTH);
+        ImageIcon resizedIcon = new ImageIcon(img);
+
+        JLabel reloadLabel = new JLabel(resizedIcon);
+        reloadLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        reloadLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+
+        reloadLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                loadGuaranteeData();
+            }
+        });
+
         topPanel.add(searchField, BorderLayout.CENTER);
+        topPanel.add(reloadLabel, BorderLayout.WEST);
 
         // ========== BẢNG HIỂN THỊ ==========
         midPanel = new JPanel(new BorderLayout());
@@ -84,7 +100,7 @@ public class GUI_Guarantee extends JPanel {
         gbc.gridx = 1;
         JLabel StatusLabel = new JLabel("");
         botPanel.add(StatusLabel, gbc);
-            
+
         // Lý do bảo hành
         gbc.gridx = 0;
         gbc.gridy = 3;
@@ -162,8 +178,8 @@ public class GUI_Guarantee extends JPanel {
                 guarantee.getBaohanhID(), guarantee.getSerialID(), guarantee.getLydo(), guarantee.getTGBH(), guarantee.gettrangthai()
             });
         }
-        
-         model.fireTableDataChanged(); // Cập nhật lại bảng
+
+        model.fireTableDataChanged(); // Cập nhật lại bảng
     }
 //
 

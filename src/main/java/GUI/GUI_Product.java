@@ -9,7 +9,8 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import javax.swing.table.TableColumnModel;
 import java.util.ArrayList;
-
+import java.io.File;
+import java.nio.file.Files;
 public class GUI_Product extends JPanel {
 
     private JPanel midPanel, topPanel, botPanel;
@@ -44,7 +45,7 @@ public class GUI_Product extends JPanel {
 //        // ========== BẢNG HIỂN THỊ ==========
         midPanel = new JPanel(new BorderLayout());
         midPanel.setBackground(Color.WHITE);
-        String[] columnNames = {"Mã Sản Phẩm", "Tên Sản Phẩm", "Giá", "Số lượng", "Mã NCC"};
+        String[] columnNames = {"Mã Sản Phẩm", "Tên Sản Phẩm", "Giá","Mã NCC", "Số lượng"};
         tableModel = new CustomTable(columnNames);
         productTable = tableModel.getAccountTable();
         TableColumnModel columnModel = productTable.getColumnModel();
@@ -177,15 +178,16 @@ public class GUI_Product extends JPanel {
                 // Cập nhật ảnh
                 String productImg = product.getAnh();
                 if (productImg != null && !productImg.isEmpty()) {
-                    String imagePath = "/images/" + productImg;
-                    java.net.URL imageUrl = getClass().getResource(imagePath);
-                    if (imageUrl != null) {
-                        ImageIcon productIcon = new ImageIcon(imageUrl);
-                        Image img = productIcon.getImage().getScaledInstance(220, 220, Image.SCALE_SMOOTH);
-                        imageLabel.setIcon(new ImageIcon(img));
+                    String imagePath = System.getProperty("user.dir") + "/images/" + productImg;
+                    File imageFile = new File(imagePath);
+                    if (imageFile.exists()) {
+                        ImageIcon productIcon = new ImageIcon(new ImageIcon(imageFile.getAbsolutePath()).getImage()
+                                .getScaledInstance(240, 220, Image.SCALE_SMOOTH));
+                        imageLabel.setIcon(productIcon);
                     } else {
-                        imageLabel.setIcon(null);
+                        imageLabel.setIcon(null); // Ẩn ảnh nếu không tìm thấy
                     }
+
                 } else {
                     imageLabel.setIcon(null);
                 }

@@ -1,17 +1,22 @@
 package GUI;
 
 import DTO.ProductDTO;
-import javax.swing.*;
-import java.awt.*;
-import java.util.ArrayList;
 import DAO.ProductDAO;
-import GUI.GUI_Product;
+import java.awt.*;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import javax.swing.*;
+import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 
 public class GUI_FixFormProduct extends JDialog {
 
-    private JTextField nameField, priceField, maNCCField, soluongField, tsktField, anhField;
+    private JTextField nameField, priceField, maNCCField, soluongField, tsktField;
     private CustomCombobox TLField;
-    private CustomButton saveButton;
+    private CustomButton saveButton, cancelButton, btnChooseImage;
+    private JLabel imageLabel;
+    private File selectedImageFile = null;
     private ProductDTO product;
     private GUI_Product parentGUI;
 
@@ -19,136 +24,166 @@ public class GUI_FixFormProduct extends JDialog {
         super(parent, "Sửa sản phẩm", true);
         this.parentGUI = parentGUI;
         this.product = product;
-        setSize(400, 310);
+        setSize(400, 560);
         setLayout(new GridBagLayout());
         setLocationRelativeTo(parent);
-
-        getContentPane().setBackground(Color.PINK);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
-
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         gbc.gridx = 0;
         gbc.gridy = 0;
         add(new JLabel("Mã sản phẩm: "), gbc);
         gbc.gridx = 1;
-        JLabel ProductID = new JLabel("");
-        ProductID.setText(String.valueOf(product.getProductID()));
+        JLabel ProductID = new JLabel(String.valueOf(product.getProductID()));
         add(ProductID, gbc);
 
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        add(new JLabel("Tên sản phẩm: "), gbc);
-        gbc.gridx = 1;
-        nameField = new JTextField(20);
+        addComponent("Tên sản phẩm:", nameField = new JTextField(20), gbc, 1);
         nameField.setText(product.getProductName());
-        add(nameField, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        add(new JLabel("Giá: "), gbc);
-        gbc.gridx = 1;
-        priceField = new JTextField(20);
+        addComponent("Giá:", priceField = new JTextField(20), gbc, 2);
         priceField.setText(String.valueOf(product.getGia()));
-        add(priceField, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        add(new JLabel("Mã NCC: "), gbc);
-        gbc.gridx = 1;
-        maNCCField = new JTextField(20);
+        addComponent("Mã NCC:", maNCCField = new JTextField(20), gbc, 3);
         maNCCField.setText(String.valueOf(product.getMaNCC()));
-        add(maNCCField, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        add(new JLabel("Số lượng: "), gbc);
-        gbc.gridx = 1;
-        soluongField = new JTextField(20);
+        addComponent("Số lượng:", soluongField = new JTextField(20), gbc, 4);
         soluongField.setText(String.valueOf(product.getSoluong()));
-        add(soluongField, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 5;
-        add(new JLabel("Thông số kỹ thuật: "), gbc);
-        gbc.gridx = 1;
-        tsktField = new JTextField(20);
+        addComponent("Thông số kỹ thuật:", tsktField = new JTextField(20), gbc, 5);
         tsktField.setText(product.getTSKT());
-        add(tsktField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 6;
-        add(new JLabel("Tên loại: "), gbc);
+        add(new JLabel("Tên loại:"), gbc);
         gbc.gridx = 1;
         ArrayList<String> categoryList = ProductDAO.getAllCategoryNames();
         String[] categoryNames = categoryList.toArray(new String[0]);
-
-// Tạo JComboBox
         TLField = new CustomCombobox(categoryNames);
-        TLField.setSelectedItem(product.getTL()); // Set loại hiện tại của sản phẩm
+        TLField.setSelectedItem(product.getTL());
         add(TLField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 7;
-        add(new JLabel("Ảnh: "), gbc);
-        gbc.gridx = 1;
-        anhField = new JTextField(20);
-        anhField.setText(product.getAnh());
-        add(anhField, gbc);
-
-        gbc.gridx = 2;
-        JButton chooseImageButton = new JButton("Chọn ảnh");
-        chooseImageButton.addActionListener(e -> {
-            JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-            fileChooser.setDialogTitle("Chọn ảnh sản phẩm");
-
-            int returnValue = fileChooser.showOpenDialog(this);
-            if (returnValue == JFileChooser.APPROVE_OPTION) {
-                String fileName = fileChooser.getSelectedFile().getName(); // Chỉ lấy tên tệp
-                anhField.setText(fileName); // Đặt tên ảnh vào ô nhập liệu
-            }
-        });
-
-        add(chooseImageButton, gbc);
+        add(new JLabel("Ảnh sản phẩm:"), gbc);
 
         gbc.gridx = 1;
+        imageLabel = new JLabel();
+        imageLabel.setPreferredSize(new Dimension(200, 200));
+        imageLabel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+        add(imageLabel, gbc);
+
+        if (product.getAnh() != null && !product.getAnh().isEmpty()) {
+            displayImage("images/" + product.getAnh());
+        }
+
         gbc.gridy = 8;
-        gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.WEST;
-        saveButton = new CustomButton("Lưu");
-        saveButton.addActionListener(e -> {
-            // Lấy dữ liệu từ form
-            String name = nameField.getText();
-            String price = priceField.getText();
-            String maNCC = maNCCField.getText();
-            String soluong = soluongField.getText();
-            String tskt = tsktField.getText();
-            String tenLoai = (String) TLField.getSelectedItem(); // Lấy tên loại từ combobox
-            String anh = anhField.getText(); // Lấy đường dẫn ảnh từ JLabel
+        gbc.gridx = 1;
+        btnChooseImage = new CustomButton("Chọn ảnh");
+        btnChooseImage.addActionListener(e -> chooseImage());
+        add(btnChooseImage, gbc);
 
-            // Cập nhật vào ProductDTO
-            product.setProductName(name);
-            product.setGia(price);
-            product.setMaNCC(maNCC);
-            product.setSoluong(soluong);
-            product.setTSKT(tskt);
-            product.setTL(tenLoai);
-            product.setAnh(anh);
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        saveButton = new CustomButton("Cập Nhật");
+        cancelButton = new CustomButton("Hủy");
+        buttonPanel.add(saveButton);
+        buttonPanel.add(cancelButton);
 
-            // Gọi updateProduct để cập nhật sản phẩm với mã loại tương ứng
-            ProductDAO.updateProduct(product);
+        gbc.gridy = 9;
+        gbc.gridx = 1;
+        add(buttonPanel, gbc);
 
-            JOptionPane.showMessageDialog(this, "Cập nhật sản phẩm thành công!");
-            parentGUI.loadProductData();
-            dispose();
-            // Đóng form sửa
-        });
-
-        add(saveButton, gbc);
+        cancelButton.addActionListener(e -> dispose());
+        saveButton.addActionListener(e -> saveProduct());
     }
+
+    private void chooseImage() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Chọn ảnh sản phẩm");
+        fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Hình ảnh", "jpg", "png", "jpeg"));
+
+        int result = fileChooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            selectedImageFile = fileChooser.getSelectedFile();
+            displayImage(selectedImageFile.getAbsolutePath());
+        }
+    }
+
+    private void displayImage(String imagePath) {
+        if (imagePath != null && !imagePath.isEmpty()) {
+            File imageFile = new File(imagePath);
+
+            // Nếu ảnh không tồn tại trong đường dẫn tuyệt đối, thử lấy từ thư mục "images"
+            if (!imageFile.exists()) {
+                imageFile = new File("images/" + imagePath);
+            }
+
+            if (imageFile.exists()) {
+                // Thay vì lấy width và height của imageLabel, sử dụng kích thước cố định
+                ImageIcon imageIcon = new ImageIcon(new ImageIcon(imageFile.getAbsolutePath()).getImage()
+                        .getScaledInstance(230, 200, Image.SCALE_SMOOTH)); // Sử dụng kích thước cố định
+                imageLabel.setIcon(imageIcon);
+            } else {
+                System.out.println("Không tìm thấy ảnh: " + imageFile.getAbsolutePath());
+            }
+        }
+    }
+
+    private void saveProduct() {
+        String name = nameField.getText().trim();
+        String price = priceField.getText().trim();
+        String maNCC = maNCCField.getText().trim();
+        String soluong = soluongField.getText().trim();
+        String tskt = tsktField.getText().trim();
+        String tenLoai = (String) TLField.getSelectedItem();
+        String anh = product.getAnh();
+
+        if (name.isEmpty() || price.isEmpty() || maNCC.isEmpty() || soluong.isEmpty() || tskt.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (selectedImageFile != null) {
+            anh = saveImage(selectedImageFile);
+        }
+
+        product.setProductName(name);
+        product.setGia(price);
+        product.setMaNCC(maNCC);
+        product.setSoluong(soluong);
+        product.setTSKT(tskt);
+        product.setTL(tenLoai);
+        product.setAnh(anh);
+
+        ProductDAO.updateProduct(product);
+        JOptionPane.showMessageDialog(this, "Cập nhật sản phẩm thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+        parentGUI.loadProductData();
+        dispose();
+    }
+
+    private String saveImage(File imageFile) {
+        String imageDir = System.getProperty("user.dir") + "/images";
+        File dir = new File(imageDir);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        String newImageName = System.currentTimeMillis() + "_" + imageFile.getName();
+        File newImageFile = new File(imageDir, newImageName);
+
+        try {
+            Files.copy(imageFile.toPath(), newImageFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            return newImageName;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private void addComponent(String label, JComponent component, GridBagConstraints gbc, int gridy) {
+        gbc.gridx = 0;
+        gbc.gridy = gridy;
+        add(new JLabel(label), gbc);
+        gbc.gridx = 1;
+        add(component, gbc);
+    }
+
 }
