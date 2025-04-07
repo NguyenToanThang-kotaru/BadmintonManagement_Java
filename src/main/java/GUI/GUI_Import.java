@@ -6,8 +6,6 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionListener;
-
 import java.util.List;
 public class GUI_Import extends JPanel {
 
@@ -18,15 +16,18 @@ public class GUI_Import extends JPanel {
     private CustomSearch searchField;
     private ImportBUS importBUS;
     private ImportDTO importChoosing;
+    private String currentUsername;
 
-    public GUI_Import() {
+     public GUI_Import() {
+        
+        this.currentUsername = GUI_Login.getCurrentUsername();
         importBUS = new ImportBUS();
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(new EmptyBorder(10, 10, 10, 10));
         setBackground(new Color(200, 200, 200));
 
-        // ========== PANEL TRÊN CÙNG (Thanh tìm kiếm & nút thêm) ==========        
+        // ========== PANEL TRÊN CÙNG (Thanh tìm kiếm & nút thêm) ==========
         topPanel = new JPanel(new BorderLayout(10, 10));
         topPanel.setPreferredSize(new Dimension(0, 60));
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -36,14 +37,13 @@ public class GUI_Import extends JPanel {
         searchField.setBackground(Color.WHITE);
         topPanel.add(searchField, BorderLayout.CENTER);
 
-        addButton = new CustomButton("+ Thêm Phiếu Nhập"); // Nút thêm phiếu nhập 
+        addButton = new CustomButton("+ Thêm Phiếu Nhập"); // Nút thêm phiếu nhập
         topPanel.add(addButton, BorderLayout.EAST);
         addButton.addActionListener(e -> {
-            GUI_Form_Import GFI = new GUI_Form_Import(this);
+            GUI_Form_Import GFI = new GUI_Form_Import(this, currentUsername);
             GFI.setVisible(true);
         });
-
-        // ========== BẢNG HIỂN THỊ DANH SÁCH PHIẾU NHẬP ==========        
+        // ========== BẢNG HIỂN THỊ DANH SÁCH PHIẾU NHẬP ==========
         midPanel = new JPanel(new BorderLayout());
         midPanel.setBackground(Color.WHITE);
 
@@ -56,7 +56,7 @@ public class GUI_Import extends JPanel {
         midPanel.add(customTable, BorderLayout.CENTER);
         CustomScrollPane scrollPane = new CustomScrollPane(importTable);
 
-        // ========== PANEL CHI TIẾT PHIẾU NHẬP ==========        
+        // ========== PANEL CHI TIẾT PHIẾU NHẬP ==========
         botPanel = new JPanel(new GridBagLayout());
         botPanel.setBackground(Color.WHITE);
         botPanel.setBorder(BorderFactory.createTitledBorder("Hóa Đơn Nhập"));
@@ -101,7 +101,7 @@ public class GUI_Import extends JPanel {
         JLabel receiptdateLabel = new JLabel("");
         botPanel.add(receiptdateLabel, gbc);
 
-        // ========== PANEL BUTTON ==========        
+        // ========== PANEL BUTTON ==========
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 5));
         buttonPanel.setOpaque(false);
 
@@ -109,15 +109,15 @@ public class GUI_Import extends JPanel {
         deleteButton.setCustomColor(new Color(220, 0, 0));
         buttonPanel.add(deleteButton, BorderLayout.WEST);
 
-    
+
         detailimportButton = new CustomButton("Xem Chi Tiết Hóa Đơn Nhập");
         detailimportButton.setCustomColor(new Color(0, 120, 215));
         buttonPanel.add(detailimportButton, BorderLayout.EAST);
         detailimportButton.addActionListener(e -> {
             if (importChoosing != null) {
                 GUI_Import_Detail detailDialog = new GUI_Import_Detail(
-                    (JFrame) SwingUtilities.getWindowAncestor(this), 
-                    importChoosing
+                        (JFrame) SwingUtilities.getWindowAncestor(this),
+                        importChoosing
                 );
                 detailDialog.setVisible(true);
             } else {
@@ -137,8 +137,8 @@ public class GUI_Import extends JPanel {
         add(botPanel);
 
         loadImport();
-       
-        
+
+
         deleteButton.addActionListener(e -> {
             if (importChoosing != null) {
                 int result = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn xóa phiếu nhập này?", "Xác nhận", JOptionPane.YES_NO_OPTION);
@@ -151,7 +151,7 @@ public class GUI_Import extends JPanel {
             }
         });
 
-        
+
         importTable.getSelectionModel().addListSelectionListener(e -> {
             int selectedRow = importTable.getSelectedRow();
             if (selectedRow != -1) {
@@ -173,15 +173,16 @@ public class GUI_Import extends JPanel {
     }
 
     void loadImport() {
+        importBUS = new ImportBUS(); // Khởi tạo ImportBUS ở đây để đảm bảo nó được khởi tạo
         List<ImportDTO> importList = importBUS.getAllImport();
         tableModel.setRowCount(0);
         for (ImportDTO importDTO : importList) {
             tableModel.addRow(new Object[]{
-                importDTO.getimportID(), 
-                importDTO.getemployeeID(),
-                importDTO.getsupplierID(), 
-                Utils.formatCurrency(importDTO.gettotalmoney()), 
-                importDTO.getreceiptdate()
+                    importDTO.getimportID(),
+                    importDTO.getemployeeID(),
+                    importDTO.getsupplierID(),
+                    Utils.formatCurrency(importDTO.gettotalmoney()),
+                    importDTO.getreceiptdate()
             });
         }
     }

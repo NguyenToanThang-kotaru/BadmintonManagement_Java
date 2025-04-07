@@ -1,4 +1,5 @@
 package GUI;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -19,14 +20,14 @@ public class GUI_Form_Import extends JDialog {
     private DefaultTableModel tableModel;
     private CustomButton btnThemSP, btnLuu, btnHuy;
     private CustomCombobox<String> cbNhaCungCap;
-    private String currentUser;
+
     private Map<String, List<ProductDTO>> supplierProductsMap;
     private int totalAmount;
     private Form_ImportDAO dao;
     private Form_ImportBUS bus;
+    private String currentUser; 
 
-
-    public GUI_Form_Import(JPanel parent) {
+    public GUI_Form_Import(JPanel parent, String username) {
         super((Frame) SwingUtilities.getWindowAncestor(parent), "Nhập Hàng Mới", true);
         setSize(800, 600);
         setLocationRelativeTo(parent);
@@ -35,10 +36,10 @@ public class GUI_Form_Import extends JDialog {
         bus = new Form_ImportBUS();
         dao = new Form_ImportDAO();
 
-        currentUser = getCurrentUser();
+        currentUser = username;
         supplierProductsMap = bus.loadSupplierProducts();
         totalAmount = 0;
-
+        
         // Top panel - basic info
         JPanel topPanel = new JPanel(new GridBagLayout());
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
@@ -53,7 +54,7 @@ public class GUI_Form_Import extends JDialog {
 
         // Add components
         addLabelAndField(topPanel, gbc, "Mã nhập hàng:", lblMaNhapHang = new JLabel(nextImportID));
-        addLabelAndField(topPanel, gbc, "Nhân viên:", new JLabel(currentUser + " - " + dao.getEmployeeName(currentUser)));
+        addLabelAndField(topPanel, gbc, "Nhân viên:", new JLabel(currentUser + " - " + bus.getEmployeeName(currentUser)));
         addLabelAndField(topPanel, gbc, "Ngày nhập:", new JLabel(LocalDate.now().toString()));
         addLabelAndField(topPanel, gbc, "Nhà cung cấp:", cbNhaCungCap = new CustomCombobox<>(dao.getSupplierNames()));
         addLabelAndField(topPanel, gbc, "Tổng tiền:", lblTongTien = new JLabel("0"));
@@ -83,7 +84,7 @@ public class GUI_Form_Import extends JDialog {
         };
         productsTable = new JTable(tableModel);
         productsTable.setRowHeight(25);
-        
+
         // Center-align all columns
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
@@ -101,7 +102,7 @@ public class GUI_Form_Import extends JDialog {
         btnLuu = new CustomButton("Lưu phiếu nhập");
         btnLuu.setCustomColor(new Color(0, 120, 215));
         btnLuu.addActionListener(e -> saveImport());
-        
+
         btnHuy = new CustomButton("Hủy");
         btnHuy.setCustomColor(new Color(220, 0, 0));
         btnHuy.addActionListener(e -> dispose());
@@ -131,22 +132,18 @@ public class GUI_Form_Import extends JDialog {
         panel.add(component, gbc);
     }
 
-    private String getCurrentUser() {
-        // In a real application, this would come from the login session
-        return "NV016"; // Example user
-    }
 
     private void showAddProductDialog() {
         String selectedSupplier = (String) cbNhaCungCap.getSelectedItem();
-        if (selectedSupplier == null || selectedSupplier.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn nhà cung cấp trước!");
+        if (selectedSupplier == null || selectedSupplier.isEmpty() || selectedSupplier.equals("Không có nhà cung cấp nào")) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn nhà cung cấp hợp lệ trước!");
             return;
         }
 
         // Extract supplier ID from the combo box item
         String supplierID = selectedSupplier.split(" - ")[0];
         List<ProductDTO> products = supplierProductsMap.get(supplierID);
-        
+
         if (products == null || products.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Nhà cung cấp này không có sản phẩm nào!");
             return;
@@ -157,7 +154,7 @@ public class GUI_Form_Import extends JDialog {
         dialog.setSize(400, 300);
         dialog.setLocationRelativeTo(this);
         dialog.setLayout(new GridBagLayout());
-        
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
@@ -166,7 +163,7 @@ public class GUI_Form_Import extends JDialog {
         gbc.gridx = 0;
         gbc.gridy = 0;
         dialog.add(new JLabel("Sản phẩm:"), gbc);
-        
+
         gbc.gridx = 1;
         JComboBox<ProductDTO> cbProducts = new JComboBox<>(products.toArray(new ProductDTO[0]));
         cbProducts.setRenderer(new DefaultListCellRenderer() {
@@ -186,7 +183,7 @@ public class GUI_Form_Import extends JDialog {
         gbc.gridx = 0;
         gbc.gridy++;
         dialog.add(new JLabel("Số lượng:"), gbc);
-        
+
         gbc.gridx = 1;
         JTextField txtQuantity = new JTextField(10);
         dialog.add(txtQuantity, gbc);
@@ -195,7 +192,7 @@ public class GUI_Form_Import extends JDialog {
         gbc.gridx = 0;
         gbc.gridy++;
         dialog.add(new JLabel("Đơn giá:"), gbc);
-        
+
         gbc.gridx = 1;
         JLabel lblPrice = new JLabel("0");
         dialog.add(lblPrice, gbc);
@@ -203,7 +200,7 @@ public class GUI_Form_Import extends JDialog {
         gbc.gridx = 0;
         gbc.gridy++;
         dialog.add(new JLabel("Thành tiền:"), gbc);
-        
+
         gbc.gridx = 1;
         JLabel lblTotal = new JLabel("0");
         dialog.add(lblTotal, gbc);
@@ -213,11 +210,11 @@ public class GUI_Form_Import extends JDialog {
         gbc.gridy++;
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.CENTER;
-        
+
         JPanel buttonPanel = new JPanel(new FlowLayout());
         CustomButton btnAdd = new CustomButton("Thêm");
         CustomButton btnCancel = new CustomButton("Hủy");
-        
+
         buttonPanel.add(btnAdd);
         buttonPanel.add(btnCancel);
         dialog.add(buttonPanel, gbc);
@@ -241,7 +238,7 @@ public class GUI_Form_Import extends JDialog {
             public void changedUpdate(javax.swing.event.DocumentEvent e) { update(); }
             public void removeUpdate(javax.swing.event.DocumentEvent e) { update(); }
             public void insertUpdate(javax.swing.event.DocumentEvent e) { update(); }
-            
+
             private void update() {
                 updateProductTotal(lblTotal, lblPrice.getText(), txtQuantity.getText());
             }
@@ -251,27 +248,27 @@ public class GUI_Form_Import extends JDialog {
             try {
                 ProductDTO selectedProduct = (ProductDTO) cbProducts.getSelectedItem();
                 int quantity = Integer.parseInt(txtQuantity.getText());
-                
+
                 if (quantity <= 0) {
                     JOptionPane.showMessageDialog(dialog, "Số lượng phải lớn hơn 0!");
                     return;
                 }
-                
+
                 int price = Integer.parseInt(selectedProduct.getGia());
                 int rowTotal = price * quantity;
-                
+
                 // Add to table
                 tableModel.addRow(new Object[]{
-                    selectedProduct.getProductID(),
-                    selectedProduct.getProductName(),
-                    quantity,
-                    Utils.formatCurrency(price),
-                    Utils.formatCurrency(rowTotal)
+                        selectedProduct.getProductID(),
+                        selectedProduct.getProductName(),
+                        quantity,
+                        Utils.formatCurrency(price),
+                        Utils.formatCurrency(rowTotal)
                 });
-                
+
                 // Update total amount
                 updateTotalAmount(totalAmount + rowTotal);
-                
+
                 dialog.dispose();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(dialog, "Số lượng phải là số nguyên dương!");
@@ -305,24 +302,31 @@ public class GUI_Form_Import extends JDialog {
         }
 
         String importID = lblMaNhapHang.getText();
-        String employeeID = currentUser;
         String supplierID = ((String) cbNhaCungCap.getSelectedItem()).split(" - ")[0];
         String receiptDate = LocalDate.now().toString();
 
         // Prepare product data
         List<Object[]> productData = new ArrayList<>();
         for (int i = 0; i < tableModel.getRowCount(); i++) {
-            productData.add(new Object[]{
-                tableModel.getValueAt(i, 0),
-                tableModel.getValueAt(i, 1),
-                tableModel.getValueAt(i, 2),
-                tableModel.getValueAt(i, 3)
-            });
+            try {
+                String priceStr = tableModel.getValueAt(i, 3).toString().replaceAll("[^0-9]", "");
+                int price = Integer.parseInt(priceStr);
+
+                productData.add(new Object[]{
+                        tableModel.getValueAt(i, 0), // Mã SP
+                        tableModel.getValueAt(i, 1), // Tên SP
+                        tableModel.getValueAt(i, 2), // Số lượng
+                        price // Đơn giá (đã xử lý)
+                });
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Dữ liệu sản phẩm không hợp lệ ở dòng " + (i+1));
+                return;
+            }
         }
 
         // Save to database
-        boolean success = bus.saveImport(importID, employeeID, supplierID, totalAmount, receiptDate, productData);
-      
+        boolean success = bus.saveImport(importID, currentUser, supplierID, totalAmount, receiptDate, productData);
+
         if (success) {
             JOptionPane.showMessageDialog(this, "Lưu phiếu nhập thành công!");
             dispose();

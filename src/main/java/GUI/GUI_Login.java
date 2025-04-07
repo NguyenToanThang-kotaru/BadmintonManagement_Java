@@ -6,7 +6,7 @@ import java.awt.event.ActionEvent;
 import BUS.AccountBUS;
 
 public class GUI_Login extends JFrame {
-
+    private static String currentUsername; 
     private final CustomTittleBar tittleBar;
     private AccountBUS checkLogin;
     public GUI_Login() {
@@ -124,6 +124,7 @@ public class GUI_Login extends JFrame {
             return;
         }
         if (checkLogin.HaveAccount(username, password)){
+            currentUsername = username;
             this.setVisible(false);
             GUI_MainLayout mainLayout = new GUI_MainLayout(this);
             mainLayout.setVisible(true);
@@ -148,4 +149,8 @@ public class GUI_Login extends JFrame {
         GUI_Login a = new GUI_Login();
         a.setVisible(true);
     }
+    public static String getCurrentUsername() {
+        return currentUsername;
+    }
+    
 }

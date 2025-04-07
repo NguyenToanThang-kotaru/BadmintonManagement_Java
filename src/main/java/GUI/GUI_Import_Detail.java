@@ -71,21 +71,8 @@ public class GUI_Import_Detail extends JDialog {
             productsTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
         
-        // Load products and calculate total
-        int calculatedTotal = loadImportDetails(importDTO.getimportID(), model);
-        
-        // Verify total matches
-        try {
-            int dbTotal = Integer.parseInt(importDTO.gettotalmoney());
-            if (calculatedTotal != dbTotal) {
-                JOptionPane.showMessageDialog(this, 
-                    "Cảnh báo: Tổng tiền tính toán (" + Utils.formatCurrency(calculatedTotal) + 
-                    ") không khớp với tổng tiền trong database (" + 
-                    Utils.formatCurrency(dbTotal) + ")");
-            }
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-        }
+        loadImportDetails(importDTO.getimportID(), model);
+
 
         JScrollPane scrollPane = new JScrollPane(productsTable);
         scrollPane.setPreferredSize(new Dimension(600, 200));
@@ -120,13 +107,17 @@ public class GUI_Import_Detail extends JDialog {
     }
 
     private String getEmployeeInfo(String employeeID) {
-        String query = "SELECT ten_nhan_vien FROM nhan_vien WHERE ma_nhan_vien = ?";
+        String query = "SELECT ten_nhan_vien, so_dien_thoai, dia_chi FROM nhan_vien WHERE ma_nhan_vien = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, employeeID);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                return employeeID + " - " + rs.getString("ten_nhan_vien");
+                return String.format("%s - %s - %s - %s", 
+                    employeeID,
+                    rs.getString("ten_nhan_vien"),
+                    rs.getString("so_dien_thoai"),
+                    rs.getString("dia_chi"));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -167,7 +158,7 @@ public class GUI_Import_Detail extends JDialog {
             
             while (rs.next()) {
                 int quantity = rs.getInt("so_luong");
-                int price = rs.getInt("gia");
+                int price = rs.getInt("gia"); 
                 int rowTotal = quantity * price;
                 total += rowTotal;
                 
@@ -185,4 +176,5 @@ public class GUI_Import_Detail extends JDialog {
         
         return total;
     }
+    
 }
