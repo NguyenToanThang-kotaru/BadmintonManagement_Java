@@ -1,14 +1,17 @@
 package GUI;
 
 import BUS.ImportBUS;
+import Connection.DatabaseConnection;
 import DTO.ImportDTO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.List;
 public class GUI_Import extends JPanel {
-
     private JPanel topPanel, midPanel, botPanel;
     private JTable importTable;
     private DefaultTableModel tableModel;
@@ -18,8 +21,7 @@ public class GUI_Import extends JPanel {
     private ImportDTO importChoosing;
     private String currentUsername;
 
-     public GUI_Import() {
-        
+    public GUI_Import() {
         this.currentUsername = GUI_Login.getCurrentUsername();
         importBUS = new ImportBUS();
 
@@ -37,12 +39,16 @@ public class GUI_Import extends JPanel {
         searchField.setBackground(Color.WHITE);
         topPanel.add(searchField, BorderLayout.CENTER);
 
+        // Thêm sự kiện tìm kiếm khi nhấn nút kính lúp
+        searchField.setSearchListener(e -> searchImport());
+
         addButton = new CustomButton("+ Thêm Phiếu Nhập"); // Nút thêm phiếu nhập
         topPanel.add(addButton, BorderLayout.EAST);
         addButton.addActionListener(e -> {
             GUI_Form_Import GFI = new GUI_Form_Import(this, currentUsername);
             GFI.setVisible(true);
         });
+
         // ========== BẢNG HIỂN THỊ DANH SÁCH PHIẾU NHẬP ==========
         midPanel = new JPanel(new BorderLayout());
         midPanel.setBackground(Color.WHITE);
@@ -109,7 +115,6 @@ public class GUI_Import extends JPanel {
         deleteButton.setCustomColor(new Color(220, 0, 0));
         buttonPanel.add(deleteButton, BorderLayout.WEST);
 
-
         detailimportButton = new CustomButton("Xem Chi Tiết Hóa Đơn Nhập");
         detailimportButton.setCustomColor(new Color(0, 120, 215));
         buttonPanel.add(detailimportButton, BorderLayout.EAST);
@@ -129,6 +134,7 @@ public class GUI_Import extends JPanel {
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         botPanel.add(buttonPanel, gbc);
+
         // Thêm các panel vào giao diện chính
         add(topPanel);
         add(Box.createVerticalStrut(10));
@@ -137,7 +143,6 @@ public class GUI_Import extends JPanel {
         add(botPanel);
 
         loadImport();
-
 
         deleteButton.addActionListener(e -> {
             if (importChoosing != null) {
@@ -151,39 +156,83 @@ public class GUI_Import extends JPanel {
             }
         });
 
-
         importTable.getSelectionModel().addListSelectionListener(e -> {
             int selectedRow = importTable.getSelectedRow();
             if (selectedRow != -1) {
                 String importID = (String) importTable.getValueAt(selectedRow, 0);
                 String employeeID = (String) importTable.getValueAt(selectedRow, 1);
                 String supplierID = (String) importTable.getValueAt(selectedRow, 2);
-                String totalMoney = (String) importTable.getValueAt(selectedRow, 3);
                 String receiptDate = (String) importTable.getValueAt(selectedRow, 4);
-
-                importChoosing = new ImportDTO(importID, employeeID, supplierID, totalMoney, receiptDate);
-
+        
+                // Calculate the total dynamically
+                int calculatedTotal = calculateImportTotal(importID);
+        
+                importChoosing = new ImportDTO(importID, employeeID, supplierID, String.valueOf(calculatedTotal), receiptDate);
+        
                 importidLabel.setText(importID);
                 employeeidLabel.setText(employeeID);
                 supplieridLabel.setText(supplierID);
-                totalmoneyLabel.setText(totalMoney);
+                totalmoneyLabel.setText(Utils.formatCurrency(calculatedTotal));
                 receiptdateLabel.setText(receiptDate);
             }
         });
     }
 
     void loadImport() {
-        importBUS = new ImportBUS(); // Khởi tạo ImportBUS ở đây để đảm bảo nó được khởi tạo
+        importBUS = new ImportBUS();
         List<ImportDTO> importList = importBUS.getAllImport();
         tableModel.setRowCount(0);
         for (ImportDTO importDTO : importList) {
+            // Calculate the total dynamically instead of using importDTO.gettotalmoney()
+            int calculatedTotal = calculateImportTotal(importDTO.getimportID());
             tableModel.addRow(new Object[]{
                     importDTO.getimportID(),
                     importDTO.getemployeeID(),
                     importDTO.getsupplierID(),
-                    Utils.formatCurrency(importDTO.gettotalmoney()),
+                    Utils.formatCurrency(calculatedTotal),
                     importDTO.getreceiptdate()
             });
         }
     }
+
+    private void searchImport() {
+        String keyword = searchField.getText().trim().toLowerCase();
+        List<ImportDTO> importList = importBUS.getAllImport();
+        tableModel.setRowCount(0);
+
+        for (ImportDTO importDTO : importList) {
+            if (importDTO.getimportID().toLowerCase().contains(keyword) ||
+                importDTO.getemployeeID().toLowerCase().contains(keyword) ||
+                importDTO.getsupplierID().toLowerCase().contains(keyword)) {
+                tableModel.addRow(new Object[]{
+                        importDTO.getimportID(),
+                        importDTO.getemployeeID(),
+                        importDTO.getsupplierID(),
+                        Utils.formatCurrency(importDTO.gettotalmoney()),
+                        importDTO.getreceiptdate()
+                });
+            }
+        }
+    }
+    private int calculateImportTotal(String importID) {
+    String query = "SELECT so_luong, gia FROM chi_tiet_nhap_hang WHERE ma_nhap_hang = ?";
+    int total = 0;
+    
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(query)) {
+        stmt.setString(1, importID);
+        ResultSet rs = stmt.executeQuery();
+        
+        while (rs.next()) {
+            int quantity = rs.getInt("so_luong");
+            int price = rs.getInt("gia");
+            int rowTotal = quantity * price;
+            total += rowTotal;
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    
+    return total;
+}
 }

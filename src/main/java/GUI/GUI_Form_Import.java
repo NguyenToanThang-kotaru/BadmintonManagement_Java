@@ -26,12 +26,13 @@ public class GUI_Form_Import extends JDialog {
     private Form_ImportDAO dao;
     private Form_ImportBUS bus;
     private String currentUser;
+    private GUI_Import parentImportPanel; // Thêm tham chiếu đến GUI_Import
 
- 
-    public GUI_Form_Import(JPanel parent, String username) {
-        super((Frame) SwingUtilities.getWindowAncestor(parent), "Nhập Hàng Mới", true);
+    public GUI_Form_Import(GUI_Import parentImportPanel, String username) {
+        super((Frame) SwingUtilities.getWindowAncestor(parentImportPanel), "Nhập Hàng Mới", true);
+        this.parentImportPanel = parentImportPanel; // Lưu tham chiếu
         setSize(1100, 750);
-        setLocationRelativeTo(parent);
+        setLocationRelativeTo(parentImportPanel);
         setLayout(new BorderLayout(10, 10));
         setBackground(Color.WHITE);
         
@@ -85,11 +86,8 @@ public class GUI_Form_Import extends JDialog {
         
         // Load danh sách sản phẩm
         loadAllProducts();
-        
-    
-    
     }
-
+        
     private JPanel createInfoPanel() {
         JPanel panel = new JPanel(new GridLayout(2, 2, 10, 10));
         panel.setBorder(new CompoundBorder(
@@ -251,7 +249,6 @@ public class GUI_Form_Import extends JDialog {
             new EmptyBorder(5, 5, 5, 5)
         ));
         
-        // Thêm placeholder khi chưa có ảnh
         java.net.URL defaultImageUrl = getClass().getResource("/images/default_product.png");
         if (defaultImageUrl != null) {
             ImageIcon defaultIcon = new ImageIcon(defaultImageUrl);
@@ -265,56 +262,98 @@ public class GUI_Form_Import extends JDialog {
         imagePanel.add(lblProductImage, BorderLayout.CENTER);
         
         // Panel thông tin chi tiết
-        JPanel detailPanel = new JPanel(new GridLayout(5, 2, 10, 10));
+        JPanel detailPanel = new JPanel(new GridBagLayout());
         detailPanel.setBackground(Color.WHITE);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.WEST;
         
-        detailPanel.add(createInfoLabel("Mã sản phẩm:"));
+        // Dòng 1: Mã sản phẩm
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        detailPanel.add(createInfoLabel("Mã sản phẩm:"), gbc);
+        
+        gbc.gridx = 1;
         lblProductId = new JLabel("Chọn sản phẩm từ danh sách");
         lblProductId.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        detailPanel.add(lblProductId);
+        detailPanel.add(lblProductId, gbc);
         
-        detailPanel.add(createInfoLabel("Tên sản phẩm:"));
+        // Dòng 2: Tên sản phẩm
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        detailPanel.add(createInfoLabel("Tên sản phẩm:"), gbc);
+        
+        gbc.gridx = 1;
         lblProductName = new JLabel();
         lblProductName.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        detailPanel.add(lblProductName);
+        detailPanel.add(lblProductName, gbc);
         
-        detailPanel.add(createInfoLabel("Nhà cung cấp:"));
+        // Dòng 3: Nhà cung cấp
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        detailPanel.add(createInfoLabel("Nhà cung cấp:"), gbc);
+        
+        gbc.gridx = 1;
         lblSupplier = new JLabel();
         lblSupplier.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        detailPanel.add(lblSupplier);
+        detailPanel.add(lblSupplier, gbc);
         
-        detailPanel.add(createInfoLabel("Đơn giá:"));
+        // Dòng 4: Đơn giá
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        detailPanel.add(createInfoLabel("Đơn giá:"), gbc);
+        
+        gbc.gridx = 1;
         lblPrice = new JLabel();
         lblPrice.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        detailPanel.add(lblPrice);
+        detailPanel.add(lblPrice, gbc);
         
-        detailPanel.add(createInfoLabel("Số lượng:"));
-        JPanel quantityPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
-        quantityPanel.setBackground(Color.WHITE);
-        txtQuantity = new JTextField(5); 
+        // Dòng 5: Số lượng
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        detailPanel.add(createInfoLabel("Số lượng:"), gbc);
+        
+        gbc.gridx = 1;
+        txtQuantity = new JTextField(5);
         txtQuantity.setHorizontalAlignment(JTextField.RIGHT);
         txtQuantity.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        quantityPanel.add(txtQuantity);
-        detailPanel.add(quantityPanel);
+        detailPanel.add(txtQuantity, gbc);
         
-        detailPanel.add(createInfoLabel("Thành tiền:"));
+        // Dòng 6: THÀNH TIỀN và nút Thêm SP
+        JPanel bottomPanel = new JPanel(new GridBagLayout());
+        bottomPanel.setBackground(Color.WHITE);
+        GridBagConstraints gbcBottom = new GridBagConstraints();
+        gbcBottom.insets = new Insets(5, 5, 5, 0);
+
+        // THÀNH TIỀN
+        gbcBottom.gridx = 0;
+        gbcBottom.gridy = 0;
+        gbcBottom.anchor = GridBagConstraints.WEST;
+        JLabel lblTotalLabel = createInfoLabel("THÀNH TIỀN:");
+        lblTotalLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        bottomPanel.add(lblTotalLabel, gbcBottom);
+
+        gbcBottom.gridx = 1;
         lblTotal = new JLabel("0");
         lblTotal.setForeground(new Color(0, 100, 0));
-        lblTotal.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        detailPanel.add(lblTotal);
+        lblTotal.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        bottomPanel.add(lblTotal, gbcBottom);
         
-        // Panel chứa nút thêm
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        buttonPanel.setBackground(Color.WHITE);
-        btnThemSP = new CustomButton("Thêm SP"); 
-        btnThemSP.setPreferredSize(new Dimension(120, 35));
+        // Nút Thêm SP
+        gbcBottom.gridx = 2;
+        gbcBottom.weightx = 1.0;
+        gbcBottom.insets = new Insets(5, 0, 5, 5);
+        gbcBottom.anchor = GridBagConstraints.EAST;
+        btnThemSP = new CustomButton("Thêm SP");
+        btnThemSP.setPreferredSize(new Dimension(150, 35));
         btnThemSP.addActionListener(e -> addProductToImport());
-        buttonPanel.add(btnThemSP);
+        bottomPanel.add(btnThemSP, gbcBottom);
         
+        // Panel chính của thông tin
         JPanel infoPanel = new JPanel(new BorderLayout());
         infoPanel.setBackground(Color.WHITE);
         infoPanel.add(detailPanel, BorderLayout.CENTER);
-        infoPanel.add(buttonPanel, BorderLayout.SOUTH);
+        infoPanel.add(bottomPanel, BorderLayout.SOUTH);
         
         // Thêm document listener để tính tổng tiền
         txtQuantity.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
@@ -338,7 +377,6 @@ public class GUI_Form_Import extends JDialog {
         
         return panel;
     }
-
     private JLabel createInfoLabel(String text) {
         JLabel label = new JLabel(text);
         label.setFont(new Font("Segoe UI", Font.BOLD, 12));
@@ -404,7 +442,7 @@ public class GUI_Form_Import extends JDialog {
                 lblProductId.setText(productId);
                 lblProductName.setText(productName);
                 lblSupplier.setText(rs.getString("ten_nha_cung_cap"));
-                lblPrice.setText(price);
+                lblPrice.setText(price+ " VND");
                 
                 // Load image from resources based on hinh_anh column
                 String imageFileName = rs.getString("hinh_anh");
@@ -441,15 +479,40 @@ public class GUI_Form_Import extends JDialog {
     }
     private void addProductToImport() {
         try {
+            // Kiểm tra xem sản phẩm đã được chọn chưa
+            if (lblProductId.getText().isEmpty() || lblProductId.getText().equals("Chọn sản phẩm từ danh sách")) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn một sản phẩm từ danh sách", 
+                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+    
+            // Kiểm tra số lượng có bỏ trống hay không
+            String quantityText = txtQuantity.getText().trim();
+            if (quantityText.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Số lượng không được để trống", 
+                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+    
+            // Kiểm tra số lượng có phải là số nguyên dương hay không
+            int quantity;
+            try {
+                quantity = Integer.parseInt(quantityText);
+                if (quantity <= 0) {
+                    JOptionPane.showMessageDialog(this, "Số lượng phải là số nguyên dương lớn hơn 0", 
+                            "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Số lượng phải là một số nguyên hợp lệ", 
+                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+    
+            // Nếu vượt qua các kiểm tra, tiến hành thêm sản phẩm
             String productId = lblProductId.getText();
             String productName = lblProductName.getText();
             int price = Integer.parseInt(lblPrice.getText().replaceAll("[^0-9]", ""));
-            int quantity = Integer.parseInt(txtQuantity.getText());
-            
-            if (quantity <= 0) {
-                JOptionPane.showMessageDialog(this, "Số lượng phải lớn hơn 0", "Lỗi", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
             
             int total = price * quantity;
             
@@ -466,6 +529,16 @@ public class GUI_Form_Import extends JDialog {
             totalAmount += total;
             lblTongTien.setText(Utils.formatCurrency(totalAmount));
             
+            // Update quantity in database
+            boolean updated = dao.updateProductQuantity(productId, quantity);
+            if (updated) {
+                // Refresh product list
+                loadAllProducts();
+            } else {
+                JOptionPane.showMessageDialog(this, "Lỗi khi cập nhật số lượng sản phẩm trong database", 
+                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+            
             // Clear selection and details
             allProductsTable.clearSelection();
             lblProductId.setText("");
@@ -476,8 +549,10 @@ public class GUI_Form_Import extends JDialog {
             txtQuantity.setText("");
             lblTotal.setText("0");
             
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập số lượng hợp lệ", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Lỗi không xác định khi thêm sản phẩm: " + e.getMessage(), 
+                    "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -490,7 +565,6 @@ public class GUI_Form_Import extends JDialog {
         String importID = lblMaNhapHang.getText();
         String receiptDate = LocalDate.now().toString();
         
-        // Prepare product data
         List<Object[]> productData = new ArrayList<>();
         for (int i = 0; i < importTableModel.getRowCount(); i++) {
             try {
@@ -498,10 +572,10 @@ public class GUI_Form_Import extends JDialog {
                 int price = Integer.parseInt(priceStr);
                 
                 productData.add(new Object[]{
-                    importTableModel.getValueAt(i, 0), // Mã SP
-                    importTableModel.getValueAt(i, 1), // Tên SP
-                    importTableModel.getValueAt(i, 2), // Số lượng
-                    price // Đơn giá
+                    importTableModel.getValueAt(i, 0),
+                    importTableModel.getValueAt(i, 1),
+                    importTableModel.getValueAt(i, 2),
+                    price
                 });
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this, "Dữ liệu sản phẩm không hợp lệ ở dòng " + (i+1), 
@@ -510,7 +584,6 @@ public class GUI_Form_Import extends JDialog {
             }
         }
         
-        // Get supplier from first product
         String supplierID = "";
         try {
             String firstProductId = importTableModel.getValueAt(0, 0).toString();
@@ -527,11 +600,14 @@ public class GUI_Form_Import extends JDialog {
             e.printStackTrace();
         }
         
-        // Save to database
         boolean success = bus.saveImport(importID, currentUser, supplierID, totalAmount, receiptDate, productData);
         
         if (success) {
             JOptionPane.showMessageDialog(this, "Lưu phiếu nhập thành công", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+            // Refresh product list after saving
+            loadAllProducts();
+            // Cập nhật danh sách phiếu nhập trong GUI_Import
+            parentImportPanel.loadImport();
             dispose();
         } else {
             JOptionPane.showMessageDialog(this, "Lỗi khi lưu phiếu nhập", "Lỗi", JOptionPane.ERROR_MESSAGE);
