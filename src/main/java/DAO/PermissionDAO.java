@@ -107,7 +107,7 @@ public class PermissionDAO {
         return null;
     }
 
-    public static String getFunctionByID (String machucnang) {
+    public static String getFunctionByID(String machucnang) {
         String query = "SELECT * FROM chuc_nang WHERE ma_chuc_nang=?";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -124,6 +124,22 @@ public class PermissionDAO {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static List<String> getAllFunctionByName() {
+        List<String> a = new ArrayList<>();
+        String query = "SELECT * FROM chuc_nang";
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    String functionName = rs.getString("ten_chuc_nang");
+                    a.add(functionName);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return a;
     }
 
     public static String getFunctionByName(String tenchucnang) {

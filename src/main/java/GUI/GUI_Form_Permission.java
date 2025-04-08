@@ -52,8 +52,8 @@ public class GUI_Form_Permission extends JDialog {
         checkBoxPanel.setLayout(new BoxLayout(checkBoxPanel, BoxLayout.Y_AXIS));
 
         // Thêm checkbox cho tất cả chức năng
-        PermissionDTO allFunctions = new PermissionDTO(PermissionDAO.getPermission("1"));
-        for (String chucNang : allFunctions.getChucNang()) {
+//        PermissionDTO allFunctions = new PermissionDTO(PermissionDAO.getPermission("1"));
+        for (String chucNang : PermissionDAO.getAllFunctionByName()) {
             JCheckBox checkBox = new JCheckBox(PermissionBUS.decodeFunctionName(chucNang));
             checkBox.setName(chucNang); // Lưu mã gốc vào thuộc tính name
             allCheckBoxes.add(checkBox);

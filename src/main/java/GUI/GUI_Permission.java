@@ -19,7 +19,7 @@ public class GUI_Permission extends JPanel {
     private CustomSearch searchField;
     private PermissionDTO permissionChoosing;
 
-    public GUI_Permission() {
+    public GUI_Permission(List<String> b) {
         // Cấu hình layout chính
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -39,7 +39,9 @@ public class GUI_Permission extends JPanel {
         topPanel.add(searchField, BorderLayout.CENTER);
 
         addButton = new CustomButton("+ Thêm quyền"); // Nút thêm 
-        topPanel.add(addButton, BorderLayout.EAST);
+        if (b.contains("them_quyen")) {
+            topPanel.add(addButton, BorderLayout.EAST);
+        }
 
         // ========== BẢNG HIỂN THỊ DANH SÁCH TÀI KHOẢN ==========
         midPanel = new JPanel(new BorderLayout());
@@ -50,9 +52,9 @@ public class GUI_Permission extends JPanel {
         CustomTable customTable = new CustomTable(columnNames);
         permissionTable = customTable.getAccountTable(); // Lấy JTable từ CustomTable
         tableModel = customTable.getTableModel(); // Lấy model của bảng
-
+            
         midPanel.add(customTable, BorderLayout.CENTER);
-
+        CustomScrollPane scrollPane = new CustomScrollPane(permissionTable);
         // ========== PANEL CHI TIẾT TÀI KHOẢN ==========
         botPanel = new JPanel(new GridBagLayout());
         botPanel.setBackground(Color.WHITE);
@@ -90,11 +92,13 @@ public class GUI_Permission extends JPanel {
 
         deleteButton = new CustomButton("Xóa");
         deleteButton.setCustomColor(new Color(220, 0, 0));
-        buttonPanel.add(deleteButton, BorderLayout.WEST);
+        if(b.contains("xoa_quyen"))
+            buttonPanel.add(deleteButton, BorderLayout.WEST);
 
         editButton = new CustomButton("Sửa");
         editButton.setCustomColor(new Color(0, 230, 0));
-        buttonPanel.add(editButton, BorderLayout.CENTER);
+        if(b.contains("sua_quyen"))
+            buttonPanel.add(editButton, BorderLayout.CENTER);
 
         detailPermissionButton = new CustomButton("Xem Chi Tiết Quyền");
         detailPermissionButton.setCustomColor(new Color(0, 120, 215));
@@ -127,12 +131,13 @@ public class GUI_Permission extends JPanel {
         // Thêm các panel vào giao diện chính
         add(topPanel);
         add(Box.createVerticalStrut(10));
-        add(midPanel);
+        add(scrollPane);
         add(Box.createVerticalStrut(10));
         add(botPanel);
 
         // Tải dữ liệu tài khoản lên bảng
-        loadPermissions();
+        if(b.contains("xem_quyen"))
+            loadPermissions();
         addButton.addActionListener(e -> {
             GUI_Form_Permission a = new GUI_Form_Permission(this, null);
             a.setVisible(true);
@@ -149,12 +154,12 @@ public class GUI_Permission extends JPanel {
             }
             loadPermissions();
         });
-        
+
         detailPermissionButton.addActionListener(e -> {
             GUI_DetailPermission dp = new GUI_DetailPermission(permissionChoosing);
             dp.setVisible(true);
         });
-        
+
         reloadButton.addActionListener(e -> {
             loadPermissions();
         });
@@ -170,14 +175,14 @@ public class GUI_Permission extends JPanel {
         }
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("Quản lý bảo hành");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(900, 600);
-            frame.setLocationRelativeTo(null);
-            frame.setContentPane(new GUI_Permission());
-            frame.setVisible(true);
-        });
-    }
+//    public static void main(String[] args) {
+//        SwingUtilities.invokeLater(() -> {
+//            JFrame frame = new JFrame("Quản lý bảo hành");
+//            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//            frame.setSize(900, 600);
+//            frame.setLocationRelativeTo(null);
+//            frame.setContentPane(new GUI_Permission());
+//            frame.setVisible(true);
+//        });
+//    }
 }

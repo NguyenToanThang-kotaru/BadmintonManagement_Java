@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import DAO.ProductDAO;
 import GUI.GUI_Product;
 
-public class GUI_FixFormProduct extends JDialog {
+public class GUI_Form_FixProduct extends JDialog {
 
     private JTextField nameField, priceField, maNCCField, soluongField, tsktField, anhField;
     private CustomCombobox TLField;
@@ -15,7 +15,7 @@ public class GUI_FixFormProduct extends JDialog {
     private ProductDTO product;
     private GUI_Product parentGUI;
 
-    public GUI_FixFormProduct(JFrame parent, GUI_Product parentGUI, ProductDTO product) {
+    public GUI_Form_FixProduct(JFrame parent, GUI_Product parentGUI, ProductDTO product) {
         super(parent, "Sửa sản phẩm", true);
         this.parentGUI = parentGUI;
         this.product = product;
