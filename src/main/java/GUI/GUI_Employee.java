@@ -113,6 +113,7 @@ public class GUI_Employee extends JPanel {
         JPanel buttonPanel = new JPanel(new BorderLayout());
         buttonPanel.setOpaque(false);
 
+       
         deleteButton = new CustomButton("Xóa");
         deleteButton.setCustomColor(new Color(220, 0, 0));
         buttonPanel.add(deleteButton, BorderLayout.WEST);

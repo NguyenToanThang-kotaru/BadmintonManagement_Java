@@ -11,6 +11,90 @@ import java.util.ArrayList;
 // Lớp này dùng để kết nối database và lấy dữ liệu sản phẩm
 public class ProductDAO {
 
+    public static Boolean addProduct(ProductDTO product) {
+        String findMaLoaiSQL = "SELECT ma_loai FROM loai WHERE ten_loai = ?";
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement findMaLoaiStmt = conn.prepareStatement(findMaLoaiSQL)) {
+
+            findMaLoaiStmt.setString(1, product.getTL()); // TL là tên loại
+            ResultSet rs = findMaLoaiStmt.executeQuery();
+            String maLoai = null;
+
+            if (rs.next()) {
+                maLoai = rs.getString("ma_loai");
+            } else {
+                System.out.println("Không tìm thấy mã loại cho tên loại: " + product.getTL());
+                return false; // Dừng lại nếu không tìm thấy mã loại
+            }
+
+            // Tiếp tục thêm sản phẩm...
+            String sql = "INSERT INTO san_pham (ma_san_pham, ten_san_pham, gia, so_luong, ma_nha_cung_cap, thong_so_ki_thuat, ma_loai, hinh_anh) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+                String newID = generateNewProductID(); // Tạo ID mới
+
+                stmt.setString(1, newID);
+                stmt.setString(2, product.getProductName());
+                stmt.setString(3, product.getGia());
+                stmt.setString(4, product.getSoluong());
+                stmt.setString(5, product.getMaNCC());
+                stmt.setString(6, product.getTSKT());
+                stmt.setString(7, maLoai);
+                stmt.setString(8, product.getAnh());
+
+                stmt.executeUpdate();
+                System.out.println("Thêm sản phẩm thành công với ID: " + newID);
+                return true;
+
+            } catch (SQLException e) {
+                System.out.println("Lỗi thêm sản phẩm: " + e.getMessage());
+                e.printStackTrace();
+                return false;
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Lỗi truy vấn mã loại: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+
+    }
+
+    public static Boolean deleteProduct(String productID) {
+        String query = "UPDATE san_pham SET is_deleted = 1 WHERE ma_san_pham = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, productID);
+            stmt.executeUpdate();
+            System.out.println("Xóa sản phẩm thành công");
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    private static String generateNewProductID() {
+        String query = "SELECT ma_san_pham FROM san_pham ORDER BY ma_san_pham DESC LIMIT 1";
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
+
+            if (rs.next()) {
+                String lastID = rs.getString("ma_san_pham"); // Ví dụ: "SP005"
+
+                int number = Integer.parseInt(lastID.substring(2));
+
+                // Tạo ID mới với định dạng SPXXX
+                return String.format("SP%03d", number + 1); // Ví dụ: "SP006"
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Lỗi khi tạo mã sản phẩm mới: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return "SP001"; // Nếu không có sản phẩm nào, bắt đầu từ "SP001"
+    }
+
     // Lấy thông tin của một sản phẩm
     public static ProductDTO getProduct(String ProductID) {
         String query = "SELECT sp.ma_san_pham, sp.ten_san_pham, sp.gia, sp.so_luong, sp.ma_nha_cung_cap, "
