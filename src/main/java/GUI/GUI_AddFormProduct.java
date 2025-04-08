@@ -7,24 +7,21 @@ import java.awt.*;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import javax.swing.*;
 import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 
-public class GUI_Form_FixProduct extends JDialog {
+public class GUI_AddFormProduct extends JDialog {
 
-    private JTextField nameField, priceField, soluongField, tsktField;
+    private JTextField nameField, priceField, maNCCField, soluongField, tsktField;
     private CustomCombobox TLField, NCCField;
     private CustomButton saveButton, cancelButton, btnChooseImage;
     private JLabel imageLabel;
     private File selectedImageFile = null;
-    private ProductDTO product;
     private GUI_Product parentGUI;
 
-    public GUI_Form_FixProduct(JFrame parent, GUI_Product parentGUI, ProductDTO product) {
-        super(parent, "Sửa sản phẩm", true);
+    public GUI_AddFormProduct(JFrame parent, GUI_Product parentGUI) {
+        super(parent, "Thêm sản phẩm", true);
         this.parentGUI = parentGUI;
-        this.product = product;
         setSize(400, 560);
         setLayout(new GridBagLayout());
         setLocationRelativeTo(parent);
@@ -35,74 +32,59 @@ public class GUI_Form_FixProduct extends JDialog {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        add(new JLabel("Mã sản phẩm: "), gbc);
-        gbc.gridx = 1;
-        JLabel ProductID = new JLabel(String.valueOf(product.getProductID()));
-        add(ProductID, gbc);
+        // Các trường nhập liệu
+        addComponent("Tên sản phẩm:", nameField = new JTextField(20), gbc, 0);
+        addComponent("Giá:", priceField = new JTextField(20), gbc, 1);
+//        addComponent("Mã NCC:", maNCCField = new JTextField(20), gbc, 2);
+//        addComponent("Số lượng:", soluongField = new JTextField(20), gbc, 3);
+        addComponent("Thông số kỹ thuật:", tsktField = new JTextField(20), gbc, 4);
 
-        addComponent("Tên sản phẩm:", nameField = new JTextField(20), gbc, 1);
-        nameField.setText(product.getProductName());
-        addComponent("Giá:", priceField = new JTextField(20), gbc, 2);
-        priceField.setText(String.valueOf(product.getGia()));
-//        addComponent("Mã NCC:", maNCCField = new JTextField(20), gbc, 3);
-//        maNCCField.setText(String.valueOf(product.getMaNCC()));
-//        addComponent("Số lượng:", soluongField = new JTextField(20), gbc, 4);
-//        soluongField.setText(String.valueOf(product.getSoluong()));
-        addComponent("Thông số kỹ thuật:", tsktField = new JTextField(20), gbc, 5);
-        tsktField.setText(product.getTSKT());
-
+        // Loại sản phẩm
         gbc.gridx = 0;
-        gbc.gridy = 6;
+        gbc.gridy = 5;
         add(new JLabel("Tên loại:"), gbc);
         gbc.gridx = 1;
-        ArrayList<String> categoryList = ProductDAO.getAllCategoryNames();
-        String[] categoryNames = categoryList.toArray(new String[0]);
+        // Lấy danh sách các loại sản phẩm từ database
+        String[] categoryNames = ProductDAO.getAllCategoryNames().toArray(new String[0]);
         TLField = new CustomCombobox(categoryNames);
-        TLField.setSelectedItem(product.getTL());
         add(TLField, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 7;
+        gbc.gridy = 6;
         add(new JLabel("Nhà cung cấp:"), gbc);
         gbc.gridx = 1;
-        ArrayList<String> NCCList = ProductDAO.getAllNCCNames();
-        String[] NCCNames = NCCList.toArray(new String[0]);
+        String[] NCCNames = ProductDAO.getAllNCCNames().toArray(new String[0]);
         NCCField = new CustomCombobox(NCCNames);
-        NCCField.setSelectedItem(product.gettenNCC());
         add(NCCField, gbc);
 
+        // Ảnh sản phẩm
         gbc.gridx = 0;
-        gbc.gridy = 8;
+        gbc.gridy = 7;
         add(new JLabel("Ảnh sản phẩm:"), gbc);
-
         gbc.gridx = 1;
         imageLabel = new JLabel();
         imageLabel.setPreferredSize(new Dimension(200, 200));
         imageLabel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
         add(imageLabel, gbc);
 
-        if (product.getAnh() != null && !product.getAnh().isEmpty()) {
-            displayImage("images/" + product.getAnh());
-        }
-
-        gbc.gridy = 9;
-        gbc.gridx = 1;
+        // Nút chọn ảnh
+        gbc.gridy = 8;
         btnChooseImage = new CustomButton("Chọn ảnh");
         btnChooseImage.addActionListener(e -> chooseImage());
         add(btnChooseImage, gbc);
 
+        // Các nút Save và Cancel
         JPanel buttonPanel = new JPanel(new FlowLayout());
-        saveButton = new CustomButton("Cập Nhật");
+        saveButton = new CustomButton("Thêm sản phẩm");
         cancelButton = new CustomButton("Hủy");
         buttonPanel.add(saveButton);
         buttonPanel.add(cancelButton);
 
-        gbc.gridy = 10;
+        gbc.gridy = 9;
         gbc.gridx = 1;
         add(buttonPanel, gbc);
 
+        // Hành động cho các nút
         cancelButton.addActionListener(e -> dispose());
         saveButton.addActionListener(e -> saveProduct());
     }
@@ -129,7 +111,6 @@ public class GUI_Form_FixProduct extends JDialog {
             }
 
             if (imageFile.exists()) {
-                // Thay vì lấy width và height của imageLabel, sử dụng kích thước cố định
                 ImageIcon imageIcon = new ImageIcon(new ImageIcon(imageFile.getAbsolutePath()).getImage()
                         .getScaledInstance(230, 200, Image.SCALE_SMOOTH)); // Sử dụng kích thước cố định
                 imageLabel.setIcon(imageIcon);
@@ -142,38 +123,40 @@ public class GUI_Form_FixProduct extends JDialog {
     private void saveProduct() {
         String name = nameField.getText().trim();
         String price = priceField.getText().trim();
-//        String soluong = soluongField.getText().trim();
+        String soluong = "0";
         String tskt = tsktField.getText().trim();
         String tenLoai = (String) TLField.getSelectedItem();
         String tenNCC = (String) NCCField.getSelectedItem();
-        String anh = product.getAnh();
+        String anh = null;
 
         if (name.isEmpty() || price.isEmpty() || tskt.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
+        // Nếu đã chọn ảnh, lưu ảnh
         if (selectedImageFile != null) {
             anh = saveImage(selectedImageFile);
         }
 
-        product.setProductName(name);
-        product.setGia(price);
-        product.settenNCC(tenNCC);
-//        product.setSoluong(soluong);
-        product.setTSKT(tskt);
-        product.setTL(tenLoai);
-        product.setAnh(anh);
-
-        ProductBUS bus = new ProductBUS();
-        if (!bus.validateProduct(product)) {
-            return; // Nếu không hợp lệ thì không tiếp tục cập nhật
+        // Tạo sản phẩm mới, truyền vào productID là null vì đây là sản phẩm mới (sẽ tự động sinh ID khi thêm vào DB)
+        ProductDTO newProduct = new ProductDTO(null, name, price, soluong, null, tskt, null, tenLoai, anh, tenNCC);
+        
+          ProductBUS bus = new ProductBUS();
+        if (!bus.validateProduct(newProduct)) {
+            return; // Dừng lại nếu không hợp lệ
+        }
+        
+        boolean success = ProductDAO.addProduct(newProduct);
+        if (success) {
+            JOptionPane.showMessageDialog(this, "Thêm sản phẩm thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            dispose();
+        } else {
+            JOptionPane.showMessageDialog(this, "Có lỗi xảy ra khi thêm sản phẩm!", "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
 
-        ProductDAO.updateProduct(product);
-        JOptionPane.showMessageDialog(this, "Cập nhật sản phẩm thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
         parentGUI.loadProductData();
-        dispose();
+
     }
 
     private String saveImage(File imageFile) {
@@ -201,5 +184,4 @@ public class GUI_Form_FixProduct extends JDialog {
         gbc.gridx = 1;
         add(component, gbc);
     }
-
 }

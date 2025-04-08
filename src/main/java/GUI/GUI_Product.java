@@ -2,6 +2,7 @@ package GUI;
 
 import DAO.ProductDAO;
 import DTO.ProductDTO;
+import BUS.ProductBUS;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -9,15 +10,18 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import javax.swing.table.TableColumnModel;
 import java.util.ArrayList;
+import java.io.File;
+import java.nio.file.Files;
 
 public class GUI_Product extends JPanel {
 
     private JPanel midPanel, topPanel, botPanel;
     private JTable productTable;
-    private CustomTable tableModel;
+    private DefaultTableModel tableModel;
     private JComboBox<String> roleComboBox;
-    private CustomButton fixButton, saveButton, deleteButton;
+    private CustomButton fixButton, saveButton, deleteButton, addButton;
     private CustomSearch searchField;
+    private ProductDTO productChoosing;
 
     public GUI_Product() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -36,17 +40,17 @@ public class GUI_Product extends JPanel {
 //        searchField.setPreferredSize(new Dimension(0, 30));d
         topPanel.add(searchField, BorderLayout.CENTER);
 
-//        // Nút "Thêm tài khoản" (30%)
-//        addButton = new CustomButton("+ Thêm sản phẩm");
-//        addButton.setFont(new Font("Arial", Font.BOLD, 14));
-//        addButton.setPreferredSize(new Dimension(170, 30));
-//        topPanel.add(addButton, BorderLayout.EAST);
+        addButton = new CustomButton("+ Thêm sản phẩm");
+        addButton.setFont(new Font("Arial", Font.BOLD, 14));
+        addButton.setPreferredSize(new Dimension(170, 30));
+        topPanel.add(addButton, BorderLayout.EAST);
 //        // ========== BẢNG HIỂN THỊ ==========
         midPanel = new JPanel(new BorderLayout());
         midPanel.setBackground(Color.WHITE);
-        String[] columnNames = {"Mã Sản Phẩm", "Tên Sản Phẩm", "Giá", "Số lượng", "Mã NCC"};
-        tableModel = new CustomTable(columnNames);
-        productTable = tableModel.getAccountTable();
+        String[] columnNames = {"Mã Sản Phẩm", "Tên Sản Phẩm", "Giá", "Số lượng"};
+        CustomTable customTable = new CustomTable(columnNames);
+        productTable = customTable.getEmployeeTable();
+        tableModel = customTable.getTableModel();
         TableColumnModel columnModel = productTable.getColumnModel();
 //        columnModel.getColumn(1).setPreferredWidth(200); 
         columnModel.getColumn(1).setPreferredWidth(200);
@@ -116,10 +120,10 @@ public class GUI_Product extends JPanel {
 
         gbcInfo.gridx = 0;
         gbcInfo.gridy = 4;
-        infoPanel.add(new JLabel("Mã NCC: "), gbcInfo);
+        infoPanel.add(new JLabel("Tên NCC: "), gbcInfo);
         gbcInfo.gridx = 1;
-        JLabel MaNCC = new JLabel("");
-        infoPanel.add(MaNCC, gbcInfo);
+        JLabel NameNCC = new JLabel("");
+        infoPanel.add(NameNCC, gbcInfo);
 
         gbcInfo.gridx = 0;
         gbcInfo.gridy = 5;
@@ -136,25 +140,23 @@ public class GUI_Product extends JPanel {
         infoPanel.add(TypeName, gbcInfo);
 
 // Nút Lưu
+        JPanel buttonPanel = new JPanel(new BorderLayout());
+        buttonPanel.setOpaque(false);
+
+        deleteButton = new CustomButton("Xóa");
+        deleteButton.setCustomColor(new Color(220, 0, 0));
+        buttonPanel.add(deleteButton, BorderLayout.WEST);
+
+        fixButton = new CustomButton("Sửa");
+        fixButton.setCustomColor(new Color(0, 230, 0));
+        buttonPanel.add(fixButton, BorderLayout.EAST);
+
         gbcInfo.gridx = 0;
         gbcInfo.gridy = 7;
         gbcInfo.gridwidth = 2;
-        fixButton = new CustomButton("Sửa");
-        fixButton.setPreferredSize(new Dimension(80, 30));
-        fixButton.setCustomColor(Color.RED);
-//        infoPanel.add(fixButton, gbcInfo);
+        gbcInfo.fill = GridBagConstraints.HORIZONTAL;
 
-//        gbcInfo.gridx = 1;
-//        gbcInfo.gridy = 7;
-//        gbcInfo.gridwidth = 2;
-//        saveButton = new CustomButton("Lưu");
-//        saveButton.setPreferredSize(new Dimension(80, 30));
-//        saveButton.setCustomColor(Color.RED);
-////        infoPanel.add(deleteButton, gbcInfo);
-// Thêm infoPanel vào righPanel
         righPanel.add(infoPanel);
-
-// Thêm leftPanel và righPanel vào botPanel
         botPanel.add(leftPanel, BorderLayout.WEST);
         botPanel.add(righPanel, BorderLayout.CENTER);
 
@@ -163,29 +165,31 @@ public class GUI_Product extends JPanel {
             if (selectedRow != -1) {
                 String productID = (String) productTable.getValueAt(selectedRow, 0);
                 ProductDTO product = ProductDAO.getProduct(productID);
-
+                productChoosing = product;
                 // Cập nhật thông tin sản phẩm
                 productLabel.setText(String.valueOf(product.getProductID()));
                 namePDLabel.setText(product.getProductName());
                 priceLabel.setText(String.valueOf(product.getGia()));
                 quantityLabel.setText(String.valueOf(product.getSoluong()));
-                MaNCC.setText(String.valueOf(product.getMaNCC()));
+                NameNCC.setText(String.valueOf(product.gettenNCC()));
                 TSKTLabel.setText(product.getTSKT());
                 TypeName.setText(String.valueOf(product.getTL()));
 
-                infoPanel.add(fixButton, gbcInfo);
+                infoPanel.add(buttonPanel, gbcInfo);
+
                 // Cập nhật ảnh
                 String productImg = product.getAnh();
                 if (productImg != null && !productImg.isEmpty()) {
-                    String imagePath = "/images/" + productImg;
-                    java.net.URL imageUrl = getClass().getResource(imagePath);
-                    if (imageUrl != null) {
-                        ImageIcon productIcon = new ImageIcon(imageUrl);
-                        Image img = productIcon.getImage().getScaledInstance(220, 220, Image.SCALE_SMOOTH);
-                        imageLabel.setIcon(new ImageIcon(img));
+                    String imagePath = System.getProperty("user.dir") + "/images/" + productImg;
+                    File imageFile = new File(imagePath);
+                    if (imageFile.exists()) {
+                        ImageIcon productIcon = new ImageIcon(new ImageIcon(imageFile.getAbsolutePath()).getImage()
+                                .getScaledInstance(240, 220, Image.SCALE_SMOOTH));
+                        imageLabel.setIcon(productIcon);
                     } else {
-                        imageLabel.setIcon(null);
+                        imageLabel.setIcon(null); // Ẩn ảnh nếu không tìm thấy
                     }
+
                 } else {
                     imageLabel.setIcon(null);
                 }
@@ -207,12 +211,57 @@ public class GUI_Product extends JPanel {
 
             }
         });
+
+        addButton.addActionListener(e -> {
+            GUI_AddFormProduct addForm = new GUI_AddFormProduct((JFrame) SwingUtilities.getWindowAncestor(this), this);
+            addForm.setVisible(true);
+        });
+
         loadProductData();
 
         fixButton.addActionListener(e -> {
             int selectedRow = productTable.getSelectedRow();
-            System.out.println("Da xoa san pham");
+            System.out.println("aaaaaaaaa");
         });
+//
+        deleteButton.addActionListener(e -> {
+
+            ProductBUS bus = new ProductBUS();
+            if (!bus.canDeleteProduct(productChoosing)) {
+                return; // Dừng xóa nếu không được phép
+            }
+
+            if (productChoosing != null && deleteProduct(productChoosing.getProductID(), productChoosing.getAnh())) {
+                loadProductData();
+                tableModel.fireTableDataChanged();
+                productLabel.setText("Chọn sản phẩm");
+                namePDLabel.setText("");
+                priceLabel.setText("");
+                quantityLabel.setText("");
+                NameNCC.setText("");
+                TSKTLabel.setText("");
+                TypeName.setText("");
+
+                String productImg = productChoosing.getAnh();
+                String imagePath = "images/noimage.png"; // Đường dẫn mặc định nếu không có ảnh sản phẩm
+
+                if (productImg != null && !productImg.isEmpty()) {
+                    String tempPath = "images/" + productImg;
+                    File imageFile = new File(tempPath);
+                    if (imageFile.exists()) {
+                        imagePath = tempPath;
+                    }
+                }
+
+                ImageIcon productIcon = new ImageIcon(imagePath);
+                Image img = productIcon.getImage().getScaledInstance(240, 220, Image.SCALE_SMOOTH);
+                imageLabel.setIcon(new ImageIcon(img));
+
+                productChoosing = null;
+            }
+
+        });
+
     }
 
 //    private void showEditForm() {
@@ -287,6 +336,30 @@ public class GUI_Product extends JPanel {
 //
 //        fixForm.setVisible(true);
 //    }
+    private Boolean deleteProduct(String productID, String productImg) {
+        if (ProductDAO.deleteProduct(productID)) {
+            // Nếu sản phẩm có ảnh, tiến hành xóa ảnh
+            if (productImg != null && !productImg.isEmpty()) {
+                String imagePath = "images/" + productImg;
+                File imageFile = new File(imagePath);
+                if (imageFile.exists()) {
+                    if (imageFile.delete()) {
+                        System.out.println("Đã xóa ảnh của sản phẩm.");
+                    } else {
+                        System.out.println("Không thể xóa ảnh của sản phẩm.");
+                    }
+                }
+            }
+            JOptionPane.showMessageDialog(this, "Xoá sản phẩm thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            loadProductData();
+            return true;
+        } else {
+            JOptionPane.showMessageDialog(this, "Xóa sản phẩm thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+    }
+
     public void loadProductData() {
         DefaultTableModel model = (DefaultTableModel) productTable.getModel();
         model.setRowCount(0); // Xóa toàn bộ dữ liệu cũ
@@ -297,11 +370,11 @@ public class GUI_Product extends JPanel {
                 product.getProductID(),
                 product.getProductName(),
                 product.getGia(),
-                product.getMaNCC(),
                 product.getSoluong(),
                 product.getTSKT(),
                 product.getTL(),
-                product.getAnh()
+                product.getAnh(),
+                product.gettenNCC()
             });
         }
 

@@ -10,6 +10,7 @@ import BUS.AccountBUS;
 import DAO.AccountDAO;
 import DAO.PermissionDAO;
 import DTO.PermissionDTO;
+import java.util.ArrayList;
 
 public class GUI_Account extends JPanel {
 
@@ -23,6 +24,7 @@ public class GUI_Account extends JPanel {
     private AccountBUS accountBUS;
     private AccountDTO accountChoosing;
     private AccountDAO AccountDAO;
+
     public GUI_Account(List<String> a) {
         accountBUS = new AccountBUS(); // Khởi tạo đối tượng BUS để lấy dữ liệu tài khoản
         System.out.println(a);
@@ -36,22 +38,23 @@ public class GUI_Account extends JPanel {
         topPanel.setPreferredSize(new Dimension(0, 60));
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         topPanel.setBackground(Color.WHITE);
-        
+
         reloadButton = new CustomButton("Tải lại trang");
-        topPanel.add(reloadButton, BorderLayout.WEST);
-        
+        if (a.contains("xem_tk")) {
+            topPanel.add(reloadButton, BorderLayout.WEST);
+        }
+
         searchField = new CustomSearch(275, 20); // Ô nhập tìm kiếm
         searchField.setBackground(Color.WHITE);
         topPanel.add(searchField, BorderLayout.CENTER);
 
         addButton = new CustomButton("+ Thêm Tài Khoản"); // Nút thêm tài khoản
-        if (a.contains("them_tk")){
+        if (a.contains("them_tk")) {
             topPanel.add(addButton, BorderLayout.EAST);
             System.out.println("Co them tai khoan");
-        }
-        else
+        } else {
             System.out.println("Khong co them tk");
-            
+        }
 
         // ========== BẢNG HIỂN THỊ DANH SÁCH TÀI KHOẢN ==========
         midPanel = new JPanel(new BorderLayout());
@@ -109,21 +112,23 @@ public class GUI_Account extends JPanel {
         // Nút xóa (căn trái)
         deleteButton = new CustomButton("Xoá");
         deleteButton.setCustomColor(new Color(220, 0, 0));
-        if(a.contains("xoa_tk"))
+        if (a.contains("xoa_tk")) {
             buttonPanel.add(deleteButton, BorderLayout.WEST);
+        }
 
         // Nút sửa (căn phải)
         editButton = new CustomButton("Sửa");
         editButton.setCustomColor(new Color(0, 230, 0));
-        if(a.contains("sua_tk"))
+        if (a.contains("sua_tk")) {
             buttonPanel.add(editButton, BorderLayout.EAST);
+        }
 
         // Thêm panel vào `botPanel`
         gbc.gridx = 0;
         gbc.gridy = 4;
         gbc.gridwidth = 2; // Trải dài 2 cột
         gbc.fill = GridBagConstraints.HORIZONTAL; // Căn chỉnh full chiều ngang
-        
+
         // Xử lý sự kiện chọn tài khoản trong bảng
         accountTable.getSelectionModel().addListSelectionListener(e -> {
             int selectedRow = accountTable.getSelectedRow();
@@ -135,7 +140,7 @@ public class GUI_Account extends JPanel {
                 String matkhau = (String) accountTable.getValueAt(selectedRow, 3);
                 String quyen = (String) accountTable.getValueAt(selectedRow, 4);
                 PermissionDTO temp = PermissionDAO.getPermissionByName(quyen);
-                accountChoosing = new AccountDTO(taikhoan, matkhau,tenNhanVien,temp);
+                accountChoosing = new AccountDTO(taikhoan, matkhau, tenNhanVien, temp);
                 // Hiển thị dữ liệu trên giao diện
                 employeeLabel.setText(tenNhanVien);
                 usernameLabel.setText(taikhoan);
@@ -148,34 +153,40 @@ public class GUI_Account extends JPanel {
         // Thêm các panel vào giao diện chính
         add(topPanel);
         add(Box.createVerticalStrut(10));
-        
+
         add(scrollPane);
         add(Box.createVerticalStrut(10));
         add(botPanel);
 
         // Tải dữ liệu tài khoản lên bảng
-        
-        if (a.contains("xem_tk"))
+        if (a.contains("xem_tk")) {
             loadAccounts();
+        }
 
         addButton.addActionListener(e -> {
 //            JOptionPane.showMessageDialog(this, "Chức năng thêm nhân viên chưa được triển khai!");
-            GUI_Form_Account GFA = new GUI_Form_Account(this,null);
+            GUI_Form_Account GFA = new GUI_Form_Account(this, null);
             GFA.setVisible(true);
         });
 
         editButton.addActionListener(e -> {
-            GUI_Form_Account GFA = new GUI_Form_Account(this, accountChoosing);     
+            GUI_Form_Account GFA = new GUI_Form_Account(this, accountChoosing);
             GFA.setVisible(true);
         });
 
         reloadButton.addActionListener(e -> {
             loadAccounts();
         });
-        
+
         deleteButton.addActionListener(e -> {
             AccountDAO.deleteAccount(accountChoosing.getUsername());
             loadAccounts();
+        });
+
+        searchField.setSearchListener(e -> {
+            String keyword = searchField.getText();
+            ArrayList<AccountDTO> ketQua = AccountDAO.searchAccounts(keyword);
+            capNhatBangTaiKhoan(ketQua); // Hiển thị kết quả tìm được trên bảng
         });
 
     }
@@ -188,10 +199,24 @@ public class GUI_Account extends JPanel {
         for (AccountDTO acc : accounts) {
             tableModel.addRow(new Object[]{index++, acc.getFullname(),
                 acc.getUsername(), acc.getPassword(), acc.getPermission().getName()});
-            
+
         }
     }
-    
+
+    private void capNhatBangTaiKhoan(List<AccountDTO> accounts) {
+    tableModel.setRowCount(0); // Xóa dữ liệu cũ
+    int index = 1;
+    for (AccountDTO acc : accounts) {
+        tableModel.addRow(new Object[]{
+            index++,
+            acc.getFullname(),
+            acc.getUsername(),
+            acc.getPassword(),
+            acc.getPermission().getName()
+        });
+    }
+}
+
 //    public static void main(String[] args) {
 //        SwingUtilities.invokeLater(() -> {
 //            JFrame frame = new JFrame("Quản lý bảo hành");

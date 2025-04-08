@@ -16,8 +16,8 @@ public class GUI_Form_Employee extends JDialog {
 
     private JTextField txtEmployeeName, txtAddress, txtPhone;
     private JLabel title;
-    private CustomButton btnSave, btnCancel, btnChooseImage;
     private JLabel lblImagePreview;
+    private CustomButton btnSave, btnCancel, btnChooseImage;
     private File selectedImageFile = null; // Chỉ lưu ảnh sau khi lưu database thành công
 
     public GUI_Form_Employee(JPanel parent, EmployeeDTO employee) {
