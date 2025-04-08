@@ -1,26 +1,24 @@
 package DTO;
 
 public class AccountDTO {
-
     private String username;
     private String password;
-    private String ID;
-    private String tenquyen;
+    private String fullname;  // Thay ID bằng fullname cho rõ nghĩa
+    private PermissionDTO permission;  // Thay String tenquyen bằng PermissionDTO
 
     public AccountDTO() {
-        username = "";
-        password = "";
-        ID = "";
-        tenquyen = "";
+        this("", "", "", null);
     }
 
-    public AccountDTO(String username, String password, String ID, String tenquyen) {
+    // Constructor mới nhận PermissionDTO
+    public AccountDTO(String username, String password, String fullname, PermissionDTO permission) {
         this.username = username;
         this.password = password;
-        this.ID = ID;
-        this.tenquyen = tenquyen;
+        this.fullname = fullname;
+        this.permission = permission;
     }
 
+    // Getters and setters  
     public String getUsername() {
         return username;
     }
@@ -36,21 +34,31 @@ public class AccountDTO {
     public void setPassword(String password) {
         this.password = password;
     }
-    
+
     public String getFullname() {
-        return ID;
+        return fullname;
     }
 
-    public void setFullname(String ID) {
-        this.ID = ID;
+    public void setFullname(String fullname) {
+        this.fullname = fullname;
+    }
+
+    public PermissionDTO getPermission() {
+        return permission;
+    }
+
+    public void setPermission(PermissionDTO permission) {
+        this.permission = permission;
+    }
+
+    // Phương thức tiện ích để lấy tên quyền (nếu cần)
+    public String getRoleName() {
+        return permission != null ? permission.getName() : "";
     }
     
-    public String getTenquyen() {
-        return tenquyen;
-    }
-    
-    
-    public void setTenquyen (String Tenquyen) {
-        this.tenquyen = tenquyen;
+    // Phương thức kiểm tra có chức năng nào không
+    public boolean hasFunction(String functionCode) {
+        return permission != null && permission.getChucNang()!= null 
+               && permission.getChucNang().contains(functionCode);
     }
 }
