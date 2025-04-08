@@ -13,7 +13,8 @@ public class GuaranteeDAO {
 
     // Lấy thông tin của một sản phẩm
     public static GuaranteeDTO getGuarantee(String BaohanhID) {
-        String query = "SELECT * FROM bao_hanh WHERE ma_bao_hanh = ? AND thoi_gian_bao_hanh < 50";
+        String query = "SELECT * FROM bao_hanh WHERE ma_bao_hanh = ? ";
+
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, BaohanhID);
 
@@ -37,6 +38,7 @@ public class GuaranteeDAO {
     // Lấy danh sách tất cả sản phẩm
     public static ArrayList<GuaranteeDTO> getAllGuarantee() {
         ArrayList<GuaranteeDTO> products = new ArrayList<>();
+
         String query = "SELECT * FROM bao_hanh WHERE thoi_gian_bao_hanh < 50";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
 

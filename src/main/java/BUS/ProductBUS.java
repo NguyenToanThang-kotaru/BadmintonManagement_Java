@@ -18,6 +18,7 @@ public class ProductBUS {
 
     public boolean validateProduct(ProductDTO product) {
         String productName = product.getProductName().trim();
+        String gia = product.getGia().trim();
 
         // Không cho tên chỉ toàn số
         if (productName.matches("\\d+")) {
@@ -32,6 +33,14 @@ public class ProductBUS {
         if (!productName.matches("^[\\p{L}0-9\\s+\\-\\.]+$")) {
             JOptionPane.showMessageDialog(null,
                     "Tên sản phẩm không được chứa ký tự đặc biệt.",
+                    "Lỗi nhập liệu",
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        if (!gia.matches("^\\d+$")) {
+            JOptionPane.showMessageDialog(null,
+                    "Giá chỉ được chứa số.",
                     "Lỗi nhập liệu",
                     JOptionPane.ERROR_MESSAGE);
             return false;

@@ -4,11 +4,34 @@
  */
 package BUS;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author Thang Nguyen
  */
 public class PermissionBUS {
+
+    public static List<String> getModule(List<String> functionCodes) {
+        List<String> suffixes = new ArrayList<>();
+
+        for (String code : functionCodes) {
+            String suffix = code.substring(code.indexOf('_') + 1);
+            suffixes.add(suffix);
+        }
+
+        return suffixes;
+    }
+    
+    public static List<String> convertName(List<String> functionCodes){
+        List<String> converted = new ArrayList<>();
+
+        for (String code : functionCodes) {
+            converted.add(convertNumberCodeToFunctionCode(code));
+        }
+        return converted;
+    }
 
     public static String decodeFunctionName(String functionCode) {
         return switch (functionCode) {
@@ -101,94 +124,95 @@ public class PermissionBUS {
         };
     }
 
-    public static String encodeFunctionName(String displayName) {
-        return switch (displayName) {
+    public static String convertNumberCodeToFunctionCode(String numberCode) {
+        return switch (numberCode) {
             // Sản phẩm
-            case "Xem sản phẩm" ->
-                "CN001";
-            case "Sửa sản phẩm" ->
-                "CN002";
+            case "CN001" ->
+                "xem_sp";
+            case "CN002" ->
+                "sua_sp";
 
             // Hóa đơn
-            case "Xem hóa đơn" ->
-                "CN003";
-            case "Thêm hóa đơn" ->
-                "CN004";
-            case "Sửa hóa đơn" ->
-                "CN005";
-            case "Xóa hóa đơn" ->
-                "CN006";
+            case "CN003" ->
+                "xem_hd";
+            case "CN004" ->
+                "them_hd";
+            case "CN005" ->
+                "sua_hd";
+            case "CN006" ->
+                "xoa_hd";
 
             // Nhân viên
-            case "Xem nhân viên" ->
-                "CN007";
-            case "Thêm nhân viên" ->
-                "CN008";
-            case "Sửa nhân viên" ->
-                "CN009";
-            case "Xóa nhân viên" ->
-                "CN010";
+            case "CN007" ->
+                "xem_nv";
+            case "CN008" ->
+                "them_nv";
+            case "CN009" ->
+                "sua_nv";
+            case "CN010" ->
+                "xoa_nv";
 
             // Nhà cung cấp
-            case "Xem nhà cung cấp" ->
-                "CN011";
-            case "Thêm nhà cung cấp" ->
-                "CN012";
-            case "Sửa nhà cung cấp" ->
-                "CN013";
-            case "Xóa nhà cung cấp" ->
-                "CN014";
+            case "CN011" ->
+                "xem_ncc";
+            case "CN012" ->
+                "them_ncc";
+            case "CN013" ->
+                "sua_ncc";
+            case "CN014" ->
+                "xoa_ncc";
 
             // Hóa đơn nhập
-            case "Xem hóa đơn nhập" ->
-                "CN015";
-            case "Thêm hóa đơn nhập" ->
-                "CN016";
-            case "Xóa hóa đơn nhập" ->
-                "CN017";
+            case "CN015" ->
+                "xem_hdn";
+            case "CN016" ->
+                "them_hdn";
+            case "CN017" ->
+                "xoa_hdn";
 
             // Khách hàng
-            case "Xem khách hàng" ->
-                "CN018";
-            case "Thêm khách hàng" ->
-                "CN019";
-            case "Sửa khách hàng" ->
-                "CN020";
-            case "Xóa khách hàng" ->
-                "CN021";
+            case "CN018" ->
+                "xem_kh";
+            case "CN019" ->
+                "them_kh";
+            case "CN020" ->
+                "sua_kh";
+            case "CN021" ->
+                "xoa_kh";
 
             // Tài khoản
-            case "Xem tài khoản" ->
-                "CN022";
-            case "Thêm tài khoản" ->
-                "CN023";
-            case "Sửa tài khoản" ->
-                "CN024";
-            case "Xóa tài khoản" ->
-                "CN025";
+            case "CN022" ->
+                "xem_tk";
+            case "CN023" ->
+                "them_tk";
+            case "CN024" ->
+                "sua_tk";
+            case "CN025" ->
+                "xoa_tk";
 
             // Bảo hành
-            case "Xem bảo hành" ->
-                "CN026";
-            case "Sửa bảo hành" ->
-                "CN027";
+            case "CN026" ->
+                "xem_bh";
+            case "CN027" ->
+                "sua_bh";
 
             // Quyền
-            case "Xem quyền" ->
-                "CN028";
-            case "Thêm quyền" ->
-                "CN029";
-            case "Sửa quyền" ->
-                "CN030";
-            case "Xóa quyền" ->
-                "CN031";
+            case "CN028" ->
+                "xem_quyen";
+            case "CN029" ->
+                "them_quyen";
+            case "CN030" ->
+                "sua_quyen";
+            case "CN031" ->
+                "xoa_quyen";
 
             // Thống kê
-            case "Xem thống kê" ->
-                "CN032";
+            case "CN032" ->
+                "xem_thongke";
 
             default ->
-                displayName; // Trả về nguyên bản nếu không khớp
+                numberCode.toLowerCase(); // Trả về dạng lowercase nếu không khớp
         };
     }
+
 }

@@ -1,27 +1,35 @@
 package GUI;
 
+import BUS.PermissionBUS;
+import DAO.AccountDAO;
+import DAO.PermissionDAO;
+import DTO.AccountDTO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.List;
 
 public class GUI_MainLayout extends JFrame {
 
     private CustomSidebar Sidebar;
     private CustomTittleBar tittleBar;
 
-    public GUI_MainLayout(JFrame login) {
+    public GUI_MainLayout(JFrame login, String username, String password) {
+        AccountDTO logned = AccountDAO.getAccount(username, password);
+        List<String> permissions = PermissionBUS.convertName(logned.getPermission().getChucNang());
+        System.out.println((logned.getPermission().getChucNang()));
         setTitle("Quản Lý Kho Hàng");
         setSize(1000, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
+        setLocationRelativeTo(null);    
         setLayout(new BorderLayout(0, 0));
         setUndecorated(true);
 
         // ================================ Title Bar ================================
         tittleBar = new CustomTittleBar(this);
-
+        System.out.println();
         // ================================ CustomSidebar ================================
-        Sidebar = new CustomSidebar(login, this);
+        Sidebar = new CustomSidebar(login, this,PermissionBUS.getModule(permissions));
 
         // ================================ Content ================================
         JPanel contentPanel = new JPanel(new BorderLayout());
@@ -40,11 +48,11 @@ public class GUI_MainLayout extends JFrame {
         
         Sidebar.importPanel = new GUI_Import();
 
-        Sidebar.employeePanel = new GUI_Employee();
+        Sidebar.employeePanel = new GUI_Employee(permissions);
 
-        Sidebar.accountPanel = new GUI_Account();
+        Sidebar.accountPanel = new GUI_Account(permissions);
 
-        Sidebar.repairPanel = new GUI_Guarantee();
+        Sidebar.repairPanel = new GUI_Guarantee(permissions);
 
         Sidebar.customerPanel = new GUI_Customer();
 
@@ -56,7 +64,7 @@ public class GUI_MainLayout extends JFrame {
         
         Sidebar.importPanel = new GUI_Import();
         
-        Sidebar.rolePanel = new GUI_Permission();
+        Sidebar.rolePanel = new GUI_Permission(permissions);
         for (Component comp : Sidebar.panel2.getComponents()) {
             if (comp instanceof JLabel menuLabel) {
                 menuLabel.addMouseListener(new MouseAdapter() {
@@ -65,7 +73,7 @@ public class GUI_MainLayout extends JFrame {
                         contentPanel.removeAll(); // Xóa nội dung cũ
 
                         switch (menuLabel.getText()) {
-                            case "Thống kê" ->
+                            case "Thống Kê" ->
                                 contentPanel.add(Sidebar.statisticsPanel, BorderLayout.CENTER);
                             case "Sản Phẩm" ->
                                 contentPanel.add(Sidebar.productPanel, BorderLayout.CENTER);

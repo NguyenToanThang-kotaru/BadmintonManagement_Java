@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import javax.swing.*;
 import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 
-public class GUI_FixFormProduct extends JDialog {
+public class GUI_Form_FixProduct extends JDialog {
 
     private JTextField nameField, priceField, soluongField, tsktField;
     private CustomCombobox TLField, NCCField;
@@ -21,7 +21,7 @@ public class GUI_FixFormProduct extends JDialog {
     private ProductDTO product;
     private GUI_Product parentGUI;
 
-    public GUI_FixFormProduct(JFrame parent, GUI_Product parentGUI, ProductDTO product) {
+    public GUI_Form_FixProduct(JFrame parent, GUI_Product parentGUI, ProductDTO product) {
         super(parent, "Sửa sản phẩm", true);
         this.parentGUI = parentGUI;
         this.product = product;
