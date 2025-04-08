@@ -7,14 +7,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ImportDAO {
 
-    public static ImportDTO getImport(int maphieunhap) {
+    // Lấy một phiếu nhập theo mã
+    public ImportDTO getImport(String importID) {
         String query = "SELECT * FROM nhap_hang WHERE ma_nhap_hang = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setInt(1, maphieunhap);
+            stmt.setString(1, importID);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return new ImportDTO(
@@ -22,50 +24,64 @@ public class ImportDAO {
                             rs.getString("ma_nhan_vien"),
                             rs.getString("ma_nha_cung_cap"),
                             rs.getString("tong_tien"),
-                            rs.getString("ngay_nhap") 
+                            rs.getString("ngay_nhap")
                     );
                 }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    // Lấy danh sách tài khoản cho bảng GUI
-    public static ArrayList<ImportDTO> getAllImport() {
-        ArrayList<ImportDTO> Import = new ArrayList<>();
+    // Lấy danh sách tất cả phiếu nhập
+    public List<ImportDTO> getAllImport() {
+        List<ImportDTO> imports = new ArrayList<>();
         String query = "SELECT * FROM nhap_hang";
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
-                Import.add(new ImportDTO(
+                imports.add(new ImportDTO(
                         rs.getString("ma_nhap_hang"),
                         rs.getString("ma_nhan_vien"),
                         rs.getString("ma_nha_cung_cap"),
-                        rs.getString("ma_nha_cung_cap"),
+                        rs.getString("tong_tien"),
                         rs.getString("ngay_nhap")
                 ));
             }
-        } catch (Exception e) {
-//            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        return Import;
+        return imports;
     }
 
-    public void updateImport(ImportDTO customer) {
-        String sql = "UPDATE import SET ma_nhap_hang = ?, ma_nhan_vien = ?, ma_nha_cung_cap = ?, ma_nha_cung_cap = ? WHERE ngay_nhap = ?";
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+    // Xóa một phiếu nhập theo mã
+    public boolean deleteImport(String importID) {
+        String query = "DELETE FROM nhap_hang WHERE ma_nhap_hang = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, importID);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
-            stmt.setString(1, customer.getimportID());
-            stmt.setString(2, customer.getemployeeID());
-            stmt.setString(3, customer.getsupplierID());
-            stmt.setString(4, customer.gettotalmoney());
-            stmt.setString(5, customer.getreceiptdate());
-
+    // Cập nhật thông tin phiếu nhập
+    public void updateImport(ImportDTO importDTO) {
+        String query = "UPDATE nhap_hang SET ma_nhan_vien = ?, ma_nha_cung_cap = ?, tong_tien = ?, ngay_nhap = ? WHERE ma_nhap_hang = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, importDTO.getemployeeID());
+            stmt.setString(2, importDTO.getsupplierID());
+            stmt.setString(3, importDTO.gettotalmoney());
+            stmt.setString(4, importDTO.getreceiptdate());
+            stmt.setString(5, importDTO.getimportID());
             stmt.executeUpdate();
         } catch (SQLException e) {
-//            e.printStackTrace();
+            e.printStackTrace();
         }
     }
-
-}
+}   
