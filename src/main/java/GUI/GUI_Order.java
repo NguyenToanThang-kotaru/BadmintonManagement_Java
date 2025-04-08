@@ -135,6 +135,12 @@ public class GUI_Order extends JPanel {
             }   
         });
         
+        /*addButton.addActionListener(e -> {
+//            JOptionPane.showMessageDialog(this, "Chức năng thêm nhân viên chưa được triển khai!");
+            GUI_Form_Order GFO = new GUI_Form_Order(this);
+            GFO.setVisible(true);
+        });*/
+        
         // Thêm các panel vào giao diện chính
         add(topPanel);
         add(Box.createVerticalStrut(10));

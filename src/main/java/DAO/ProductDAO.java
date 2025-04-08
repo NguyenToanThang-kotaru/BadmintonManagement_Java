@@ -95,25 +95,25 @@ public class ProductDAO {
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement findMaLoaiStmt = conn.prepareStatement(findMaLoaiSQL); PreparedStatement updateProductStmt = conn.prepareStatement(updateProductSQL)) {
 
-            // 🔹 Tìm `ma_loai` từ `ten_loai`
+            // 🔹 Tìm ma_loai từ ten_loai
             findMaLoaiStmt.setString(1, product.getTL());
             ResultSet rs = findMaLoaiStmt.executeQuery();
             String maLoai = null;
 
             if (rs.next()) {
-                maLoai = rs.getString("ma_loai");  // Lấy `ma_loai` dưới dạng `String`
+                maLoai = rs.getString("ma_loai");  // Lấy ma_loai dưới dạng String
             } else {
                 System.out.println("Không tìm thấy mã loại cho tên loại: " + product.getTL());
                 return; // Không tiếp tục cập nhật nếu không tìm thấy
             }
 
-            // 🔹 Cập nhật bảng `san_pham`
+            // 🔹 Cập nhật bảng san_pham
             updateProductStmt.setString(1, product.getProductName());
             updateProductStmt.setString(2, product.getGia());
             updateProductStmt.setString(3, product.getSoluong());
             updateProductStmt.setString(4, product.getMaNCC());
             updateProductStmt.setString(5, product.getTSKT());
-            updateProductStmt.setString(6, maLoai); // Cập nhật `ma_loai` tìm được
+            updateProductStmt.setString(6, maLoai); // Cập nhật ma_loai tìm được
             updateProductStmt.setString(7, product.getAnh());
             updateProductStmt.setString(8, product.getProductID());
 
