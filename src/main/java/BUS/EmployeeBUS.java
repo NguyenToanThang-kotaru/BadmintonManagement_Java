@@ -47,7 +47,9 @@ public class EmployeeBUS {
     return false; // Không tìm thấy nhân viên để cập nhật
 }
 
-
+    public String getEmployeeNameByID(String employeeID) {
+        return EmployeeDAO.getEmployeeNameByID(employeeID);
+    }
 
     public void setEmployees(List<EmployeeDTO> employees) {
         this.employeeList = new ArrayList<>(employees);

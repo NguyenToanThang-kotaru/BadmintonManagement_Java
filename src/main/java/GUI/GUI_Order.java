@@ -3,6 +3,7 @@ package GUI;
 import BUS.OrderBUS;
 import DTO.OrderDTO;
 import DAO.OrderDAO;
+import DTO.AccountDTO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
@@ -19,7 +20,7 @@ public class GUI_Order extends JPanel {
     private OrderBUS orderBUS;
     private OrderDTO order;
 
-    public GUI_Order() {
+    public GUI_Order(AccountDTO cn, List<String> t) {
         orderBUS = new OrderBUS();
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -103,11 +104,13 @@ public class GUI_Order extends JPanel {
 
         deleteButton = new CustomButton("Xóa");
         deleteButton.setCustomColor(new Color(220, 0, 0));
-        buttonPanel.add(deleteButton, BorderLayout.WEST);
+        if(t.contains("xoa_hd")){
+        buttonPanel.add(deleteButton, BorderLayout.WEST);}
 
         editButton = new CustomButton("Sửa");
         editButton.setCustomColor(new Color(0, 230, 0));
-        buttonPanel.add(editButton, BorderLayout.CENTER );
+        if(t.contains("xoa_hd")){
+        buttonPanel.add(editButton, BorderLayout.CENTER );}
         
         detailorderButton = new CustomButton("Xem Chi Tiết Hóa Đơn");
         detailorderButton.setCustomColor(new Color(0, 120, 215));
@@ -163,13 +166,13 @@ public class GUI_Order extends JPanel {
         
         addButton.addActionListener(e -> {
 //            JOptionPane.showMessageDialog(this, "Chức năng thêm nhân viên chưa được triển khai!");
-            GUI_Form_Order GFO = new GUI_Form_Order(this, null);
+            GUI_Form_Order GFO = new GUI_Form_Order(this, null, cn);
             GFO.setVisible(true);
         });
         
         editButton.addActionListener(e -> {
 //            JOptionPane.showMessageDialog(this, "Chức năng thêm nhân viên chưa được triển khai!");
-            GUI_Form_Order GFO = new GUI_Form_Order(this, order);
+            GUI_Form_Order GFO = new GUI_Form_Order(this, order, cn);
             GFO.setVisible(true);
         });
         
@@ -179,8 +182,9 @@ public class GUI_Order extends JPanel {
         add(midPanel);
         add(Box.createVerticalStrut(10));
         add(botPanel);
-
-        loadOrder();
+        
+        if(t.contains("xoa_hd")){
+        loadOrder();}
         
         detailorderButton.addActionListener(e -> {
             int selectedRow = orderTable.getSelectedRow();

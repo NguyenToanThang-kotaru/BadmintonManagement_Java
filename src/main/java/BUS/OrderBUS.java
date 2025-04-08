@@ -34,5 +34,8 @@ public class OrderBUS {
         OrderDAO dao = new OrderDAO();
         dao.insertOrder(order); // bạn tự tạo insertOrder trong OrderDAO
     }
-
+    
+    public String getNextOrderID() {
+        return new OrderDAO().getNextOrderID();
+    }
 }

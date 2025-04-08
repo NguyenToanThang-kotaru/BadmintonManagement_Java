@@ -103,4 +103,29 @@ public class OrderDAO {
             e.printStackTrace();
         }
     }
+    
+    public String getNextOrderID() {
+        String query = "SELECT ma_hoa_don FROM hoa_don ORDER BY ma_hoa_don DESC LIMIT 1";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+
+            if (rs.next()) {
+                String lastID = rs.getString("ma_hoa_don"); // Ví dụ: "HD005"
+
+                // Cắt bỏ "HD", chỉ lấy số
+                int number = Integer.parseInt(lastID.substring(2));
+
+                // Tạo ID mới với định dạng HDXXX
+                return String.format("HD%03d", number + 1); // Ví dụ: "HD006"
+            }
+
+        } catch (SQLException e) {
+            
+            e.printStackTrace();
+        }
+
+        return "HD001"; // Nếu không có nhân viên nào, bắt đầu từ "NV001"
+    }
 }

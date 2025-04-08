@@ -2,6 +2,9 @@ package GUI;
 
 import BUS.OrderBUS;
 import DTO.OrderDTO;
+import DTO.AccountDTO;
+import BUS.EmployeeBUS;
+import DAO.EmployeeDAO;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,11 +20,13 @@ public class GUI_Form_Order extends JDialog {
     private JPanel panelOrder;
     private OrderBUS orderBUS;
     private OrderDTO currentOrder;
+    private AccountDTO currentAccount;
 
-    public GUI_Form_Order(JPanel parent, OrderDTO order) {
+    public GUI_Form_Order(JPanel parent, OrderDTO order, AccountDTO cn) {
         super((Frame) SwingUtilities.getWindowAncestor(parent), "Tạo Hóa Đơn", true);
         this.orderBUS = new OrderBUS();
         this.currentOrder = order;
+        this.currentAccount = cn;
 
         setSize(600, 550);
         setLocationRelativeTo(parent);
@@ -53,12 +58,22 @@ public class GUI_Form_Order extends JDialog {
         cbMaLoai = new CustomCombobox<>(fetchCategories().toArray(new String[0]));
         cbSanPham = new CustomCombobox<>(fetchProducts("").toArray(new String[0]));
 
-        txtMaHoaDon = new JLabel(currentOrder == null ? generateNextOrderID() : currentOrder.getorderID()); 
-        lblNhanVien = new JLabel(currentOrder == null ? getCurrentUser() : order.getemployeeID());
-        txtNgayXuat = new JLabel(currentOrder == null ? LocalDate.now().toString() : order.getissuedate());
+        txtMaHoaDon = new JLabel(); // chỉ tạo label rỗng ban đầu
+        lblNhanVien = new JLabel();
+        txtNgayXuat = new JLabel();
+
+        if (currentOrder == null) {
+            txtMaHoaDon.setText(generateNextOrderID());
+            lblNhanVien.setText(getEmployeeName());
+            txtNgayXuat.setText(LocalDate.now().toString());
+        } else {
+            txtMaHoaDon.setText(currentOrder.getorderID());
+            lblNhanVien.setText(EmployeeDAO.getEmployeeNameByID(currentOrder.getemployeeID()));
+            txtNgayXuat.setText(currentOrder.getissuedate());
+        }
 
         addComponent("Mã Hóa Đơn:", txtMaHoaDon, panelMain, gbc);
-        addComponent("Nhân Viên:", lblNhanVien, panelMain, gbc);
+        addComponent("Tên Nhân Viên:", lblNhanVien, panelMain, gbc);
         addComponent("Ngày Xuất:", txtNgayXuat, panelMain, gbc);
         addComponent("Mã Khách Hàng:", txtMaKhachHang, panelMain, gbc);
         addComponent("Tên Khách Hàng:", txtTenKhachHang, panelMain, gbc);
@@ -66,7 +81,7 @@ public class GUI_Form_Order extends JDialog {
         addComponent("Loại Sản Phẩm:", cbMaLoai, panelMain, gbc);
         addComponent("Sản Phẩm:", cbSanPham, panelMain, gbc);
         addComponent("Số Lượng:", txtSoLuong, panelMain, gbc);
-        addComponent("Tổng Tiền:", lblTongTien, panelMain, gbc);
+        addComponent("Đơn Giá:", lblTongTien, panelMain, gbc);
 
         panelOrder = new JPanel();
         panelOrder.setBorder(BorderFactory.createTitledBorder("Danh Sách Sản Phẩm"));
@@ -136,12 +151,14 @@ public class GUI_Form_Order extends JDialog {
         return List.of("SanPham A", "SanPham B");
     }
 
-    private String getCurrentUser() {
-        return "NV001"; // bạn lấy từ session thật nếu có
+    private String getEmployeeName() {
+        EmployeeBUS employeeBUS = new EmployeeBUS();
+        String name = employeeBUS.getEmployeeNameByID(currentAccount.getUsername());
+        return name != null ? name : "Không rõ";
     }
 
+
     private String generateNextOrderID() {
-        return "HD" + System.currentTimeMillis();
-        
+        return orderBUS.getNextOrderID();
     }
 }
