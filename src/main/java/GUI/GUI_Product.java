@@ -2,6 +2,7 @@ package GUI;
 
 import DAO.ProductDAO;
 import DTO.ProductDTO;
+import BUS.ProductBUS;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -224,6 +225,12 @@ public class GUI_Product extends JPanel {
         });
 //
         deleteButton.addActionListener(e -> {
+
+            ProductBUS bus = new ProductBUS();
+            if (!bus.canDeleteProduct(productChoosing)) {
+                return; // Dừng xóa nếu không được phép
+            }
+
             if (productChoosing != null && deleteProduct(productChoosing.getProductID(), productChoosing.getAnh())) {
                 loadProductData();
                 tableModel.fireTableDataChanged();
@@ -252,7 +259,7 @@ public class GUI_Product extends JPanel {
 
                 productChoosing = null;
             }
-            
+
         });
 
     }
@@ -350,7 +357,7 @@ public class GUI_Product extends JPanel {
             JOptionPane.showMessageDialog(this, "Xóa sản phẩm thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return false;
         }
-        
+
     }
 
     public void loadProductData() {

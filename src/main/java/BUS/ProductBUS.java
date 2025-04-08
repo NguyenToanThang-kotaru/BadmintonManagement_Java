@@ -19,6 +19,7 @@ public class ProductBUS {
     public boolean validateProduct(ProductDTO product) {
         String productName = product.getProductName().trim();
         String gia = product.getGia().trim();
+        String soluong = product.getSoluong().trim();
 
         // Không cho tên chỉ toàn số
         if (productName.matches("\\d+")) {
@@ -60,4 +61,25 @@ public class ProductBUS {
 
         return true;
     }
+
+    public boolean canDeleteProduct(ProductDTO product) {
+        try {
+            int quantity = Integer.parseInt(product.getSoluong());
+            if (quantity > 0) {
+                JOptionPane.showMessageDialog(null,
+                        "Không thể xóa sản phẩm vì số lượng còn lớn hơn 0.",
+                        "Xóa sản phẩm",
+                        JOptionPane.WARNING_MESSAGE);
+                return false;
+            }
+            return true;
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null,
+                    "Dữ liệu số lượng sản phẩm không hợp lệ.",
+                    "Lỗi dữ liệu",
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+    }
+
 }
