@@ -23,7 +23,7 @@ public class GUI_Account extends JPanel {
     private AccountBUS accountBUS;
     private AccountDTO accountChoosing;
     private AccountDAO AccountDAO;
-    public GUI_Account() {
+    public GUI_Account(List<String> a) {
         accountBUS = new AccountBUS(); // Khởi tạo đối tượng BUS để lấy dữ liệu tài khoản
 
         // Cấu hình layout chính
@@ -181,14 +181,14 @@ public class GUI_Account extends JPanel {
         }
     }
     
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("Quản lý bảo hành");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(900, 600);
-            frame.setLocationRelativeTo(null);
-            frame.setContentPane(new GUI_Account());
-            frame.setVisible(true);
-        });
-    }
+//    public static void main(String[] args) {
+//        SwingUtilities.invokeLater(() -> {
+//            JFrame frame = new JFrame("Quản lý bảo hành");
+//            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//            frame.setSize(900, 600);
+//            frame.setLocationRelativeTo(null);
+//            frame.setContentPane(new GUI_Account());
+//            frame.setVisible(true);
+//        });
+//    }
 }

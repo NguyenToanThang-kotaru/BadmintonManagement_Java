@@ -15,18 +15,22 @@ public class PermissionBUS {
 
     public static List<String> getModule(List<String> functionCodes) {
         List<String> suffixes = new ArrayList<>();
-        List<String> converted = new ArrayList<>();
 
         for (String code : functionCodes) {
-            converted.add(convertNumberCodeToFunctionCode(code));
-        }
-
-        for (String code : converted) {
             String suffix = code.substring(code.indexOf('_') + 1);
             suffixes.add(suffix);
         }
 
         return suffixes;
+    }
+    
+    public static List<String> convertName(List<String> functionCodes){
+        List<String> converted = new ArrayList<>();
+
+        for (String code : functionCodes) {
+            converted.add(convertNumberCodeToFunctionCode(code));
+        }
+        return converted;
     }
 
     public static String decodeFunctionName(String functionCode) {

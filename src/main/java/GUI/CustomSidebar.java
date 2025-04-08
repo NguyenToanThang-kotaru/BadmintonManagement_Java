@@ -47,7 +47,7 @@ public class CustomSidebar extends JPanel {
         for (String funcCode : userFunctions) {
             switch (funcCode) {
                 case"thongke":
-                        menuItems.add("Thống kê");
+                        menuItems.add("Thống Kê");
                     break;
                 case "sp":
                     if (!menuItems.contains("Sản Phẩm")) {
@@ -64,7 +64,7 @@ public class CustomSidebar extends JPanel {
                         menuItems.add("Nhà Cung Cấp");
                     }
                     break;
-                case "dh":
+                case "hd":
                     if (!menuItems.contains("Đơn Hàng")) {
                         menuItems.add("Đơn Hàng");
                     }
@@ -89,7 +89,7 @@ public class CustomSidebar extends JPanel {
                         menuItems.add("Bảo Hành");
                     }
                     break;
-                case "pq":
+                case "quyen":
                     if (!menuItems.contains("Phân Quyền")) {
                         menuItems.add("Phân Quyền");
                     }
@@ -105,7 +105,7 @@ public class CustomSidebar extends JPanel {
             // Định nghĩa đường dẫn của icon tương ứng
             String iconPath = "src/main/resources/images/";
             switch (item) {
-                case "Thống kê":
+                case "Thống Kê":
                     iconPath += "icontk.png";
                     break;
                 case "Sản Phẩm":

@@ -7,6 +7,7 @@ import DTO.AccountDTO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.List;
 
 public class GUI_MainLayout extends JFrame {
 
@@ -15,8 +16,8 @@ public class GUI_MainLayout extends JFrame {
 
     public GUI_MainLayout(JFrame login, String username, String password) {
         AccountDTO logned = AccountDAO.getAccount(username, password);
-        
-        System.out.println(PermissionDAO.getFunctionByID(logned.getPermission().getChucNang().get(1)));
+        List<String> permissions = PermissionBUS.convertName(logned.getPermission().getChucNang());
+        System.out.println((logned.getPermission().getChucNang()));
         setTitle("Quản Lý Kho Hàng");
         setSize(1000, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -28,7 +29,7 @@ public class GUI_MainLayout extends JFrame {
         tittleBar = new CustomTittleBar(this);
         System.out.println();
         // ================================ CustomSidebar ================================
-        Sidebar = new CustomSidebar(login, this,PermissionBUS.getModule(logned.getPermission().getChucNang()));
+        Sidebar = new CustomSidebar(login, this,PermissionBUS.getModule(permissions));
 
         // ================================ Content ================================
         JPanel contentPanel = new JPanel(new BorderLayout());
@@ -49,7 +50,7 @@ public class GUI_MainLayout extends JFrame {
 
         Sidebar.employeePanel = new GUI_Employee();
 
-        Sidebar.accountPanel = new GUI_Account();
+        Sidebar.accountPanel = new GUI_Account(permissions);
 
         Sidebar.repairPanel = new GUI_Guarantee();
 
@@ -72,7 +73,7 @@ public class GUI_MainLayout extends JFrame {
                         contentPanel.removeAll(); // Xóa nội dung cũ
 
                         switch (menuLabel.getText()) {
-                            case "Thống kê" ->
+                            case "Thống Kê" ->
                                 contentPanel.add(Sidebar.statisticsPanel, BorderLayout.CENTER);
                             case "Sản Phẩm" ->
                                 contentPanel.add(Sidebar.productPanel, BorderLayout.CENTER);
