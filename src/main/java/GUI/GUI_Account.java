@@ -25,7 +25,7 @@ public class GUI_Account extends JPanel {
     private AccountDAO AccountDAO;
     public GUI_Account(List<String> a) {
         accountBUS = new AccountBUS(); // Khởi tạo đối tượng BUS để lấy dữ liệu tài khoản
-
+        System.out.println(a);
         // Cấu hình layout chính
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -45,7 +45,13 @@ public class GUI_Account extends JPanel {
         topPanel.add(searchField, BorderLayout.CENTER);
 
         addButton = new CustomButton("+ Thêm Tài Khoản"); // Nút thêm tài khoản
-        topPanel.add(addButton, BorderLayout.EAST);
+        if (a.contains("them_tk")){
+            topPanel.add(addButton, BorderLayout.EAST);
+            System.out.println("Co them tai khoan");
+        }
+        else
+            System.out.println("Khong co them tk");
+            
 
         // ========== BẢNG HIỂN THỊ DANH SÁCH TÀI KHOẢN ==========
         midPanel = new JPanel(new BorderLayout());
@@ -103,12 +109,14 @@ public class GUI_Account extends JPanel {
         // Nút xóa (căn trái)
         deleteButton = new CustomButton("Xoá");
         deleteButton.setCustomColor(new Color(220, 0, 0));
-        buttonPanel.add(deleteButton, BorderLayout.WEST);
+        if(a.contains("xoa_tk"))
+            buttonPanel.add(deleteButton, BorderLayout.WEST);
 
         // Nút sửa (căn phải)
         editButton = new CustomButton("Sửa");
         editButton.setCustomColor(new Color(0, 230, 0));
-        buttonPanel.add(editButton, BorderLayout.EAST);
+        if(a.contains("sua_tk"))
+            buttonPanel.add(editButton, BorderLayout.EAST);
 
         // Thêm panel vào `botPanel`
         gbc.gridx = 0;
@@ -140,12 +148,15 @@ public class GUI_Account extends JPanel {
         // Thêm các panel vào giao diện chính
         add(topPanel);
         add(Box.createVerticalStrut(10));
+        
         add(scrollPane);
         add(Box.createVerticalStrut(10));
         add(botPanel);
 
         // Tải dữ liệu tài khoản lên bảng
-        loadAccounts();
+        
+        if (a.contains("xem_tk"))
+            loadAccounts();
 
         addButton.addActionListener(e -> {
 //            JOptionPane.showMessageDialog(this, "Chức năng thêm nhân viên chưa được triển khai!");

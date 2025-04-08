@@ -48,11 +48,11 @@ public class GUI_MainLayout extends JFrame {
         
         Sidebar.importPanel = new GUI_Import();
 
-        Sidebar.employeePanel = new GUI_Employee();
+        Sidebar.employeePanel = new GUI_Employee(permissions);
 
         Sidebar.accountPanel = new GUI_Account(permissions);
 
-        Sidebar.repairPanel = new GUI_Guarantee();
+        Sidebar.repairPanel = new GUI_Guarantee(permissions);
 
         Sidebar.customerPanel = new GUI_Customer();
 
@@ -64,7 +64,7 @@ public class GUI_MainLayout extends JFrame {
         
         Sidebar.importPanel = new GUI_Import();
         
-        Sidebar.rolePanel = new GUI_Permission();
+        Sidebar.rolePanel = new GUI_Permission(permissions);
         for (Component comp : Sidebar.panel2.getComponents()) {
             if (comp instanceof JLabel menuLabel) {
                 menuLabel.addMouseListener(new MouseAdapter() {

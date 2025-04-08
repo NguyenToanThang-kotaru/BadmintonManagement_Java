@@ -202,7 +202,7 @@ public class GUI_Product extends JPanel {
                 ProductDTO product = ProductDAO.getProduct(productID);
 
                 // Hiển thị form sửa sản phẩm
-                GUI_FixFormProduct fixForm = new GUI_FixFormProduct((JFrame) SwingUtilities.getWindowAncestor(this), this, product);
+                GUI_Form_FixProduct fixForm = new GUI_Form_FixProduct((JFrame) SwingUtilities.getWindowAncestor(this), this, product);
                 fixForm.setVisible(true);
 
             }
