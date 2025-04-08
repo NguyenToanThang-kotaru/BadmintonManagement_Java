@@ -7,7 +7,6 @@ package DAO;
 import Connection.DatabaseConnection;
 import DTO.OrderDTO;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -68,6 +67,36 @@ public class OrderDAO {
             stmt.setString(3, order.gettotalmoney());
             stmt.setString(4, order.getissuedate());
             stmt.setString(5, order.getorderID());
+
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public boolean deleteOrder(String orderID) {
+        String query = "DELETE FROM hoa_don WHERE ma_hoa_don = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, orderID);
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    public void insertOrder(OrderDTO order) {
+        String sql = "INSERT INTO hoa_don (ma_hoa_don, ma_nhan_vien, ma_khach_hang, tong_tien, ngay_xuat) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, order.getorderID());
+            stmt.setString(2, order.getemployeeID());
+            stmt.setString(3, order.getcustomerID());
+            stmt.setString(4, order.gettotalmoney());
+            stmt.setString(5, order.getissuedate());
 
             stmt.executeUpdate();
         } catch (SQLException e) {

@@ -2,6 +2,7 @@ package GUI;
 
 import BUS.OrderBUS;
 import DTO.OrderDTO;
+import DAO.OrderDAO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
@@ -15,7 +16,8 @@ public class GUI_Order extends JPanel {
     private DefaultTableModel tableModel;
     private CustomButton editButton, deleteButton, addButton, detailorderButton;
     private CustomSearch searchField;
-    private OrderBUS orderBUS;   
+    private OrderBUS orderBUS;
+    private OrderDTO order;
 
     public GUI_Order() {
         orderBUS = new OrderBUS();
@@ -46,9 +48,10 @@ public class GUI_Order extends JPanel {
         CustomTable customTable = new CustomTable(columnNames);
         orderTable = customTable.getOrderTable(); 
         tableModel = customTable.getTableModel(); 
-        
-        midPanel.add(customTable, BorderLayout.CENTER);
 
+        CustomScrollPane scrollPane = new CustomScrollPane(orderTable);
+        midPanel.add(scrollPane, BorderLayout.CENTER);
+        
         // ========== PANEL CHI TIẾT HÓA ĐƠN ==========
         botPanel = new JPanel(new GridBagLayout());
         botPanel.setBackground(Color.WHITE);
@@ -124,7 +127,9 @@ public class GUI_Order extends JPanel {
                 String makh = (String) orderTable.getValueAt(selectedRow, 2);
                 String tongtien = (String) orderTable.getValueAt(selectedRow, 3);
                 String ngayxuat = (String) orderTable.getValueAt(selectedRow, 4);
-
+                
+                order = OrderDAO.getOrder(mahd); //; Lấy mã hóa đơn để tham chiếu 
+                
                 // Hiển thị dữ liệu trên giao diện
                 orderidLabel.setText(mahd);
                 employeeidLabel.setText(manv);
@@ -135,11 +140,38 @@ public class GUI_Order extends JPanel {
             }   
         });
         
-        /*addButton.addActionListener(e -> {
+        deleteButton.addActionListener(e -> {
+            int selectedRow = orderTable.getSelectedRow();
+            if (selectedRow != -1) {
+                String orderID = (String) orderTable.getValueAt(selectedRow, 0);
+
+                int confirm = JOptionPane.showConfirmDialog(this,
+                        "Bạn có chắc chắn muốn xóa hóa đơn " + orderID + " không?",
+                        "Xác nhận xóa", JOptionPane.YES_NO_OPTION);
+
+                if (confirm == JOptionPane.YES_OPTION) {
+                    boolean success = orderBUS.deleteOrder(orderID);
+                    //if (success) {
+                        //JOptionPane.showMessageDialog(this, "Xóa hóa đơn thành công!");
+                        loadOrder(); // reload bảng
+                    //} else {
+                        //JOptionPane.showMessageDialog(this, "Xóa hóa đơn thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    //}
+                }
+            }
+        });
+        
+        addButton.addActionListener(e -> {
 //            JOptionPane.showMessageDialog(this, "Chức năng thêm nhân viên chưa được triển khai!");
-            GUI_Form_Order GFO = new GUI_Form_Order(this);
+            GUI_Form_Order GFO = new GUI_Form_Order(this, null);
             GFO.setVisible(true);
-        });*/
+        });
+        
+        editButton.addActionListener(e -> {
+//            JOptionPane.showMessageDialog(this, "Chức năng thêm nhân viên chưa được triển khai!");
+            GUI_Form_Order GFO = new GUI_Form_Order(this, order);
+            GFO.setVisible(true);
+        });
         
         // Thêm các panel vào giao diện chính
         add(topPanel);
