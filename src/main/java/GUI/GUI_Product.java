@@ -46,7 +46,7 @@ public class GUI_Product extends JPanel {
 //        // ========== BẢNG HIỂN THỊ ==========
         midPanel = new JPanel(new BorderLayout());
         midPanel.setBackground(Color.WHITE);
-        String[] columnNames = {"Mã Sản Phẩm", "Tên Sản Phẩm", "Giá", "Mã NCC", "Số lượng"};
+        String[] columnNames = {"Mã Sản Phẩm", "Tên Sản Phẩm", "Giá", "Số lượng"};
         CustomTable customTable = new CustomTable(columnNames);
         productTable = customTable.getEmployeeTable();
         tableModel = customTable.getTableModel();
@@ -119,10 +119,10 @@ public class GUI_Product extends JPanel {
 
         gbcInfo.gridx = 0;
         gbcInfo.gridy = 4;
-        infoPanel.add(new JLabel("Mã NCC: "), gbcInfo);
+        infoPanel.add(new JLabel("Tên NCC: "), gbcInfo);
         gbcInfo.gridx = 1;
-        JLabel MaNCC = new JLabel("");
-        infoPanel.add(MaNCC, gbcInfo);
+        JLabel NameNCC = new JLabel("");
+        infoPanel.add(NameNCC, gbcInfo);
 
         gbcInfo.gridx = 0;
         gbcInfo.gridy = 5;
@@ -170,7 +170,7 @@ public class GUI_Product extends JPanel {
                 namePDLabel.setText(product.getProductName());
                 priceLabel.setText(String.valueOf(product.getGia()));
                 quantityLabel.setText(String.valueOf(product.getSoluong()));
-                MaNCC.setText(String.valueOf(product.getMaNCC()));
+                NameNCC.setText(String.valueOf(product.gettenNCC()));
                 TSKTLabel.setText(product.getTSKT());
                 TypeName.setText(String.valueOf(product.getTL()));
 
@@ -222,7 +222,7 @@ public class GUI_Product extends JPanel {
             int selectedRow = productTable.getSelectedRow();
             System.out.println("aaaaaaaaa");
         });
-
+//
         deleteButton.addActionListener(e -> {
             if (productChoosing != null && deleteProduct(productChoosing.getProductID(), productChoosing.getAnh())) {
                 loadProductData();
@@ -231,7 +231,7 @@ public class GUI_Product extends JPanel {
                 namePDLabel.setText("");
                 priceLabel.setText("");
                 quantityLabel.setText("");
-                MaNCC.setText("");
+                NameNCC.setText("");
                 TSKTLabel.setText("");
                 TypeName.setText("");
 
@@ -252,6 +252,7 @@ public class GUI_Product extends JPanel {
 
                 productChoosing = null;
             }
+            
         });
 
     }
@@ -343,11 +344,13 @@ public class GUI_Product extends JPanel {
                 }
             }
             JOptionPane.showMessageDialog(this, "Xoá sản phẩm thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            loadProductData();
             return true;
         } else {
             JOptionPane.showMessageDialog(this, "Xóa sản phẩm thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return false;
         }
+        
     }
 
     public void loadProductData() {
@@ -360,11 +363,11 @@ public class GUI_Product extends JPanel {
                 product.getProductID(),
                 product.getProductName(),
                 product.getGia(),
-                product.getMaNCC(),
                 product.getSoluong(),
                 product.getTSKT(),
                 product.getTL(),
-                product.getAnh()
+                product.getAnh(),
+                product.gettenNCC()
             });
         }
 

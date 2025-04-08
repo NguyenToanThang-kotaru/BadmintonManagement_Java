@@ -2,6 +2,7 @@ package GUI;
 
 import DTO.ProductDTO;
 import DAO.ProductDAO;
+import BUS.ProductBUS;
 import java.awt.*;
 import java.io.File;
 import java.nio.file.Files;
@@ -12,8 +13,8 @@ import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 
 public class GUI_FixFormProduct extends JDialog {
 
-    private JTextField nameField, priceField, maNCCField, soluongField, tsktField;
-    private CustomCombobox TLField;
+    private JTextField nameField, priceField, soluongField, tsktField;
+    private CustomCombobox TLField, NCCField;
     private CustomButton saveButton, cancelButton, btnChooseImage;
     private JLabel imageLabel;
     private File selectedImageFile = null;
@@ -45,10 +46,10 @@ public class GUI_FixFormProduct extends JDialog {
         nameField.setText(product.getProductName());
         addComponent("Giá:", priceField = new JTextField(20), gbc, 2);
         priceField.setText(String.valueOf(product.getGia()));
-        addComponent("Mã NCC:", maNCCField = new JTextField(20), gbc, 3);
-        maNCCField.setText(String.valueOf(product.getMaNCC()));
-        addComponent("Số lượng:", soluongField = new JTextField(20), gbc, 4);
-        soluongField.setText(String.valueOf(product.getSoluong()));
+//        addComponent("Mã NCC:", maNCCField = new JTextField(20), gbc, 3);
+//        maNCCField.setText(String.valueOf(product.getMaNCC()));
+//        addComponent("Số lượng:", soluongField = new JTextField(20), gbc, 4);
+//        soluongField.setText(String.valueOf(product.getSoluong()));
         addComponent("Thông số kỹ thuật:", tsktField = new JTextField(20), gbc, 5);
         tsktField.setText(product.getTSKT());
 
@@ -64,6 +65,16 @@ public class GUI_FixFormProduct extends JDialog {
 
         gbc.gridx = 0;
         gbc.gridy = 7;
+        add(new JLabel("Nhà cung cấp:"), gbc);
+        gbc.gridx = 1;
+        ArrayList<String> NCCList = ProductDAO.getAllNCCNames();
+        String[] NCCNames = NCCList.toArray(new String[0]);
+        NCCField = new CustomCombobox(NCCNames);
+        NCCField.setSelectedItem(product.gettenNCC());
+        add(NCCField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 8;
         add(new JLabel("Ảnh sản phẩm:"), gbc);
 
         gbc.gridx = 1;
@@ -76,7 +87,7 @@ public class GUI_FixFormProduct extends JDialog {
             displayImage("images/" + product.getAnh());
         }
 
-        gbc.gridy = 8;
+        gbc.gridy = 9;
         gbc.gridx = 1;
         btnChooseImage = new CustomButton("Chọn ảnh");
         btnChooseImage.addActionListener(e -> chooseImage());
@@ -88,7 +99,7 @@ public class GUI_FixFormProduct extends JDialog {
         buttonPanel.add(saveButton);
         buttonPanel.add(cancelButton);
 
-        gbc.gridy = 9;
+        gbc.gridy = 10;
         gbc.gridx = 1;
         add(buttonPanel, gbc);
 
@@ -131,13 +142,13 @@ public class GUI_FixFormProduct extends JDialog {
     private void saveProduct() {
         String name = nameField.getText().trim();
         String price = priceField.getText().trim();
-        String maNCC = maNCCField.getText().trim();
-        String soluong = soluongField.getText().trim();
+//        String soluong = soluongField.getText().trim();
         String tskt = tsktField.getText().trim();
         String tenLoai = (String) TLField.getSelectedItem();
+        String tenNCC = (String) NCCField.getSelectedItem();
         String anh = product.getAnh();
 
-        if (name.isEmpty() || price.isEmpty() || maNCC.isEmpty() || soluong.isEmpty() || tskt.isEmpty()) {
+        if (name.isEmpty() || price.isEmpty() || tskt.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -148,11 +159,16 @@ public class GUI_FixFormProduct extends JDialog {
 
         product.setProductName(name);
         product.setGia(price);
-        product.setMaNCC(maNCC);
-        product.setSoluong(soluong);
+        product.settenNCC(tenNCC);
+//        product.setSoluong(soluong);
         product.setTSKT(tskt);
         product.setTL(tenLoai);
         product.setAnh(anh);
+
+        ProductBUS bus = new ProductBUS();
+        if (!bus.validateProduct(product)) {
+            return; // Nếu không hợp lệ thì không tiếp tục cập nhật
+        }
 
         ProductDAO.updateProduct(product);
         JOptionPane.showMessageDialog(this, "Cập nhật sản phẩm thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);

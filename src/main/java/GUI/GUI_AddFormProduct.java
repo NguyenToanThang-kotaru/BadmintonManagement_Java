@@ -2,6 +2,7 @@ package GUI;
 
 import DTO.ProductDTO;
 import DAO.ProductDAO;
+import BUS.ProductBUS;
 import java.awt.*;
 import java.io.File;
 import java.nio.file.Files;
@@ -12,7 +13,7 @@ import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 public class GUI_AddFormProduct extends JDialog {
 
     private JTextField nameField, priceField, maNCCField, soluongField, tsktField;
-    private CustomCombobox TLField;
+    private CustomCombobox TLField, NCCField;
     private CustomButton saveButton, cancelButton, btnChooseImage;
     private JLabel imageLabel;
     private File selectedImageFile = null;
@@ -34,8 +35,8 @@ public class GUI_AddFormProduct extends JDialog {
         // Các trường nhập liệu
         addComponent("Tên sản phẩm:", nameField = new JTextField(20), gbc, 0);
         addComponent("Giá:", priceField = new JTextField(20), gbc, 1);
-        addComponent("Mã NCC:", maNCCField = new JTextField(20), gbc, 2);
-        addComponent("Số lượng:", soluongField = new JTextField(20), gbc, 3);
+//        addComponent("Mã NCC:", maNCCField = new JTextField(20), gbc, 2);
+//        addComponent("Số lượng:", soluongField = new JTextField(20), gbc, 3);
         addComponent("Thông số kỹ thuật:", tsktField = new JTextField(20), gbc, 4);
 
         // Loại sản phẩm
@@ -48,9 +49,17 @@ public class GUI_AddFormProduct extends JDialog {
         TLField = new CustomCombobox(categoryNames);
         add(TLField, gbc);
 
-        // Ảnh sản phẩm
         gbc.gridx = 0;
         gbc.gridy = 6;
+        add(new JLabel("Nhà cung cấp:"), gbc);
+        gbc.gridx = 1;
+        String[] NCCNames = ProductDAO.getAllNCCNames().toArray(new String[0]);
+        NCCField = new CustomCombobox(NCCNames);
+        add(NCCField, gbc);
+
+        // Ảnh sản phẩm
+        gbc.gridx = 0;
+        gbc.gridy = 7;
         add(new JLabel("Ảnh sản phẩm:"), gbc);
         gbc.gridx = 1;
         imageLabel = new JLabel();
@@ -59,7 +68,7 @@ public class GUI_AddFormProduct extends JDialog {
         add(imageLabel, gbc);
 
         // Nút chọn ảnh
-        gbc.gridy = 7;
+        gbc.gridy = 8;
         btnChooseImage = new CustomButton("Chọn ảnh");
         btnChooseImage.addActionListener(e -> chooseImage());
         add(btnChooseImage, gbc);
@@ -71,7 +80,7 @@ public class GUI_AddFormProduct extends JDialog {
         buttonPanel.add(saveButton);
         buttonPanel.add(cancelButton);
 
-        gbc.gridy = 8;
+        gbc.gridy = 9;
         gbc.gridx = 1;
         add(buttonPanel, gbc);
 
@@ -114,13 +123,13 @@ public class GUI_AddFormProduct extends JDialog {
     private void saveProduct() {
         String name = nameField.getText().trim();
         String price = priceField.getText().trim();
-        String maNCC = maNCCField.getText().trim();
-        String soluong = soluongField.getText().trim();
+        String soluong = "0";
         String tskt = tsktField.getText().trim();
         String tenLoai = (String) TLField.getSelectedItem();
+        String tenNCC = (String) NCCField.getSelectedItem();
         String anh = null;
 
-        if (name.isEmpty() || price.isEmpty() || maNCC.isEmpty() || soluong.isEmpty() || tskt.isEmpty()) {
+        if (name.isEmpty() || price.isEmpty() || tskt.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -131,8 +140,13 @@ public class GUI_AddFormProduct extends JDialog {
         }
 
         // Tạo sản phẩm mới, truyền vào productID là null vì đây là sản phẩm mới (sẽ tự động sinh ID khi thêm vào DB)
-        ProductDTO newProduct = new ProductDTO(null, name, price, soluong, maNCC, tskt, null, tenLoai, anh);
-
+        ProductDTO newProduct = new ProductDTO(null, name, price, soluong, null, tskt, null, tenLoai, anh, tenNCC);
+        
+          ProductBUS bus = new ProductBUS();
+        if (!bus.validateProduct(newProduct)) {
+            return; // Dừng lại nếu không hợp lệ
+        }
+        
         boolean success = ProductDAO.addProduct(newProduct);
         if (success) {
             JOptionPane.showMessageDialog(this, "Thêm sản phẩm thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
@@ -140,7 +154,7 @@ public class GUI_AddFormProduct extends JDialog {
         } else {
             JOptionPane.showMessageDialog(this, "Có lỗi xảy ra khi thêm sản phẩm!", "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
-        
+
         parentGUI.loadProductData();
 
     }
