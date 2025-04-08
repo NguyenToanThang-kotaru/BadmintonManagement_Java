@@ -20,7 +20,7 @@ public class GUI_Employee extends JPanel {
     private EmployeeBUS employeeBUS;
     private EmployeeDTO employeeChoosing;
 
-    public GUI_Employee() {
+    public GUI_Employee(List<String> a) {
         employeeBUS = new EmployeeBUS();
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -39,7 +39,8 @@ public class GUI_Employee extends JPanel {
         reloadButton = new CustomButton("Tải Lại Trang");
         topPanel.add(reloadButton, BorderLayout.WEST);
         addButton = new CustomButton("+ Thêm Nhân Viên"); // Nút thêm nhân viên
-        topPanel.add(addButton, BorderLayout.EAST);
+        if(a.contains("them_nv"))
+            topPanel.add(addButton, BorderLayout.EAST);
 
         // ========== BẢNG HIỂN THỊ DANH SÁCH NHÂN VIÊN ==========
         midPanel = new JPanel(new BorderLayout());
@@ -50,7 +51,6 @@ public class GUI_Employee extends JPanel {
         CustomTable customTable = new CustomTable(columnNames);
         employeeTable = customTable.getEmployeeTable();
         tableModel = customTable.getTableModel();
-
         midPanel.add(customTable, BorderLayout.CENTER);
         CustomScrollPane scrollPane = new CustomScrollPane(employeeTable);
 
@@ -113,13 +113,16 @@ public class GUI_Employee extends JPanel {
         JPanel buttonPanel = new JPanel(new BorderLayout());
         buttonPanel.setOpaque(false);
 
+       
         deleteButton = new CustomButton("Xóa");
         deleteButton.setCustomColor(new Color(220, 0, 0));
-        buttonPanel.add(deleteButton, BorderLayout.WEST);
+        if(a.contains("xoa_nv"))
+            buttonPanel.add(deleteButton, BorderLayout.WEST);
 
         editButton = new CustomButton("Sửa");
         editButton.setCustomColor(new Color(0, 230, 0));
-        buttonPanel.add(editButton, BorderLayout.EAST);
+        if(a.contains("sua_nv"))
+            buttonPanel.add(editButton, BorderLayout.EAST);
 
         gbc.gridx = 0;
         gbc.gridy = 6;
@@ -208,7 +211,8 @@ public class GUI_Employee extends JPanel {
         add(Box.createVerticalStrut(5));
         add(botPanel);
 
-        loadEmployees();
+        if(a.contains("xem_nv"))
+            loadEmployees();
 
     }
 
@@ -247,14 +251,14 @@ public class GUI_Employee extends JPanel {
         }
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("Quản lý bảo hành");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(900, 600);
-            frame.setLocationRelativeTo(null);
-            frame.setContentPane(new GUI_Employee());
-            frame.setVisible(true);
-        });
-    }
+//    public static void main(String[] args) {
+//        SwingUtilities.invokeLater(() -> {
+//            JFrame frame = new JFrame("Quản lý bảo hành");
+//            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//            frame.setSize(900, 600);
+//            frame.setLocationRelativeTo(null);
+//            frame.setContentPane(new GUI_Employee());
+//            frame.setVisible(true);
+//        });
+//    }
 }

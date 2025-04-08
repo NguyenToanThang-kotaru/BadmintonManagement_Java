@@ -8,7 +8,7 @@ import DAO.GuaranteeDAO;
 import GUI.GUI_Guarantee;
 import java.awt.event.ItemEvent;
 
-public class GUI_FormGuarantee extends JDialog {
+public class GUI_Form_Guarantee extends JDialog {
 
     private JTextField reasonField;
     private JPanel reasonPanel;
@@ -17,7 +17,7 @@ public class GUI_FormGuarantee extends JDialog {
     private GuaranteeDTO guarantee;
     private GUI_Guarantee parentGUI;
 
-    public GUI_FormGuarantee(JFrame parent, GUI_Guarantee parentGUI, GuaranteeDTO guarantee) {
+    public GUI_Form_Guarantee(JFrame parent, GUI_Guarantee parentGUI, GuaranteeDTO guarantee) {
         super(parent, "Cập nhật bảo hành", true);
         this.parentGUI = parentGUI;
         this.guarantee = guarantee;

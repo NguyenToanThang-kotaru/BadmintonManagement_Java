@@ -126,7 +126,7 @@ public class GUI_Login extends JFrame {
         if (checkLogin.HaveAccount(username, password)){
             currentUsername = username;
             this.setVisible(false);
-            GUI_MainLayout mainLayout = new GUI_MainLayout(this);
+            GUI_MainLayout mainLayout = new GUI_MainLayout(this,username, password);
             mainLayout.setVisible(true);
             userField.setText("");
             passField.setText("");

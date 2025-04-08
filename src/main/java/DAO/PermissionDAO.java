@@ -107,6 +107,41 @@ public class PermissionDAO {
         return null;
     }
 
+    public static String getFunctionByID(String machucnang) {
+        String query = "SELECT * FROM chuc_nang WHERE ma_chuc_nang=?";
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, machucnang);
+            try (ResultSet rs = stmt.executeQuery()) {
+                String tenChucNang;
+                while (rs.next()) {
+                    tenChucNang = rs.getString("ten_chuc_nang");
+                    return tenChucNang;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static List<String> getAllFunctionByName() {
+        List<String> a = new ArrayList<>();
+        String query = "SELECT * FROM chuc_nang";
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    String functionName = rs.getString("ten_chuc_nang");
+                    a.add(functionName);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return a;
+    }
+
     public static String getFunctionByName(String tenchucnang) {
         String query = "SELECT * FROM chuc_nang WHERE ten_chuc_nang=?";
 
@@ -157,11 +192,11 @@ public class PermissionDAO {
         return false;
     }
 
-    public static Boolean editPermission(PermissionDTO per, String name,List<String> a ) {
+    public static Boolean editPermission(PermissionDTO per, String name, List<String> a) {
         String sql = "UPDATE quyen SET ten_quyen = ? WHERE ma_quyen = ?";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, name);
-            stmt.setString(2,per.getID());
+            stmt.setString(2, per.getID());
             stmt.executeUpdate();
 //            return true;
         } catch (SQLException e) {
