@@ -12,49 +12,50 @@ import java.sql.SQLException;
 
 public class GUI_Form_Suppliers extends JDialog {
     
-    private final JLabel lblSupplierID;
+    private JLabel lblSupplierID; // Thay JTextField bằng JLabel để đồng bộ với Edit
     private JTextField txtName, txtAddress, txtPhone;
     private CustomButton btnSave, btnCancel;
     private SuppliersBUS suppliersBUS;
 
     public GUI_Form_Suppliers(JPanel parent) {
-        super((Frame) SwingUtilities.getWindowAncestor(parent), "Nhà Cung Cấp", true);
+        super((Frame) SwingUtilities.getWindowAncestor(parent), "Thêm Nhà Cung Cấp", true); // Đồng bộ tiêu đề
         
-        suppliersBUS = new SuppliersBUS(); // Khởi tạo SuppliersBUS
+        suppliersBUS = new SuppliersBUS();
 
-        setSize(500, 350);
+        setSize(500, 350); // Đồng bộ kích thước với Edit
         setLocationRelativeTo(parent);
         setLayout(new GridBagLayout());
-        setBackground(Color.WHITE);
+        setBackground(Color.WHITE); // Đồng bộ màu nền
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.insets = new Insets(10, 10, 10, 10); // Đồng bộ khoảng cách
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
 
-        JLabel title = new JLabel("Thông Tin Nhà Cung Cấp");
-        title.setFont(new Font("Arial", Font.BOLD, 18));
-        title.setForeground(new Color(52, 73, 94));
+        JLabel title = new JLabel("Thêm Thông Tin Nhà Cung Cấp"); // Đồng bộ tiêu đề với Edit
+        title.setFont(new Font("Arial", Font.BOLD, 18)); // Đồng bộ font
+        title.setForeground(new Color(52, 73, 94)); // Đồng bộ màu chữ
         add(title, gbc);
 
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridy = 1;
         gbc.gridwidth = 1;
 
+        // Khởi tạo các trường nhập liệu
+        lblSupplierID = new JLabel(generateNextSupplierID()); // Sử dụng JLabel thay vì JTextField để đồng bộ
         txtName = new JTextField(20);
         txtAddress = new JTextField(20);
         txtPhone = new JTextField(15);
-        lblSupplierID = new JLabel(generateNextSupplierID());
 
-        addComponent("Mã Nhà Cung Cấp:", lblSupplierID, gbc);
+        addComponent("Mã Nhà Cung Cấp:", lblSupplierID, gbc); // Đồng bộ nhãn
         addComponent("Tên Nhà Cung Cấp:", txtName, gbc);
         addComponent("Địa Chỉ:", txtAddress, gbc);
         addComponent("Số Điện Thoại:", txtPhone, gbc);
 
         JPanel buttonPanel = new JPanel(new FlowLayout());
-        btnSave = new CustomButton("Thêm");
+        btnSave = new CustomButton("Lưu"); // Đồng bộ tên nút với Edit
         btnCancel = new CustomButton("Hủy");
         buttonPanel.add(btnSave);
         buttonPanel.add(btnCancel);
@@ -65,9 +66,10 @@ public class GUI_Form_Suppliers extends JDialog {
         gbc.anchor = GridBagConstraints.CENTER;
         add(buttonPanel, gbc);
 
+        // Sự kiện nút Hủy
         btnCancel.addActionListener(e -> dispose());
         
-        // Xử lý nút "Thêm"
+        // Sự kiện nút Lưu
         btnSave.addActionListener(e -> {
             String supplierID = lblSupplierID.getText();
             String name = txtName.getText();
@@ -82,8 +84,8 @@ public class GUI_Form_Suppliers extends JDialog {
             SuppliersDTO supplier = new SuppliersDTO(supplierID, name, address, phone);
             saveSupplier(supplier);
             JOptionPane.showMessageDialog(this, "Thêm nhà cung cấp thành công!");
-            dispose(); // Đóng dialog sau khi thêm thành công
-            ((GUI_Suppliers) parent).loadSuppliers(); // Cập nhật danh sách nhà cung cấp trong GUI_Suppliers
+            dispose();
+            ((GUI_Suppliers) parent).loadSuppliers(); // Cập nhật danh sách
         });
     }
 
@@ -99,7 +101,7 @@ public class GUI_Form_Suppliers extends JDialog {
 
     private String generateNextSupplierID() {
         SuppliersDAO dao = new SuppliersDAO();
-        return dao.generateSupplierID(); // Sử dụng hàm từ SuppliersDAO
+        return dao.generateSupplierID();
     }
 
     private void saveSupplier(SuppliersDTO supplier) {
