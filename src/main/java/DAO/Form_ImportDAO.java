@@ -3,6 +3,8 @@ package DAO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,7 +48,7 @@ public class Form_ImportDAO {
 
     public String[] getSupplierNames() {
         List<String> suppliers = new ArrayList<>();
-        String query = "SELECT ma_nha_cung_cap, ten_nha_cung_cap FROM nha_cung_cap";
+        String query = "SELECT ma_nha_cung_cap, ten_nha_cung_cap FROM nha_cung_cap WHERE is_deleted = 0";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query);
              ResultSet rs = stmt.executeQuery()) {
@@ -62,7 +64,7 @@ public class Form_ImportDAO {
 
     public Map<String, List<ProductDTO>> loadSupplierProducts() {
         Map<String, List<ProductDTO>> map = new HashMap<>();
-        String query = "SELECT ma_san_pham, ten_san_pham, gia, ma_nha_cung_cap FROM san_pham ORDER BY ma_nha_cung_cap, ma_san_pham";
+        String query = "SELECT ma_san_pham, ten_san_pham, gia, ma_nha_cung_cap FROM san_pham WHERE is_deleted = 0 ORDER BY ma_nha_cung_cap, ma_san_pham";
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query);
@@ -87,71 +89,73 @@ public class Form_ImportDAO {
     public boolean saveImport(String importID, String employeeID, String supplierID, int totalAmount, 
         String receiptDate, Object[][] productData) {
         try {
-        // 1. Save main import record
-        String importQuery = "INSERT INTO nhap_hang (ma_nhap_hang, ma_nhan_vien, ma_nha_cung_cap, tong_tien, ngay_nhap) " +
-            "VALUES (?, ?, ?, ?, ?)";
+            // 1. Save main import record với is_deleted = 0
+            String importQuery = "INSERT INTO nhap_hang (ma_nhap_hang, ma_nhan_vien, ma_nha_cung_cap, tong_tien, ngay_nhap, is_deleted) " +
+                "VALUES (?, ?, ?, ?, ?, 0)";
 
-        // 2. Save import details
-        String detailQuery = "INSERT INTO chi_tiet_nhap_hang (ma_chi_tiet_nhap_hang, ma_nhap_hang, ma_san_pham, so_luong, gia) " +
-            "VALUES (?, ?, ?, ?, ?)";
+            // 2. Save import details
+            String detailQuery = "INSERT INTO chi_tiet_nhap_hang (ma_chi_tiet_nhap_hang, ma_nhap_hang, ma_san_pham, so_luong, gia, is_deleted) " +
+                "VALUES (?, ?, ?, ?, ?, 0)";
 
-        // 3. Lấy ma_chi_tiet_nhap_hang lớn nhất
-        String maxDetailIDQuery = "SELECT ma_chi_tiet_nhap_hang FROM chi_tiet_nhap_hang ORDER BY ma_chi_tiet_nhap_hang DESC LIMIT 1";
+            // 3. Lấy ma_chi_tiet_nhap_hang lớn nhất
+            String maxDetailIDQuery = "SELECT ma_chi_tiet_nhap_hang FROM chi_tiet_nhap_hang ORDER BY ma_chi_tiet_nhap_hang DESC LIMIT 1";
 
-        Connection conn = DatabaseConnection.getConnection();
-        conn.setAutoCommit(false);
+            Connection conn = DatabaseConnection.getConnection();
+            conn.setAutoCommit(false);
 
-        try (PreparedStatement importStmt = conn.prepareStatement(importQuery);
-        PreparedStatement detailStmt = conn.prepareStatement(detailQuery);
-        PreparedStatement maxDetailStmt = conn.prepareStatement(maxDetailIDQuery)) {
+            try (PreparedStatement importStmt = conn.prepareStatement(importQuery);
+                 PreparedStatement detailStmt = conn.prepareStatement(detailQuery);
+                 PreparedStatement maxDetailStmt = conn.prepareStatement(maxDetailIDQuery)) {
 
-        // Insert main import record
-        importStmt.setString(1, importID);
-        importStmt.setString(2, employeeID);
-        importStmt.setString(3, supplierID);
-        importStmt.setInt(4, totalAmount);
-        importStmt.setString(5, receiptDate);
-        importStmt.executeUpdate();
+                // Insert main import record
+                importStmt.setString(1, importID);
+                importStmt.setString(2, employeeID);
+                importStmt.setString(3, supplierID);
+                importStmt.setInt(4, totalAmount);
+                // Sử dụng ngày giờ hiện tại nếu receiptDate là null hoặc không hợp lệ
+                String dateTime = receiptDate != null ? receiptDate : LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                importStmt.setString(5, dateTime);
+                importStmt.executeUpdate();
 
-        // Lấy ma_chi_tiet_nhap_hang lớn nhất
-        ResultSet rs = maxDetailStmt.executeQuery();
-        int nextDetailNumber = 1;
-        if (rs.next()) {
-        String lastDetailID = rs.getString("ma_chi_tiet_nhap_hang");
-        // Giả sử ma_chi_tiet_nhap_hang có dạng NHxxxNN (ví dụ: NH03501)
-        nextDetailNumber = Integer.parseInt(lastDetailID.substring(5)) + 1;
-        }
+                // Lấy ma_chi_tiet_nhap_hang lớn nhất
+                ResultSet rs = maxDetailStmt.executeQuery();
+                int nextDetailNumber = 1;
+                if (rs.next()) {
+                    String lastDetailID = rs.getString("ma_chi_tiet_nhap_hang");
+                    nextDetailNumber = Integer.parseInt(lastDetailID.substring(5)) + 1;
+                }
 
-        // Insert each product detail
-        for (int i = 0; i < productData.length; i++) {
-        String detailID = importID + String.format("%02d", nextDetailNumber + i);
-        String productID = (String) productData[i][0];
-        int quantity = (Integer) productData[i][2];
-        int price = Integer.parseInt(productData[i][3].toString().replaceAll("[^0-9]", ""));
+                // Insert each product detail
+                for (int i = 0; i < productData.length; i++) {
+                    String detailID = importID + String.format("%02d", nextDetailNumber + i);
+                    String productID = (String) productData[i][0];
+                    int quantity = (Integer) productData[i][2];
+                    int price = Integer.parseInt(productData[i][3].toString().replaceAll("[^0-9]", ""));
 
-        detailStmt.setString(1, detailID);
-        detailStmt.setString(2, importID);
-        detailStmt.setString(3, productID);
-        detailStmt.setInt(4, quantity);
-        detailStmt.setInt(5, price);
-        detailStmt.executeUpdate();
-        }
+                    detailStmt.setString(1, detailID);
+                    detailStmt.setString(2, importID);
+                    detailStmt.setString(3, productID);
+                    detailStmt.setInt(4, quantity);
+                    detailStmt.setInt(5, price);
+                    detailStmt.executeUpdate();
+                }
 
-        conn.commit();
-        return true;
+                conn.commit();
+                return true;
+            } catch (Exception e) {
+                conn.rollback();
+                throw e;
+            } finally {
+                conn.setAutoCommit(true);
+            }
         } catch (Exception e) {
-        conn.rollback();
-        throw e;
-        } finally {
-        conn.setAutoCommit(true);
+            e.printStackTrace();
+            return false;
         }
-        } catch (Exception e) {
-        e.printStackTrace();
-        return false;
-        }
-        }
+    }
+
     public boolean updateProductQuantity(String productId, int quantity) {
-        String query = "UPDATE san_pham SET so_luong = so_luong + ? WHERE ma_san_pham = ?";
+        String query = "UPDATE san_pham SET so_luong = so_luong + ? WHERE ma_san_pham = ? AND is_deleted = 0";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, quantity);

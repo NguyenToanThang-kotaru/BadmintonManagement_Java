@@ -189,17 +189,25 @@ public class GUI_Import extends JPanel {
         }
     }
 
-    // Xóa phiếu nhập đã chọn
     private void deleteImport() {
         if (selectedImport == null) {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn một phiếu nhập để xóa!");
             return;
         }
 
-        int result = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn xóa phiếu nhập này?", "Xác nhận", JOptionPane.YES_NO_OPTION);
+        int result = JOptionPane.showConfirmDialog(this, 
+            "Bạn có chắc chắn muốn đánh dấu phiếu nhập này là đã xóa?", 
+            "Xác nhận", JOptionPane.YES_NO_OPTION);
         if (result == JOptionPane.YES_OPTION) {
             importBUS.deleteImport(selectedImport.getimportID());
             loadImport();
+            // Reset thông tin chi tiết
+            importIdLabel.setText("Chọn Hóa Đơn Nhập");
+            employeeIdLabel.setText("");
+            supplierIdLabel.setText("");
+            totalMoneyLabel.setText("");
+            receiptDateLabel.setText("");
+            selectedImport = null;
         }
     }
 

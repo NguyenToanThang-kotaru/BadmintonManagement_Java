@@ -21,7 +21,7 @@ public class ImportBUS {
         return importDAO.getAllImport();
     }
 
-    // Xóa một phiếu nhập theo mã
+    // Xóa một phiếu nhập theo mã (chỉ đánh dấu is_deleted = 1)
     public boolean deleteImport(String importID) {
         return importDAO.deleteImport(importID);
     }

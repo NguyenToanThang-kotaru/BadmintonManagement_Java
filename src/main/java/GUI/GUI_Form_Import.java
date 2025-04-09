@@ -12,6 +12,8 @@ import BUS.Form_ImportBUS;
 import DAO.Form_ImportDAO;
 import DTO.ProductDTO;
 import Connection.DatabaseConnection;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class GUI_Form_Import extends JDialog {
     private JLabel lblMaNhapHang, lblTongTien;
@@ -564,7 +566,7 @@ public class GUI_Form_Import extends JDialog {
         }
         
         String importID = lblMaNhapHang.getText();
-        String receiptDate = LocalDate.now().toString();
+        String receiptDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         
         List<Object[]> productData = new ArrayList<>();
         for (int i = 0; i < importTableModel.getRowCount(); i++) {
@@ -604,15 +606,15 @@ public class GUI_Form_Import extends JDialog {
             return;
         }
         
+        // Truyền productData trực tiếp dưới dạng List<Object[]>
         boolean success = bus.saveImport(importID, currentUser, supplierID, totalAmount, receiptDate, productData);
         
         if (success) {
             JOptionPane.showMessageDialog(this, "Lưu phiếu nhập thành công", 
                 "Thành công", JOptionPane.INFORMATION_MESSAGE);
-            // Làm mới danh sách phiếu nhập và sản phẩm
             parentImportPanel.loadImport();
             loadAllProducts();
-            importTableModel.setRowCount(0); // Xóa danh sách sản phẩm nhập trên giao diện
+            importTableModel.setRowCount(0);
             totalAmount = 0;
             lblTongTien.setText("0");
             dispose();
