@@ -12,6 +12,7 @@ import BUS.CustomerBUS;
 import DTO.DetailOrderDTO;
 import BUS.DetailOrderBUS;
 import DAO.DetailOrderDAO;
+import DAO.ProductDAO;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -417,7 +418,7 @@ public class GUI_Form_Order extends JDialog {
 
     private void loadAllProducts() {
         productTableModel.setRowCount(0);
-        List<ProductDTO> list = productBUS.getAllDetailImport();
+        List<ProductDTO> list = ProductDAO.getAllProducts();
         for (ProductDTO p : list) {
             productTableModel.addRow(new Object[]{
                 p.getProductID(),

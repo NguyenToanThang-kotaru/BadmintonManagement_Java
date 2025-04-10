@@ -30,6 +30,7 @@ public class OrderDAO {
             e.printStackTrace();
         }
         return null;
+        
     }
     
     public static ArrayList<OrderDTO> getAllOrder() {
@@ -92,10 +93,11 @@ public class OrderDAO {
             stmt.setString(2, order.getemployeeID());
             stmt.setString(3, order.getcustomerID());
             stmt.setString(4, order.gettotalmoney());
-
+            System.out.print("da luu thanh cong");
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+            System.out.print("That bai cmnr");
         }
     }
     

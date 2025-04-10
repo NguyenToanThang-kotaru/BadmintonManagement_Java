@@ -3,6 +3,7 @@ package GUI;
 import DTO.ProductDTO;
 import DAO.ProductDAO;
 import BUS.ProductBUS;
+import DAO.SuppliersDAO;
 import java.awt.*;
 import java.io.File;
 import java.nio.file.Files;
@@ -67,7 +68,7 @@ public class GUI_Form_FixProduct extends JDialog {
         gbc.gridy = 7;
         add(new JLabel("Nhà cung cấp:"), gbc);
         gbc.gridx = 1;
-        ArrayList<String> NCCList = ProductDAO.getAllNCCNames();
+        ArrayList<String> NCCList = SuppliersDAO.getAllNCCNames();
         String[] NCCNames = NCCList.toArray(new String[0]);
         NCCField = new CustomCombobox(NCCNames);
         NCCField.setSelectedItem(product.gettenNCC());

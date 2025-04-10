@@ -124,7 +124,7 @@ public class CustomerDAO {
     }
     
     public static void addCustomer(CustomerDTO customer) {
-        String query = "INSERT INTO khach_hang (ma_khach_hang, ten_khach_hang, so_dien_thoai, email) VALUES (?, ?, ?, ?)";
+        String query = "INSERT INTO khach_hang (ma_khach_hang, ten_khach_hang, so_dien_thoai, email, is_deleted) VALUES (?, ?, ?, ?,0)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, customer.getcustomerID());

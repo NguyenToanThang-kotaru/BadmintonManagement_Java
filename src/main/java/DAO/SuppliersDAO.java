@@ -10,10 +10,11 @@ import java.util.ArrayList;
 
 public class SuppliersDAO {
 
-     public static SuppliersDTO getSuppliers(int maNCC) {
-        String query = "SELECT * FROM nha_cung_cap WHERE ma_nha_cung_cap = ?";
+    public static SuppliersDTO getSuppliers(int maNCC) {
+        String query = "SELECT * FROM nha_cung_cap WHERE ma_nha_cung_cap = ? AND is_deleted = 0";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
+
             stmt.setInt(1, maNCC);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -49,10 +50,9 @@ public class SuppliersDAO {
         return newID;
     }
 
-    // Lấy danh sách tất cả nhà cung cấp
     public static ArrayList<SuppliersDTO> getAllSuppliers() {
         ArrayList<SuppliersDTO> suppliers = new ArrayList<>();
-        String query = "SELECT * FROM nha_cung_cap";
+        String query = "SELECT * FROM nha_cung_cap WHERE is_deleted = 0"; // Chỉ lấy nhà cung cấp chưa bị xóa
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query);
              ResultSet rs = stmt.executeQuery()) {
@@ -70,9 +70,24 @@ public class SuppliersDAO {
         return suppliers;
     }
 
-    // Cập nhật thông tin nhà cung cấp
+    public static ArrayList<String> getAllNCCNames() {
+        ArrayList<String> NCCList = new ArrayList<>();
+        String query = "SELECT ten_nha_cung_cap FROM nha_cung_cap";
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                NCCList.add(rs.getString("ten_nha_cung_cap"));  // Lưu tên loại vào danh sách
+            }
+        } catch (SQLException e) {
+            System.out.println("Lỗi lấy danh sách nhà cung cấp: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return NCCList;
+    }
+
     public void updateSuppliers(SuppliersDTO suppliers) {
-        String sql = "UPDATE nha_cung_cap SET ten_nha_cung_cap = ?, dia_chi = ?, so_dien_thoai = ? WHERE ma_nha_cung_cap = ?";
+        String sql = "UPDATE nha_cung_cap SET ten_nha_cung_cap = ?, dia_chi = ?, so_dien_thoai = ? WHERE ma_nha_cung_cap = ? AND is_deleted = 0";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, suppliers.getfullname());
@@ -83,5 +98,19 @@ public class SuppliersDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+    public String getSupplierIDByProduct(String productId) {
+        String query = "SELECT ma_nha_cung_cap FROM san_pham WHERE ma_san_pham = ? AND is_deleted = 0";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, productId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getString("ma_nha_cung_cap");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 }

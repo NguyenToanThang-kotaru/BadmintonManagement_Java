@@ -3,8 +3,8 @@ package DTO;
 public class AccountDTO {
     private String username;
     private String password;
-    private String fullname;  // Thay ID bằng fullname cho rõ nghĩa
-    private PermissionDTO permission;  // Thay String tenquyen bằng PermissionDTO
+    private String fullname; 
+    private PermissionDTO permission;  
 
     public AccountDTO() {
         this("", "", "", null);
