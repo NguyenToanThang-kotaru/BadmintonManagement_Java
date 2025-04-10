@@ -7,11 +7,11 @@ import javax.swing.JOptionPane;
 
 public class ProductBUS {
 
-    public List<ProductDTO> getAllDetailImport() {
+    public List<ProductDTO> getAllProducts() {
         return ProductDAO.getAllProducts();
     }
 
-    public void updateDetailImport(ProductDTO product) {
+    public void updateProduct(ProductDTO product) {
         ProductDAO dao = new ProductDAO();
         dao.updateProduct(product);
     }

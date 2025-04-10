@@ -155,22 +155,22 @@ public class ProductDAO {
         }
         return categoryList;
     }
-
-    public static ArrayList<String> getAllNCCNames() {
-        ArrayList<String> NCCList = new ArrayList<>();
-        String query = "SELECT ten_nha_cung_cap FROM nha_cung_cap";
-
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
-
-            while (rs.next()) {
-                NCCList.add(rs.getString("ten_nha_cung_cap"));  // Lưu tên loại vào danh sách
-            }
-        } catch (SQLException e) {
-            System.out.println("Lỗi lấy danh sách nhà cung cấp: " + e.getMessage());
-            e.printStackTrace();
-        }
-        return NCCList;
-    }
+    
+//    public static ArrayList<String> getAllNCCNames() {
+//        ArrayList<String> NCCList = new ArrayList<>();
+//        String query = "SELECT ten_nha_cung_cap FROM nha_cung_cap";
+//
+//        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
+//
+//            while (rs.next()) {
+//                NCCList.add(rs.getString("ten_nha_cung_cap"));  // Lưu tên loại vào danh sách
+//            }
+//        } catch (SQLException e) {
+//            System.out.println("Lỗi lấy danh sách nhà cung cấp: " + e.getMessage());
+//            e.printStackTrace();
+//        }
+//        return NCCList;
+//    }
 
     // Lấy danh sách tất cả sản phẩm
     public static ArrayList<ProductDTO> getAllProducts() {
@@ -179,7 +179,7 @@ public class ProductDAO {
                 + "sp.thong_so_ki_thuat, sp.ma_loai, lsp.ten_loai, sp.hinh_anh, ncc.ten_nha_cung_cap "
                 + "FROM san_pham sp "
                 + "JOIN loai lsp ON sp.ma_loai = lsp.ma_loai "
-                + "JOIN nha_cung_cap ncc ON sp.ma_nha_cung_cap = ncc.ma_nha_cung_cap where is_deleted = 0";
+                + "JOIN nha_cung_cap ncc ON sp.ma_nha_cung_cap = ncc.ma_nha_cung_cap where sp.is_deleted = 0";
 //                + "WHERE sp.ma_san_pham = ?";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
 
