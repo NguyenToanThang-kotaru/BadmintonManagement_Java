@@ -101,5 +101,51 @@ public class DetailOrderDAO {
 
         return detailorderList;
     }
+    
+    public static Boolean deleteDetailOrder(String detailorderID) {
+        String queery = "UPDATE chi_tiet_hoa_don SET is_deleted = 1 WHERE ma_chi_tiet_hoa_don = ?;";
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(queery)) {
+            stmt.setString(1, detailorderID);
+            stmt.executeUpdate();
+            System.out.println("Xoa thanh cong");
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
+    public static void insertDetailOrder(DetailOrderDTO detail) {
+        String sql = "INSERT INTO chi_tiet_hoa_don (ma_chi_tiet_hoa_don, ma_san_pham, ma_hoa_don, ma_serial, so_luong, gia) VALUES (?, ?, ?, ?, ?, ?)";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, detail.getdetailorderID());
+            stmt.setString(2, detail.getproductID());
+            stmt.setString(3, detail.getorderID());
+            stmt.setString(4, detail.getserialID());
+            stmt.setString(5, detail.getamount());
+            stmt.setString(6, detail.getprice());
+
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public static int getMaxDetailOrderNumber() {
+        String sql = "SELECT MAX(CAST(SUBSTRING(ma_chi_tiet_hoa_don, 5, 3) AS UNSIGNED)) AS max_number FROM chi_tiet_hoa_don";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            if (rs.next()) {
+                return rs.getInt("max_number");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }

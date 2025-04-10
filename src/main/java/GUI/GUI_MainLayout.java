@@ -58,7 +58,7 @@ public class GUI_MainLayout extends JFrame {
 
         Sidebar.productPanel = new GUI_Product();
         
-        Sidebar.orderPanel = new GUI_Order();
+        Sidebar.orderPanel = new GUI_Order(logned, permissions);
         
         Sidebar.supplierPanel = new GUI_Suppliers();
         

@@ -19,4 +19,12 @@ public class DetailOrderBUS {
     public static ArrayList<DetailOrderDTO> getDetailOrderByOrderID(String orderID) {
         return DetailOrderDAO.getDetailOrderByOrderID(orderID);
     }
+    
+    public void addDetailOrder(DetailOrderDTO detail) {
+        DetailOrderDAO.insertDetailOrder(detail); // gọi hàm insert
+    }
+    
+    public void deleteByOrderID(String orderID) {
+        DetailOrderDAO.deleteDetailOrder(orderID);
+    }
 }
