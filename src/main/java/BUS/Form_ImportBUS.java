@@ -1,16 +1,25 @@
 package BUS;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import Connection.DatabaseConnection;
 import DTO.ProductDTO;
-import DAO.Form_ImportDAO; 
+import GUI.Utils;
+import DAO.Form_ImportDAO;
+import DAO.ProductDAO; 
 
 public class Form_ImportBUS {
-    private Form_ImportDAO dao;
+    private final Form_ImportDAO dao;
+    private final ProductDAO productDAO;
 
     public Form_ImportBUS() {
         this.dao = new Form_ImportDAO();
+        this.productDAO = new ProductDAO();
     }
 
     public String generateNextImportID() {
@@ -59,16 +68,62 @@ public class Form_ImportBUS {
         return true;
     }
 
-    public boolean saveImport(String importID, String employeeID, String supplierID, 
-                           int totalAmount, String receiptDate, List<Object[]> productData) {
-        // Validate before saving
-        if (!validateImportData(supplierID, productData)) {
-            return false;
+   public boolean saveImport(String importID, String employeeID, String supplierID, 
+                             int totalAmount, String receiptDate, List<Object[]> productData) {
+        return dao.saveImport(importID, employeeID, supplierID, totalAmount, receiptDate, 
+                             productData.toArray(new Object[0][]));
+    }
+
+    // Thêm phương thức mới
+    public List<Object[]> loadAllProducts() {
+        List<Object[]> products = new ArrayList<>();
+        String query = "SELECT ma_san_pham, ten_san_pham, gia FROM san_pham WHERE is_deleted = 0";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                products.add(new Object[]{
+                    rs.getString("ma_san_pham"),
+                    rs.getString("ten_san_pham"),
+                    Utils.formatCurrency(rs.getInt("gia"))
+                });
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        
-        // Convert List<Object[]> to Object[][]
-        Object[][] productArray = productData.toArray(new Object[productData.size()][]);
-        
-        return dao.saveImport(importID, employeeID, supplierID, totalAmount, receiptDate, productArray);
+        return products;
+    }
+
+    public Object[] getProductDetails(String productId) {
+        ProductDTO product = productDAO.getProduct(productId);
+        if (product != null) {
+            return new Object[]{
+                product.getProductID(),
+                product.getProductName(),
+                Utils.formatCurrency(Integer.parseInt(product.getGia())),
+                product.gettenNCC(),
+                product.getAnh()
+            };
+        }
+        return null;
+    }
+
+    public boolean updateProductQuantity(String productId, int quantity) {
+        return productDAO.updateProductQuantity(productId, quantity);
+    }
+
+    public String getSupplierIDByProduct(String productId) {
+        String query = "SELECT ma_nha_cung_cap FROM san_pham WHERE ma_san_pham = ? AND is_deleted = 0";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, productId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getString("ma_nha_cung_cap");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 }

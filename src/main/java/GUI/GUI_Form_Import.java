@@ -9,9 +9,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import BUS.Form_ImportBUS;
-import DAO.Form_ImportDAO;
-import DTO.ProductDTO;
-import Connection.DatabaseConnection;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -23,12 +20,10 @@ public class GUI_Form_Import extends JDialog {
     private JLabel lblProductImage, lblProductId, lblProductName, lblSupplier, lblPrice;
     private JTextField txtQuantity;
     private JLabel lblTotal;
-    
     private int totalAmount;
-    private Form_ImportDAO dao;
     private Form_ImportBUS bus;
     private String currentUser;
-    private GUI_Import parentImportPanel; // Thêm tham chiếu đến GUI_Import
+    private GUI_Import parentImportPanel;
 
     public GUI_Form_Import(GUI_Import parentImportPanel, String username) {
         super((Frame) SwingUtilities.getWindowAncestor(parentImportPanel), "Nhập Hàng Mới", true);
@@ -39,14 +34,13 @@ public class GUI_Form_Import extends JDialog {
         setBackground(Color.WHITE);
         
         bus = new Form_ImportBUS();
-        dao = new Form_ImportDAO();
         currentUser = username;
         totalAmount = 0;
-        
-        // Gán mã nhập hàng tự động
-        lblMaNhapHang = new JLabel(dao.generateNextImportID());
+        lblMaNhapHang = new JLabel();
+        lblMaNhapHang.setText(bus.generateNextImportID());
+
+
         lblMaNhapHang.setFont(new Font("Segoe UI", Font.BOLD, 14)); 
-        
         // Main panel với BoxLayout để kiểm soát chiều cao tốt hơn
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
@@ -406,79 +400,47 @@ public class GUI_Form_Import extends JDialog {
     }
 
     private void loadAllProducts() {
-        try {
-            // Clear table
-            productTableModel.setRowCount(0);
-            
-            // Load products from database
-            String query = "SELECT ma_san_pham, ten_san_pham, gia FROM san_pham";
-            var conn = DatabaseConnection.getConnection();
-            var stmt = conn.createStatement();
-            var rs = stmt.executeQuery(query);
-            
-            while (rs.next()) {
-                productTableModel.addRow(new Object[]{
-                    rs.getString("ma_san_pham"),
-                    rs.getString("ten_san_pham"),
-                    Utils.formatCurrency(rs.getInt("gia"))
-                });
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Lỗi khi tải danh sách sản phẩm", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        List<Object[]> products = bus.loadAllProducts();
+        productTableModel.setRowCount(0);
+        for (Object[] product : products) {
+            productTableModel.addRow(product);
         }
     }
 
     private void displayProductDetails(String productId, String productName, String price) {
-        try {
-            // Load product details from database
-            String query = "SELECT sp.*, ncc.ten_nha_cung_cap FROM san_pham sp " +
-                          "JOIN nha_cung_cap ncc ON sp.ma_nha_cung_cap = ncc.ma_nha_cung_cap " +
-                          "WHERE sp.ma_san_pham = ?";
-            var conn = DatabaseConnection.getConnection();
-            var stmt = conn.prepareStatement(query);
-            stmt.setString(1, productId);
-            var rs = stmt.executeQuery();
-            
-            if (rs.next()) {
-                lblProductId.setText(productId);
-                lblProductName.setText(productName);
-                lblSupplier.setText(rs.getString("ten_nha_cung_cap"));
-                lblPrice.setText(price+ " VND");
-                
-                // Load image from resources based on hinh_anh column
-                String imageFileName = rs.getString("hinh_anh");
-                String imagePath = "/images/" + imageFileName; // Đường dẫn tài nguyên bắt đầu bằng "/"
-                java.net.URL imageUrl = getClass().getResource(imagePath);
-                
-                if (imageUrl != null) {
-                    ImageIcon icon = new ImageIcon(imageUrl);
-                    Image img = icon.getImage().getScaledInstance(140, 140, Image.SCALE_SMOOTH);
+        Object[] details = bus.getProductDetails(productId);
+        if (details != null) {
+            lblProductId.setText((String) details[0]);
+            lblProductName.setText((String) details[1]);
+            lblPrice.setText((String) details[2]);
+            lblSupplier.setText((String) details[3]);
+
+            String imageFileName = (String) details[4];
+            String imagePath = "/images/" + imageFileName;
+            java.net.URL imageUrl = getClass().getResource(imagePath);
+            if (imageUrl != null) {
+                ImageIcon icon = new ImageIcon(imageUrl);
+                Image img = icon.getImage().getScaledInstance(140, 140, Image.SCALE_SMOOTH);
+                lblProductImage.setIcon(new ImageIcon(img));
+                lblProductImage.setText("");
+            } else {
+                java.net.URL defaultImageUrl = getClass().getResource("/images/default_product.png");
+                if (defaultImageUrl != null) {
+                    ImageIcon defaultIcon = new ImageIcon(defaultImageUrl);
+                    Image img = defaultIcon.getImage().getScaledInstance(140, 140, Image.SCALE_SMOOTH);
                     lblProductImage.setIcon(new ImageIcon(img));
-                    lblProductImage.setText(""); // Xóa text nếu có ảnh
+                    lblProductImage.setText("");
                 } else {
-                    // Nếu không tìm thấy ảnh, dùng ảnh mặc định
-                    java.net.URL defaultImageUrl = getClass().getResource("/images/default_product.png");
-                    if (defaultImageUrl != null) {
-                        ImageIcon defaultIcon = new ImageIcon(defaultImageUrl);
-                        Image img = defaultIcon.getImage().getScaledInstance(140, 140, Image.SCALE_SMOOTH);
-                        lblProductImage.setIcon(new ImageIcon(img));
-                        lblProductImage.setText("");
-                    } else {
-                        lblProductImage.setIcon(null);
-                        lblProductImage.setText("Không có ảnh");
-                    }
+                    lblProductImage.setIcon(null);
+                    lblProductImage.setText("Không có ảnh");
                 }
-                
-                // Reset quantity and total
-                txtQuantity.setText("");
-                lblTotal.setText("0");
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Lỗi khi tải chi tiết sản phẩm", "Lỗi", JOptionPane.ERROR_MESSAGE);
+
+            txtQuantity.setText("");
+            lblTotal.setText("0");
         }
     }
+
     private void addProductToImport() {
         try {
             // Kiểm tra xem sản phẩm đã được chọn chưa
@@ -515,30 +477,22 @@ public class GUI_Form_Import extends JDialog {
             String productId = lblProductId.getText();
             String productName = lblProductName.getText();
             int price = Integer.parseInt(lblPrice.getText().replaceAll("[^0-9]", ""));
-            
             int total = price * quantity;
             
             // Add to import table
             importTableModel.addRow(new Object[]{
-                productId,
-                productName,
-                quantity,
-                Utils.formatCurrency(price),
-                Utils.formatCurrency(total)
+                productId, productName, quantity, Utils.formatCurrency(price), Utils.formatCurrency(total)
             });
             
             // Update total amount
             totalAmount += total;
             lblTongTien.setText(Utils.formatCurrency(totalAmount));
-            
+
             // Update quantity in database
-            boolean updated = dao.updateProductQuantity(productId, quantity);
-            if (updated) {
-                // Refresh product list
+            if (bus.updateProductQuantity(productId, quantity)) {
                 loadAllProducts();
             } else {
-                JOptionPane.showMessageDialog(this, "Lỗi khi cập nhật số lượng sản phẩm trong database", 
-                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Lỗi khi cập nhật số lượng sản phẩm", "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
             
             // Clear selection and details
@@ -560,58 +514,29 @@ public class GUI_Form_Import extends JDialog {
 
     private void saveImport() {
         if (importTableModel.getRowCount() == 0) {
-            JOptionPane.showMessageDialog(this, "Vui lòng thêm ít nhất một sản phẩm", 
-                "Lỗi", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Vui lòng thêm ít nhất một sản phẩm", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
+
         String importID = lblMaNhapHang.getText();
         String receiptDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        
         List<Object[]> productData = new ArrayList<>();
         for (int i = 0; i < importTableModel.getRowCount(); i++) {
-            try {
-                String priceStr = importTableModel.getValueAt(i, 3).toString().replaceAll("[^0-9]", "");
-                int price = Integer.parseInt(priceStr);
-                
-                productData.add(new Object[]{
-                    importTableModel.getValueAt(i, 0),
-                    importTableModel.getValueAt(i, 1),
-                    importTableModel.getValueAt(i, 2),
-                    price
-                });
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Dữ liệu sản phẩm không hợp lệ ở dòng " + (i+1), 
-                    "Lỗi", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
+            String priceStr = importTableModel.getValueAt(i, 3).toString().replaceAll("[^0-9]", "");
+            int price = Integer.parseInt(priceStr);
+            productData.add(new Object[]{
+                importTableModel.getValueAt(i, 0),
+                importTableModel.getValueAt(i, 1),
+                importTableModel.getValueAt(i, 2),
+                price
+            });
         }
-        
-        String supplierID = "";
-        try {
-            String firstProductId = importTableModel.getValueAt(0, 0).toString();
-            String query = "SELECT ma_nha_cung_cap FROM san_pham WHERE ma_san_pham = ?";
-            var conn = DatabaseConnection.getConnection();
-            var stmt = conn.prepareStatement(query);
-            stmt.setString(1, firstProductId);
-            var rs = stmt.executeQuery();
-            
-            if (rs.next()) {
-                supplierID = rs.getString("ma_nha_cung_cap");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Lỗi khi lấy mã nhà cung cấp", 
-                "Lỗi", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        
-        // Truyền productData trực tiếp dưới dạng List<Object[]>
+
+        String supplierID = bus.getSupplierIDByProduct((String) importTableModel.getValueAt(0, 0));
         boolean success = bus.saveImport(importID, currentUser, supplierID, totalAmount, receiptDate, productData);
-        
+
         if (success) {
-            JOptionPane.showMessageDialog(this, "Lưu phiếu nhập thành công", 
-                "Thành công", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Lưu phiếu nhập thành công", "Thành công", JOptionPane.INFORMATION_MESSAGE);
             parentImportPanel.loadImport();
             loadAllProducts();
             importTableModel.setRowCount(0);
@@ -619,8 +544,7 @@ public class GUI_Form_Import extends JDialog {
             lblTongTien.setText("0");
             dispose();
         } else {
-            JOptionPane.showMessageDialog(this, "Lỗi khi lưu phiếu nhập", 
-                "Lỗi", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Lỗi khi lưu phiếu nhập", "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

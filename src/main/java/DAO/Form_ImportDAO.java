@@ -153,18 +153,4 @@ public class Form_ImportDAO {
             return false;
         }
     }
-
-    public boolean updateProductQuantity(String productId, int quantity) {
-        String query = "UPDATE san_pham SET so_luong = so_luong + ? WHERE ma_san_pham = ? AND is_deleted = 0";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setInt(1, quantity);
-            stmt.setString(2, productId);
-            int rowsAffected = stmt.executeUpdate();
-            return rowsAffected > 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
 }

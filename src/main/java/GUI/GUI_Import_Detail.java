@@ -2,20 +2,20 @@ package GUI;
 
 import javax.swing.*;
 import java.awt.*;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import Connection.DatabaseConnection;
+import BUS.DetailImportBUS;
 import DTO.ImportDTO;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import java.util.List;
 
 public class GUI_Import_Detail extends JDialog {
     private JTable productsTable;
     private JScrollPane scrollPane;
+    private DetailImportBUS bus;
 
     public GUI_Import_Detail(JFrame parent, ImportDTO importDTO) {
         super(parent, "Chi Tiết Phiếu Nhập", true);
+        bus = new DetailImportBUS();
         setSize(700, 550);
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout());
@@ -46,9 +46,9 @@ public class GUI_Import_Detail extends JDialog {
         gbc.gridy++;
         addDetailRow(mainPanel, gbc, "Ngày nhập:", importDTO.getreceiptdate());
         gbc.gridy++;
-        addDetailRow(mainPanel, gbc, "Nhân viên nhập:", getEmployeeInfo(importDTO.getemployeeID()));
+        addDetailRow(mainPanel, gbc, "Nhân viên nhập:", bus.getEmployeeInfo(importDTO.getemployeeID()));
         gbc.gridy++;
-        addDetailRow(mainPanel, gbc, "Nhà cung cấp:", getSupplierInfo(importDTO.getsupplierID()));
+        addDetailRow(mainPanel, gbc, "Nhà cung cấp:", bus.getSupplierInfo(importDTO.getsupplierID()));
 
         // Tạo bảng sản phẩm
         gbc.gridy++;
@@ -64,7 +64,6 @@ public class GUI_Import_Detail extends JDialog {
                 return false;
             }
         };
-
         productsTable = new JTable(model);
         productsTable.setRowHeight(25);
 
@@ -82,7 +81,7 @@ public class GUI_Import_Detail extends JDialog {
         // Tải chi tiết phiếu nhập và tính tổng tiền
         int calculatedTotal = loadImportDetails(importDTO.getimportID(), model);
 
-        // Hiển thị tổng tiền
+        // Hiển thị tổng tiền (chỉ thêm một lần)
         gbc.gridy++;
         gbc.gridwidth = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -116,96 +115,31 @@ public class GUI_Import_Detail extends JDialog {
         panel.add(valueLbl, gbc);
     }
 
-    // Lấy thông tin nhân viên từ cơ sở dữ liệu
-    private String getEmployeeInfo(String employeeID) {
-        String query = "SELECT ten_nhan_vien, so_dien_thoai, dia_chi FROM nhan_vien WHERE ma_nhan_vien = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, employeeID);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return String.format("%s - %s - %s - %s",
-                        employeeID,
-                        rs.getString("ten_nhan_vien"),
-                        rs.getString("so_dien_thoai"),
-                        rs.getString("dia_chi"));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return employeeID;
-    }
-
-    // Lấy thông tin nhà cung cấp từ cơ sở dữ liệu
-    private String getSupplierInfo(String supplierID) {
-        String query = "SELECT ten_nha_cung_cap, dia_chi, so_dien_thoai FROM nha_cung_cap WHERE ma_nha_cung_cap = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, supplierID);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return String.format("%s - %s - %s",
-                        rs.getString("ten_nha_cung_cap"),
-                        rs.getString("dia_chi"),
-                        rs.getString("so_dien_thoai"));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return supplierID;
-    }
-
     // Tải chi tiết phiếu nhập và tính tổng tiền
     private int loadImportDetails(String importID, DefaultTableModel model) {
-        String query = "SELECT sp.ma_san_pham, sp.ten_san_pham, ctnh.so_luong, ctnh.gia " +
-                "FROM chi_tiet_nhap_hang ctnh " +
-                "JOIN san_pham sp ON ctnh.ma_san_pham = sp.ma_san_pham " +
-                "WHERE ctnh.ma_nhap_hang = ?";
-
+        List<Object[]> details = bus.loadImportDetails(importID);
         int total = 0;
         model.setRowCount(0);
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, importID);
-            ResultSet rs = stmt.executeQuery();
-
-            boolean hasData = false;
-            while (rs.next()) {
-                hasData = true;
-                int quantity = rs.getInt("so_luong");
-                int price = rs.getInt("gia");
-                int rowTotal = quantity * price;
-                total += rowTotal;
-
-                model.addRow(new Object[]{
-                        rs.getString("ma_san_pham"),
-                        rs.getString("ten_san_pham"),
-                        quantity,
-                        Utils.formatCurrency(price),
-                        Utils.formatCurrency(rowTotal)
-                });
-            }
-
-            if (!hasData) {
-                JOptionPane.showMessageDialog(this, "Không tìm thấy sản phẩm nào cho phiếu nhập " + importID,
-                        "Thông báo", JOptionPane.WARNING_MESSAGE);
-            } else {
-                SwingUtilities.invokeLater(() -> {
-                    model.fireTableDataChanged();
-                    productsTable.revalidate();
-                    productsTable.repaint();
-                    scrollPane.revalidate();
-                    scrollPane.repaint();
-                });
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Lỗi khi tải chi tiết phiếu nhập: " + e.getMessage(),
-                    "Lỗi", JOptionPane.ERROR_MESSAGE);
+        for (Object[] detail : details) {
+            int quantity = (int) detail[2];
+            int price = Integer.parseInt(((String) detail[3]).replaceAll("[^0-9]", ""));
+            total += quantity * price;
+            model.addRow(detail);
         }
 
+        if (details.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Không tìm thấy sản phẩm nào cho phiếu nhập " + importID,
+                    "Thông báo", JOptionPane.WARNING_MESSAGE);
+        } else {
+            SwingUtilities.invokeLater(() -> {
+                model.fireTableDataChanged();
+                productsTable.revalidate();
+                productsTable.repaint();
+                scrollPane.revalidate();
+                scrollPane.repaint();
+            });
+        }
         return total;
     }
 }

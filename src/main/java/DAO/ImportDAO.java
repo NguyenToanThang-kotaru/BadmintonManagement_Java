@@ -56,16 +56,48 @@ public class ImportDAO {
         return imports;
     }
 
-    // Đánh dấu phiếu nhập là đã xóa (is_deleted = 1) thay vì xóa thật
-    public boolean deleteImport(String importID) {
-        String query = "UPDATE nhap_hang SET is_deleted = 1 WHERE ma_nhap_hang = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, importID);
-            return stmt.executeUpdate() > 0;
+    public boolean deleteImportWithProductUpdate(String importID) {
+        Connection conn = null;
+        try {
+            conn = DatabaseConnection.getConnection();
+            conn.setAutoCommit(false);
+
+            // Lấy chi tiết phiếu nhập để trừ số lượng sản phẩm
+            String query = "SELECT ma_san_pham, so_luong FROM chi_tiet_nhap_hang WHERE ma_nhap_hang = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(query)) {
+                stmt.setString(1, importID);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    while (rs.next()) {
+                        String productID = rs.getString("ma_san_pham");
+                        int quantity = rs.getInt("so_luong");
+                        ProductDAO.updateProductQuantity(productID, -quantity); // Gọi ProductDAO
+                    }
+                }
+            }
+
+            // Đánh dấu phiếu nhập là đã xóa
+            String deleteQuery = "UPDATE nhap_hang SET is_deleted = 1 WHERE ma_nhap_hang = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(deleteQuery)) {
+                stmt.setString(1, importID);
+                stmt.executeUpdate();
+            }
+
+            conn.commit();
+            return true;
         } catch (SQLException e) {
+            try {
+                if (conn != null) conn.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
             e.printStackTrace();
             return false;
+        } finally {
+            try {
+                if (conn != null) conn.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 

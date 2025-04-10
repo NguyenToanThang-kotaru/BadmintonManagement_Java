@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 // Lớp này dùng để kết nối database và lấy dữ liệu sản phẩm
 public class ProductDAO {
-
+    
     public static Boolean addProduct(ProductDTO product) {
         String findMaLoaiSQL = "SELECT ma_loai FROM loai WHERE ten_loai = ?";
         String findMaNCCSQL = "SELECT ma_nha_cung_cap FROM nha_cung_cap WHERE ten_nha_cung_cap = ?";
@@ -179,7 +179,7 @@ public class ProductDAO {
                 + "sp.thong_so_ki_thuat, sp.ma_loai, lsp.ten_loai, sp.hinh_anh, ncc.ten_nha_cung_cap "
                 + "FROM san_pham sp "
                 + "JOIN loai lsp ON sp.ma_loai = lsp.ma_loai "
-                + "JOIN nha_cung_cap ncc ON sp.ma_nha_cung_cap = ncc.ma_nha_cung_cap where sp.is_deleted = 0";
+                + "JOIN nha_cung_cap ncc ON sp.ma_nha_cung_cap = ncc.ma_nha_cung_cap where is_deleted = 0";
 //                + "WHERE sp.ma_san_pham = ?";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
 
@@ -213,7 +213,7 @@ public class ProductDAO {
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement findMaLoaiStmt = conn.prepareStatement(findMaLoaiSQL); PreparedStatement findMaNCCStmt = conn.prepareStatement(findMaNCCSQL); PreparedStatement updateProductStmt = conn.prepareStatement(updateProductSQL)) {
 
-            // 🔹 Tìm `ma_loai` từ `ten_loai`
+            // 🔹 Tìm ma_loai từ ten_loai
             findMaLoaiStmt.setString(1, product.getTL());
             ResultSet rs = findMaLoaiStmt.executeQuery();
             String maLoai = null;
@@ -223,7 +223,7 @@ public class ProductDAO {
             String maNCC = null;
 
             if (rs.next()) {
-                maLoai = rs.getString("ma_loai");  // Lấy `ma_loai` dưới dạng `String`
+                maLoai = rs.getString("ma_loai");  // Lấy ma_loai dưới dạng String
             } else {
                 System.out.println("Không tìm thấy mã loại cho tên loại: " + product.getTL());
                 return; // Không tiếp tục cập nhật nếu không tìm thấy
@@ -236,13 +236,12 @@ public class ProductDAO {
                 return; // Không tiếp tục cập nhật nếu không tìm thấy
             }
 
-            // 🔹 Cập nhật bảng `san_pham`
             updateProductStmt.setString(1, product.getProductName());
             updateProductStmt.setString(2, product.getGia());
             updateProductStmt.setString(3, product.getSoluong());
             updateProductStmt.setString(4, maNCC);
             updateProductStmt.setString(5, product.getTSKT());
-            updateProductStmt.setString(6, maLoai); // Cập nhật `ma_loai` tìm được
+            updateProductStmt.setString(6, maLoai); // Cập nhật ma_loai tìm được
             updateProductStmt.setString(7, product.getAnh());
             updateProductStmt.setString(8, product.getProductID());
 
@@ -275,5 +274,17 @@ public class ProductDAO {
             e.printStackTrace();
         }
         return imagePath;
+    }
+    public boolean updateProductQuantity(String productId, int quantity) {
+        String query = "UPDATE san_pham SET so_luong = so_luong + ? WHERE ma_san_pham = ? AND is_deleted = 0";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, quantity);
+            stmt.setString(2, productId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Failed to update product quantity: " + e.getMessage());
+            return false;
+        }
     }
 }

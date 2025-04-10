@@ -22,21 +22,21 @@ public class GUI_Form_Suppliers extends JDialog {
         
         suppliersBUS = new SuppliersBUS();
 
-        setSize(500, 350); // Đồng bộ kích thước với Edit
+        setSize(500, 350); 
         setLocationRelativeTo(parent);
         setLayout(new GridBagLayout());
-        setBackground(Color.WHITE); // Đồng bộ màu nền
+        setBackground(Color.WHITE); 
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10); // Đồng bộ khoảng cách
+        gbc.insets = new Insets(10, 10, 10, 10); 
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
 
-        JLabel title = new JLabel("Thêm Thông Tin Nhà Cung Cấp"); // Đồng bộ tiêu đề với Edit
-        title.setFont(new Font("Arial", Font.BOLD, 18)); // Đồng bộ font
-        title.setForeground(new Color(52, 73, 94)); // Đồng bộ màu chữ
+        JLabel title = new JLabel("Thêm Thông Tin Nhà Cung Cấp"); 
+        title.setFont(new Font("Arial", Font.BOLD, 18)); 
+        title.setForeground(new Color(52, 73, 94)); 
         add(title, gbc);
 
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -44,18 +44,18 @@ public class GUI_Form_Suppliers extends JDialog {
         gbc.gridwidth = 1;
 
         // Khởi tạo các trường nhập liệu
-        lblSupplierID = new JLabel(generateNextSupplierID()); // Sử dụng JLabel thay vì JTextField để đồng bộ
+        lblSupplierID = new JLabel(generateNextSupplierID()); 
         txtName = new JTextField(20);
         txtAddress = new JTextField(20);
         txtPhone = new JTextField(15);
 
-        addComponent("Mã Nhà Cung Cấp:", lblSupplierID, gbc); // Đồng bộ nhãn
+        addComponent("Mã Nhà Cung Cấp:", lblSupplierID, gbc); 
         addComponent("Tên Nhà Cung Cấp:", txtName, gbc);
         addComponent("Địa Chỉ:", txtAddress, gbc);
         addComponent("Số Điện Thoại:", txtPhone, gbc);
 
         JPanel buttonPanel = new JPanel(new FlowLayout());
-        btnSave = new CustomButton("Lưu"); // Đồng bộ tên nút với Edit
+        btnSave = new CustomButton("Lưu");
         btnCancel = new CustomButton("Hủy");
         buttonPanel.add(btnSave);
         buttonPanel.add(btnCancel);
@@ -68,7 +68,6 @@ public class GUI_Form_Suppliers extends JDialog {
 
         // Sự kiện nút Hủy
         btnCancel.addActionListener(e -> dispose());
-        
         // Sự kiện nút Lưu
         btnSave.addActionListener(e -> {
             String supplierID = lblSupplierID.getText();
