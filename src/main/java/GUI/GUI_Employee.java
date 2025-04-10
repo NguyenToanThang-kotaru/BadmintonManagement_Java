@@ -39,8 +39,9 @@ public class GUI_Employee extends JPanel {
         reloadButton = new CustomButton("Tải Lại Trang");
         topPanel.add(reloadButton, BorderLayout.WEST);
         addButton = new CustomButton("+ Thêm Nhân Viên"); // Nút thêm nhân viên
-        if(a.contains("them_nv"))
+        if (a.contains("them_nv")) {
             topPanel.add(addButton, BorderLayout.EAST);
+        }
 
         // ========== BẢNG HIỂN THỊ DANH SÁCH NHÂN VIÊN ==========
         midPanel = new JPanel(new BorderLayout());
@@ -113,16 +114,17 @@ public class GUI_Employee extends JPanel {
         JPanel buttonPanel = new JPanel(new BorderLayout());
         buttonPanel.setOpaque(false);
 
-       
         deleteButton = new CustomButton("Xóa");
         deleteButton.setCustomColor(new Color(220, 0, 0));
-        if(a.contains("xoa_nv"))
+        if (a.contains("xoa_nv")) {
             buttonPanel.add(deleteButton, BorderLayout.WEST);
+        }
 
         editButton = new CustomButton("Sửa");
         editButton.setCustomColor(new Color(0, 230, 0));
-        if(a.contains("sua_nv"))
+        if (a.contains("sua_nv")) {
             buttonPanel.add(editButton, BorderLayout.EAST);
+        }
 
         gbc.gridx = 0;
         gbc.gridy = 6;
@@ -152,7 +154,10 @@ public class GUI_Employee extends JPanel {
 
                 if (employeeImg != null && !employeeImg.isEmpty()) {
                     String tempPath = "images/" + employeeImg;
+                    
+
                     File imageFile = new File(tempPath);
+                    System.out.println(imageFile);
                     if (imageFile.exists()) {
                         imagePath = tempPath;
                     }
@@ -211,8 +216,9 @@ public class GUI_Employee extends JPanel {
         add(Box.createVerticalStrut(5));
         add(botPanel);
 
-        if(a.contains("xem_nv"))
+        if (a.contains("xem_nv")) {
             loadEmployees();
+        }
 
     }
 
