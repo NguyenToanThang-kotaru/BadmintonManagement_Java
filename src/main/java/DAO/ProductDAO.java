@@ -165,6 +165,7 @@ public class ProductDAO {
         }
         return categoryList;
     }
+<<<<<<< HEAD
 
     public static ArrayList<String> getAllNCCNames() {
         ArrayList<String> NCCList = new ArrayList<>();
@@ -183,6 +184,24 @@ public class ProductDAO {
         }
         return NCCList;
     }
+=======
+    
+//    public static ArrayList<String> getAllNCCNames() {
+//        ArrayList<String> NCCList = new ArrayList<>();
+//        String query = "SELECT ten_nha_cung_cap FROM nha_cung_cap";
+//
+//        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
+//
+//            while (rs.next()) {
+//                NCCList.add(rs.getString("ten_nha_cung_cap"));  // Lưu tên loại vào danh sách
+//            }
+//        } catch (SQLException e) {
+//            System.out.println("Lỗi lấy danh sách nhà cung cấp: " + e.getMessage());
+//            e.printStackTrace();
+//        }
+//        return NCCList;
+//    }
+>>>>>>> Luan-testCase
 
     // Lấy danh sách tất cả sản phẩm
     public static ArrayList<ProductDTO> getAllProducts() {
@@ -191,11 +210,18 @@ public class ProductDAO {
                 + "sp.thong_so_ki_thuat, sp.ma_loai, lsp.ten_loai, sp.hinh_anh, ncc.ten_nha_cung_cap "
                 + "FROM san_pham sp "
                 + "JOIN loai lsp ON sp.ma_loai = lsp.ma_loai "
+<<<<<<< HEAD
                 + "LEFT JOIN nha_cung_cap ncc ON sp.ma_nha_cung_cap = ncc.ma_nha_cung_cap "
                 + "WHERE sp.is_deleted = 0"; // Chỉ lọc sản phẩm chưa bị xóa
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query);
              ResultSet rs = stmt.executeQuery()) {
+=======
+                + "JOIN nha_cung_cap ncc ON sp.ma_nha_cung_cap = ncc.ma_nha_cung_cap where sp.is_deleted = 0";
+//                + "WHERE sp.ma_san_pham = ?";
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
+
+>>>>>>> Luan-testCase
             while (rs.next()) {
                 String supplierName = rs.getString("ten_nha_cung_cap");
                 if (supplierName == null) {

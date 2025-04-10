@@ -14,6 +14,7 @@ public class SuppliersDAO {
         String query = "SELECT * FROM nha_cung_cap WHERE ma_nha_cung_cap = ? AND is_deleted = 0";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
+
             stmt.setInt(1, maNCC);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -67,6 +68,22 @@ public class SuppliersDAO {
             e.printStackTrace();
         }
         return suppliers;
+    }
+
+    public static ArrayList<String> getAllNCCNames() {
+        ArrayList<String> NCCList = new ArrayList<>();
+        String query = "SELECT ten_nha_cung_cap FROM nha_cung_cap";
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                NCCList.add(rs.getString("ten_nha_cung_cap"));  // Lưu tên loại vào danh sách
+            }
+        } catch (SQLException e) {
+            System.out.println("Lỗi lấy danh sách nhà cung cấp: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return NCCList;
     }
 
     public void updateSuppliers(SuppliersDTO suppliers) {
