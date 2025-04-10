@@ -10,6 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ImportDAO {
+    private final ProductDAO productDAO; // Thêm instance của ProductDAO
+
+    public ImportDAO() {
+        this.productDAO = new ProductDAO(); // Khởi tạo trong constructor
+    }
 
     // Lấy một phiếu nhập theo mã
     public ImportDTO getImport(String importID) {
@@ -70,7 +75,7 @@ public class ImportDAO {
                     while (rs.next()) {
                         String productID = rs.getString("ma_san_pham");
                         int quantity = rs.getInt("so_luong");
-                        ProductDAO.updateProductQuantity(productID, -quantity); // Gọi ProductDAO
+                        productDAO.updateProductQuantity(productID, -quantity); // Sử dụng instance
                     }
                 }
             }

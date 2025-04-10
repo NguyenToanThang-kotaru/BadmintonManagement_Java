@@ -414,137 +414,115 @@ public class GUI_Form_Import extends JDialog {
             lblProductName.setText((String) details[1]);
             lblPrice.setText((String) details[2]);
             lblSupplier.setText((String) details[3]);
-
-            String imageFileName = (String) details[4];
-            String imagePath = "/images/" + imageFileName;
-            java.net.URL imageUrl = getClass().getResource(imagePath);
-            if (imageUrl != null) {
-                ImageIcon icon = new ImageIcon(imageUrl);
-                Image img = icon.getImage().getScaledInstance(140, 140, Image.SCALE_SMOOTH);
-                lblProductImage.setIcon(new ImageIcon(img));
-                lblProductImage.setText("");
-            } else {
-                java.net.URL defaultImageUrl = getClass().getResource("/images/default_product.png");
-                if (defaultImageUrl != null) {
-                    ImageIcon defaultIcon = new ImageIcon(defaultImageUrl);
-                    Image img = defaultIcon.getImage().getScaledInstance(140, 140, Image.SCALE_SMOOTH);
-                    lblProductImage.setIcon(new ImageIcon(img));
-                    lblProductImage.setText("");
-                } else {
-                    lblProductImage.setIcon(null);
-                    lblProductImage.setText("Không có ảnh");
-                }
-            }
-
+    
+            // Load image
+            loadProductImage((String) details[4]);
+    
             txtQuantity.setText("");
             lblTotal.setText("0");
         }
     }
-
+    private void loadProductImage(String imageFileName) {
+        String imagePath = "/images/" + imageFileName;
+        java.net.URL imageUrl = getClass().getResource(imagePath);
+        ImageIcon icon;
+        if (imageUrl != null) {
+            icon = new ImageIcon(imageUrl);
+        } else {
+            imageUrl = getClass().getResource("/images/default_product.png");
+            icon = imageUrl != null ? new ImageIcon(imageUrl) : null;
+        }
+    
+        if (icon != null) {
+            Image img = icon.getImage().getScaledInstance(140, 140, Image.SCALE_SMOOTH);
+            lblProductImage.setIcon(new ImageIcon(img));
+            lblProductImage.setText("");
+        } else {
+            lblProductImage.setIcon(null);
+            lblProductImage.setText("Không có ảnh");
+        }
+    }   
     private void addProductToImport() {
         try {
-            // Kiểm tra xem sản phẩm đã được chọn chưa
-            if (lblProductId.getText().isEmpty() || lblProductId.getText().equals("Chọn sản phẩm từ danh sách")) {
-                JOptionPane.showMessageDialog(this, "Vui lòng chọn một sản phẩm từ danh sách", 
-                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+            String validationError = bus.validateProductToAdd(lblProductId.getText(), txtQuantity.getText().trim());
+            if (validationError != null) {
+                JOptionPane.showMessageDialog(this, validationError, "Lỗi", JOptionPane.ERROR_MESSAGE);
                 return;
             }
     
-            // Kiểm tra số lượng có bỏ trống hay không
-            String quantityText = txtQuantity.getText().trim();
-            if (quantityText.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Số lượng không được để trống", 
-                        "Lỗi", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-    
-            // Kiểm tra số lượng có phải là số nguyên dương hay không
-            int quantity;
-            try {
-                quantity = Integer.parseInt(quantityText);
-                if (quantity <= 0) {
-                    JOptionPane.showMessageDialog(this, "Số lượng phải là số nguyên dương lớn hơn 0", 
-                            "Lỗi", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Số lượng phải là một số nguyên hợp lệ", 
-                        "Lỗi", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-    
-            // Nếu vượt qua các kiểm tra, tiến hành thêm sản phẩm
+            // Nếu vượt qua kiểm tra, tiến hành thêm sản phẩm
             String productId = lblProductId.getText();
             String productName = lblProductName.getText();
             int price = Integer.parseInt(lblPrice.getText().replaceAll("[^0-9]", ""));
+            int quantity = Integer.parseInt(txtQuantity.getText());
             int total = price * quantity;
-            
+    
             // Add to import table
             importTableModel.addRow(new Object[]{
                 productId, productName, quantity, Utils.formatCurrency(price), Utils.formatCurrency(total)
             });
-            
+    
             // Update total amount
             totalAmount += total;
             lblTongTien.setText(Utils.formatCurrency(totalAmount));
-
+    
             // Update quantity in database
             if (bus.updateProductQuantity(productId, quantity)) {
                 loadAllProducts();
             } else {
                 JOptionPane.showMessageDialog(this, "Lỗi khi cập nhật số lượng sản phẩm", "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
-            
+    
             // Clear selection and details
             allProductsTable.clearSelection();
-            lblProductId.setText("");
+            lblProductId.setText("Chọn sản phẩm từ danh sách");
             lblProductName.setText("");
             lblSupplier.setText("");
             lblPrice.setText("");
             lblProductImage.setIcon(null);
             txtQuantity.setText("");
             lblTotal.setText("0");
-            
+    
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Lỗi không xác định khi thêm sản phẩm: " + e.getMessage(), 
                     "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
-
     private void saveImport() {
         if (importTableModel.getRowCount() == 0) {
             JOptionPane.showMessageDialog(this, "Vui lòng thêm ít nhất một sản phẩm", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
-
+    
         String importID = lblMaNhapHang.getText();
         String receiptDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         List<Object[]> productData = new ArrayList<>();
         for (int i = 0; i < importTableModel.getRowCount(); i++) {
             String priceStr = importTableModel.getValueAt(i, 3).toString().replaceAll("[^0-9]", "");
-            int price = Integer.parseInt(priceStr);
             productData.add(new Object[]{
                 importTableModel.getValueAt(i, 0),
                 importTableModel.getValueAt(i, 1),
                 importTableModel.getValueAt(i, 2),
-                price
+                Integer.parseInt(priceStr)
             });
         }
-
+    
         String supplierID = bus.getSupplierIDByProduct((String) importTableModel.getValueAt(0, 0));
-        boolean success = bus.saveImport(importID, currentUser, supplierID, totalAmount, receiptDate, productData);
-
-        if (success) {
+        if (bus.saveImport(importID, currentUser, supplierID, totalAmount, receiptDate, productData)) {
             JOptionPane.showMessageDialog(this, "Lưu phiếu nhập thành công", "Thành công", JOptionPane.INFORMATION_MESSAGE);
             parentImportPanel.loadImport();
             loadAllProducts();
-            importTableModel.setRowCount(0);
-            totalAmount = 0;
-            lblTongTien.setText("0");
-            dispose();
+            resetForm();
         } else {
             JOptionPane.showMessageDialog(this, "Lỗi khi lưu phiếu nhập", "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
+    
+    private void resetForm() {
+        importTableModel.setRowCount(0);
+        totalAmount = 0;
+        lblTongTien.setText("0");
+        dispose();
+    }   
 }

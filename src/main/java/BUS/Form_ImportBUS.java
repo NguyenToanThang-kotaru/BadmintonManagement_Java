@@ -126,4 +126,27 @@ public class Form_ImportBUS {
         }
         return "";
     }
+    public String validateProductToAdd(String productId, String quantityText) {
+        // Kiểm tra xem sản phẩm đã được chọn chưa
+        if (productId == null || productId.isEmpty() || productId.equals("Chọn sản phẩm từ danh sách")) {
+            return "Vui lòng chọn một sản phẩm từ danh sách";
+        }
+    
+        // Kiểm tra số lượng có bỏ trống hay không
+        if (quantityText == null || quantityText.trim().isEmpty()) {
+            return "Số lượng không được để trống";
+        }
+    
+        // Kiểm tra số lượng là số nguyên dương
+        try {
+            int quantity = Integer.parseInt(quantityText);
+            if (quantity <= 0) {
+                return "Số lượng phải là số nguyên dương lớn hơn 0";
+            }
+        } catch (NumberFormatException e) {
+            return "Số lượng phải là một số nguyên hợp lệ";
+        }
+    
+        return null; // Không có lỗi
+    }
 }
