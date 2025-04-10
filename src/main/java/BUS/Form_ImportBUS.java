@@ -1,37 +1,65 @@
 package BUS;
 
+import DAO.EmployeeDAO;
+import DAO.Form_ImportDAO;
+import DAO.ProductDAO;
+import DAO.SuppliersDAO;
+import DTO.ProductDTO;
+import DTO.SuppliersDTO;
+import GUI.Utils;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import DTO.ProductDTO;
-import DAO.Form_ImportDAO; 
-
 public class Form_ImportBUS {
-    private Form_ImportDAO dao;
+    private final Form_ImportDAO formImportDAO;
+    private final ProductDAO productDAO;
+    private final EmployeeDAO employeeDAO;
+    private final SuppliersDAO suppliersDAO;
 
     public Form_ImportBUS() {
-        this.dao = new Form_ImportDAO();
+        this.formImportDAO = new Form_ImportDAO();
+        this.productDAO = new ProductDAO();
+        this.employeeDAO = new EmployeeDAO();
+        this.suppliersDAO = new SuppliersDAO();
     }
 
+    // Gọi từ Form_ImportDAO
     public String generateNextImportID() {
-        return dao.generateNextImportID();
+        return formImportDAO.generateNextImportID();
     }
 
+    // Gọi từ EmployeeDAO
     public String getEmployeeName(String employeeID) {
         if (employeeID == null || employeeID.trim().isEmpty()) {
             return "";
         }
-        return dao.getEmployeeName(employeeID);
+        return employeeDAO.getEmployeeNameByID(employeeID);
     }
 
+    // Gọi từ SuppliersDAO và định dạng
     public String[] getSupplierNames() {
-        return dao.getSupplierNames();
+        List<String> supplierNames = new ArrayList<>();
+        ArrayList<SuppliersDTO> suppliers = suppliersDAO.getAllSuppliers();
+        for (SuppliersDTO supplier : suppliers) {
+            supplierNames.add(supplier.getsuppliersID() + " - " + supplier.getfullname());
+        }
+        return supplierNames.toArray(new String[0]);
     }
 
+    // Gọi từ ProductDAO và nhóm theo nhà cung cấp
     public Map<String, List<ProductDTO>> loadSupplierProducts() {
-        return dao.loadSupplierProducts();
+        Map<String, List<ProductDTO>> map = new HashMap<>();
+        ArrayList<ProductDTO> products = productDAO.getAllProducts();
+        for (ProductDTO product : products) {
+            String supplierID = product.getMaNCC();
+            map.computeIfAbsent(supplierID, k -> new ArrayList<>()).add(product);
+        }
+        return map;
     }
 
+    // Kiểm tra dữ liệu nhập hàng
     public boolean validateImportData(String supplierID, List<Object[]> productData) {
         if (supplierID == null || supplierID.trim().isEmpty()) {
             return false;
@@ -59,16 +87,91 @@ public class Form_ImportBUS {
         return true;
     }
 
-    public boolean saveImport(String importID, String employeeID, String supplierID, 
-                           int totalAmount, String receiptDate, List<Object[]> productData) {
-        // Validate before saving
-        if (!validateImportData(supplierID, productData)) {
-            return false;
+    // Gọi từ Form_ImportDAO để lưu và từ ProductDAO để cập nhật số lượng
+    public boolean saveImport(String importID, String employeeID, String supplierID,
+                              int totalAmount, String receiptDate, List<Object[]> productData) {
+        Object[][] productArray = productData.toArray(new Object[0][]);
+        boolean saved = formImportDAO.saveImport(importID, employeeID, supplierID, totalAmount, receiptDate, productArray);
+        if (saved) {
+            // Cập nhật số lượng sản phẩm sau khi lưu thành công
+            for (Object[] product : productData) {
+                String productID = (String) product[0];
+                int quantity = (Integer) product[2];
+                productDAO.updateProductQuantity(productID, quantity);
+            }
         }
-        
-        // Convert List<Object[]> to Object[][]
-        Object[][] productArray = productData.toArray(new Object[productData.size()][]);
-        
-        return dao.saveImport(importID, employeeID, supplierID, totalAmount, receiptDate, productArray);
+        return saved;
+    }
+
+    // Gọi từ ProductDAO
+    public List<Object[]> loadAllProducts() {
+        List<Object[]> products = new ArrayList<>();
+        ArrayList<ProductDTO> productList = productDAO.getAllProducts();
+        for (ProductDTO product : productList) {
+            products.add(new Object[]{
+                product.getProductID(),
+                product.getProductName(),
+                Utils.formatCurrency(Integer.parseInt(product.getGia()))
+            });
+        }
+        return products;
+    }
+
+    // Gọi từ ProductDAO
+    public Object[] getProductDetails(String productId) {
+        ProductDTO product = productDAO.getProduct(productId);
+        if (product != null) {
+            return new Object[]{
+                product.getProductID(),
+                product.getProductName(),
+                Utils.formatCurrency(Integer.parseInt(product.getGia())),
+                product.gettenNCC(),
+                product.getAnh()
+            };
+        }
+        return null;
+    }
+
+    // Gọi từ ProductDAO
+    public boolean updateProductQuantity(String productId, int quantity) {
+        return productDAO.updateProductQuantity(productId, quantity);
+    }
+
+    // Gọi từ SuppliersDAO
+    public String getSupplierIDByProduct(String productId) {
+        return suppliersDAO.getSupplierIDByProduct(productId);
+    }
+
+    // Xác thực sản phẩm để thêm
+    public String validateProductToAdd(String productId, String quantityText) {
+        if (productId == null || productId.isEmpty() || productId.equals("Chọn sản phẩm từ danh sách")) {
+            return "Vui lòng chọn một sản phẩm từ danh sách";
+        }
+    
+        if (quantityText == null || quantityText.trim().isEmpty()) {
+            return "Số lượng không được để trống";
+        }
+    
+        try {
+            int quantity = Integer.parseInt(quantityText);
+            if (quantity <= 0) {
+                return "Số lượng phải là số nguyên dương lớn hơn 0";
+            }
+        } catch (NumberFormatException e) {
+            return "Số lượng phải là một số nguyên hợp lệ";
+        }
+    
+        return null; // Không có lỗi
+    }
+
+    // Tính tổng tiền
+    public String calculateTotal(String priceText, String quantityText) {
+        try {
+            int price = Integer.parseInt(priceText.replaceAll("[^0-9]", ""));
+            int quantity = quantityText.isEmpty() ? 0 : Integer.parseInt(quantityText);
+            return Utils.formatCurrency(price * quantity);
+        } catch (NumberFormatException e) {
+            return "0";
+        }
     }
 }

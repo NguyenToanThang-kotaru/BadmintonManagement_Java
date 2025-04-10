@@ -50,7 +50,7 @@ public class GUI_Customer extends JPanel {
         tableModel = customTable.getTableModel(); 
         
         midPanel.add(customTable, BorderLayout.CENTER);
-        scroll = new CustomScrollPane(midPanel);
+        scroll = new CustomScrollPane(customerTable);
         // ========== PANEL CHI TIẾT KHÁCH HÀNG ==========
         botPanel = new JPanel(new GridBagLayout());
         botPanel.setBackground(Color.WHITE);

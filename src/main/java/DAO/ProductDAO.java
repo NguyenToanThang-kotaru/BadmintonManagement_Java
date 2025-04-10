@@ -10,17 +10,19 @@ import java.util.ArrayList;
 
 // Lớp này dùng để kết nối database và lấy dữ liệu sản phẩm
 public class ProductDAO {
-
+    
     public static Boolean addProduct(ProductDTO product) {
         String findMaLoaiSQL = "SELECT ma_loai FROM loai WHERE ten_loai = ?";
         String findMaNCCSQL = "SELECT ma_nha_cung_cap FROM nha_cung_cap WHERE ten_nha_cung_cap = ?";
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement findMaLoaiStmt = conn.prepareStatement(findMaLoaiSQL); PreparedStatement findMaNCCStmt = conn.prepareStatement(findMaNCCSQL)) {
+        try (Connection conn = DatabaseConnection.getConnection(); 
+             PreparedStatement findMaLoaiStmt = conn.prepareStatement(findMaLoaiSQL); 
+             PreparedStatement findMaNCCStmt = conn.prepareStatement(findMaNCCSQL)) {
 
             findMaLoaiStmt.setString(1, product.getTL()); // TL là tên loại
             ResultSet rs = findMaLoaiStmt.executeQuery();
             String maLoai = null;
 
-            findMaNCCStmt.setString(1, product.gettenNCC()); // TL là tên loại
+            findMaNCCStmt.setString(1, product.gettenNCC()); // tenNCC là tên nhà cung cấp
             ResultSet rs2 = findMaNCCStmt.executeQuery();
             String maNCC = null;
 
@@ -46,8 +48,8 @@ public class ProductDAO {
 
                 stmt.setString(1, newID);
                 stmt.setString(2, product.getProductName());
-                stmt.setString(3, product.getGia());
-                stmt.setString(4, product.getSoluong());
+                stmt.setDouble(3, Double.parseDouble(product.getGia())); // Chuyển String thành Double
+                stmt.setInt(4, Integer.parseInt(product.getSoluong())); // Chuyển String thành Int
                 stmt.setString(5, maNCC);
                 stmt.setString(6, product.getTSKT());
                 stmt.setString(7, maLoai);
@@ -68,13 +70,13 @@ public class ProductDAO {
             e.printStackTrace();
             return false;
         }
-
     }
 
     public static Boolean deleteProduct(String productID) {
         String query = "UPDATE san_pham SET is_deleted = 1 WHERE ma_san_pham = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection conn = DatabaseConnection.getConnection(); 
+             PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, productID);
             stmt.executeUpdate();
             System.out.println("Xóa sản phẩm thành công");
@@ -88,7 +90,9 @@ public class ProductDAO {
     private static String generateNewProductID() {
         String query = "SELECT ma_san_pham FROM san_pham ORDER BY ma_san_pham DESC LIMIT 1";
 
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
+        try (Connection conn = DatabaseConnection.getConnection(); 
+             PreparedStatement stmt = conn.prepareStatement(query); 
+             ResultSet rs = stmt.executeQuery()) {
 
             if (rs.next()) {
                 String lastID = rs.getString("ma_san_pham"); // Ví dụ: "SP005"
@@ -114,9 +118,10 @@ public class ProductDAO {
                 + "FROM san_pham sp "
                 + "JOIN loai lsp ON sp.ma_loai = lsp.ma_loai "
                 + "JOIN nha_cung_cap ncc ON sp.ma_nha_cung_cap = ncc.ma_nha_cung_cap "
-                + "WHERE sp.ma_san_pham = ?";
+                + "WHERE sp.ma_san_pham = ? AND sp.is_deleted = 0 AND ncc.is_deleted = 0";
 
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection conn = DatabaseConnection.getConnection(); 
+             PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, ProductID);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -144,7 +149,9 @@ public class ProductDAO {
         ArrayList<String> categoryList = new ArrayList<>();
         String query = "SELECT ten_loai FROM loai";
 
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
+        try (Connection conn = DatabaseConnection.getConnection(); 
+             PreparedStatement stmt = conn.prepareStatement(query); 
+             ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 categoryList.add(rs.getString("ten_loai"));  // Lưu tên loại vào danh sách
@@ -158,12 +165,14 @@ public class ProductDAO {
 
     public static ArrayList<String> getAllNCCNames() {
         ArrayList<String> NCCList = new ArrayList<>();
-        String query = "SELECT ten_nha_cung_cap FROM nha_cung_cap";
+        String query = "SELECT ten_nha_cung_cap FROM nha_cung_cap WHERE is_deleted = 0";
 
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
+        try (Connection conn = DatabaseConnection.getConnection(); 
+             PreparedStatement stmt = conn.prepareStatement(query); 
+             ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                NCCList.add(rs.getString("ten_nha_cung_cap"));  // Lưu tên loại vào danh sách
+                NCCList.add(rs.getString("ten_nha_cung_cap"));  // Lưu tên nhà cung cấp vào danh sách
             }
         } catch (SQLException e) {
             System.out.println("Lỗi lấy danh sách nhà cung cấp: " + e.getMessage());
@@ -182,6 +191,7 @@ public class ProductDAO {
                 + "JOIN nha_cung_cap ncc ON sp.ma_nha_cung_cap = ncc.ma_nha_cung_cap where sp.is_deleted = 0";
 //                + "WHERE sp.ma_san_pham = ?";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
+
 
             while (rs.next()) {
                 products.add(new ProductDTO(
@@ -209,11 +219,14 @@ public class ProductDAO {
     public static void updateProduct(ProductDTO product) {
         String findMaLoaiSQL = "SELECT ma_loai FROM loai WHERE ten_loai = ?";
         String findMaNCCSQL = "SELECT ma_nha_cung_cap FROM nha_cung_cap WHERE ten_nha_cung_cap = ?";
-        String updateProductSQL = "UPDATE san_pham SET ten_san_pham = ?, gia = ?, so_luong = ?, ma_nha_cung_cap = ?, thong_so_ki_thuat = ?, ma_loai = ?, hinh_anh = ? WHERE ma_san_pham = ?";
+        String updateProductSQL = "UPDATE san_pham SET ten_san_pham = ?, gia = ?, so_luong = ?, ma_nha_cung_cap = ?, thong_so_ki_thuat = ?, ma_loai = ?, hinh_anh = ? WHERE ma_san_pham = ? AND is_deleted = 0";
 
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement findMaLoaiStmt = conn.prepareStatement(findMaLoaiSQL); PreparedStatement findMaNCCStmt = conn.prepareStatement(findMaNCCSQL); PreparedStatement updateProductStmt = conn.prepareStatement(updateProductSQL)) {
+        try (Connection conn = DatabaseConnection.getConnection(); 
+             PreparedStatement findMaLoaiStmt = conn.prepareStatement(findMaLoaiSQL); 
+             PreparedStatement findMaNCCStmt = conn.prepareStatement(findMaNCCSQL); 
+             PreparedStatement updateProductStmt = conn.prepareStatement(updateProductSQL)) {
 
-            // 🔹 Tìm `ma_loai` từ `ten_loai`
+            // Tìm ma_loai từ ten_loai
             findMaLoaiStmt.setString(1, product.getTL());
             ResultSet rs = findMaLoaiStmt.executeQuery();
             String maLoai = null;
@@ -223,7 +236,7 @@ public class ProductDAO {
             String maNCC = null;
 
             if (rs.next()) {
-                maLoai = rs.getString("ma_loai");  // Lấy `ma_loai` dưới dạng `String`
+                maLoai = rs.getString("ma_loai");  // Lấy ma_loai dưới dạng String
             } else {
                 System.out.println("Không tìm thấy mã loại cho tên loại: " + product.getTL());
                 return; // Không tiếp tục cập nhật nếu không tìm thấy
@@ -232,17 +245,16 @@ public class ProductDAO {
             if (rs2.next()) {
                 maNCC = rs2.getString("ma_nha_cung_cap");
             } else {
-                System.out.println("Không tìm thấy mã NCC cho tên NCC: " + product.getMaNCC());
+                System.out.println("Không tìm thấy mã NCC cho tên NCC: " + product.gettenNCC());
                 return; // Không tiếp tục cập nhật nếu không tìm thấy
             }
 
-            // 🔹 Cập nhật bảng `san_pham`
             updateProductStmt.setString(1, product.getProductName());
-            updateProductStmt.setString(2, product.getGia());
-            updateProductStmt.setString(3, product.getSoluong());
+            updateProductStmt.setDouble(2, Double.parseDouble(product.getGia())); // Chuyển String thành Double
+            updateProductStmt.setInt(3, Integer.parseInt(product.getSoluong())); // Chuyển String thành Int
             updateProductStmt.setString(4, maNCC);
             updateProductStmt.setString(5, product.getTSKT());
-            updateProductStmt.setString(6, maLoai); // Cập nhật `ma_loai` tìm được
+            updateProductStmt.setString(6, maLoai); // Cập nhật ma_loai tìm được
             updateProductStmt.setString(7, product.getAnh());
             updateProductStmt.setString(8, product.getProductID());
 
@@ -259,12 +271,13 @@ public class ProductDAO {
         }
     }
 
-// Lấy đường dẫn ảnh sản phẩm
+    // Lấy đường dẫn ảnh sản phẩm
     public static String getProductImage(String productID) {
         String imagePath = null;
-        String query = "SELECT hinh_anh FROM san_pham WHERE ma_san_pham = ?";
+        String query = "SELECT hinh_anh FROM san_pham WHERE ma_san_pham = ? AND is_deleted = 0";
 
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection conn = DatabaseConnection.getConnection(); 
+             PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, productID);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -275,5 +288,18 @@ public class ProductDAO {
             e.printStackTrace();
         }
         return imagePath;
+    }
+
+    public boolean updateProductQuantity(String productId, int quantity) {
+        String query = "UPDATE san_pham SET so_luong = so_luong + ? WHERE ma_san_pham = ? AND is_deleted = 0";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, quantity);
+            stmt.setString(2, productId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Failed to update product quantity: " + e.getMessage());
+            return false;
+        }
     }
 }
