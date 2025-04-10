@@ -82,4 +82,18 @@ public class SuppliersDAO {
             e.printStackTrace();
         }
     }
+    public String getSupplierIDByProduct(String productId) {
+        String query = "SELECT ma_nha_cung_cap FROM san_pham WHERE ma_san_pham = ? AND is_deleted = 0";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, productId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getString("ma_nha_cung_cap");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
 }

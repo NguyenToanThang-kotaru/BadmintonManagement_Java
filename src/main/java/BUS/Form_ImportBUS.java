@@ -11,7 +11,7 @@ import Connection.DatabaseConnection;
 import DTO.ProductDTO;
 import GUI.Utils;
 import DAO.Form_ImportDAO;
-import DAO.ProductDAO; 
+import DAO.ProductDAO;
 
 public class Form_ImportBUS {
     private final Form_ImportDAO dao;
@@ -68,13 +68,14 @@ public class Form_ImportBUS {
         return true;
     }
 
-   public boolean saveImport(String importID, String employeeID, String supplierID, 
-                             int totalAmount, String receiptDate, List<Object[]> productData) {
-        return dao.saveImport(importID, employeeID, supplierID, totalAmount, receiptDate, 
-                             productData.toArray(new Object[0][]));
+    // Sửa phương thức saveImport để nhận List<Object[]> thay vì Object[][]
+    public boolean saveImport(String importID, String employeeID, String supplierID, 
+                              int totalAmount, String receiptDate, List<Object[]> productData) {
+        // Chuyển List<Object[]> thành Object[][] để tương thích với DAO
+        Object[][] productArray = productData.toArray(new Object[0][]);
+        return dao.saveImport(importID, employeeID, supplierID, totalAmount, receiptDate, productArray);
     }
 
-    // Thêm phương thức mới
     public List<Object[]> loadAllProducts() {
         List<Object[]> products = new ArrayList<>();
         String query = "SELECT ma_san_pham, ten_san_pham, gia FROM san_pham WHERE is_deleted = 0";
@@ -126,18 +127,16 @@ public class Form_ImportBUS {
         }
         return "";
     }
+
     public String validateProductToAdd(String productId, String quantityText) {
-        // Kiểm tra xem sản phẩm đã được chọn chưa
         if (productId == null || productId.isEmpty() || productId.equals("Chọn sản phẩm từ danh sách")) {
             return "Vui lòng chọn một sản phẩm từ danh sách";
         }
     
-        // Kiểm tra số lượng có bỏ trống hay không
         if (quantityText == null || quantityText.trim().isEmpty()) {
             return "Số lượng không được để trống";
         }
     
-        // Kiểm tra số lượng là số nguyên dương
         try {
             int quantity = Integer.parseInt(quantityText);
             if (quantity <= 0) {
@@ -148,5 +147,15 @@ public class Form_ImportBUS {
         }
     
         return null; // Không có lỗi
+    }
+
+    public String calculateTotal(String priceText, String quantityText) {
+        try {
+            int price = Integer.parseInt(priceText.replaceAll("[^0-9]", ""));
+            int quantity = quantityText.isEmpty() ? 0 : Integer.parseInt(quantityText);
+            return Utils.formatCurrency(price * quantity);
+        } catch (NumberFormatException e) {
+            return "0";
+        }
     }
 }

@@ -85,72 +85,68 @@ public class Form_ImportDAO {
         }
         return map;
     }
-
     public boolean saveImport(String importID, String employeeID, String supplierID, int totalAmount, 
-        String receiptDate, Object[][] productData) {
-        try {
-            // 1. Save main import record với is_deleted = 0
-            String importQuery = "INSERT INTO nhap_hang (ma_nhap_hang, ma_nhan_vien, ma_nha_cung_cap, tong_tien, ngay_nhap, is_deleted) " +
-                "VALUES (?, ?, ?, ?, ?, 0)";
+    String receiptDate, Object[][] productData) {
+    try {
+        String importQuery = "INSERT INTO nhap_hang (ma_nhap_hang, ma_nhan_vien, ma_nha_cung_cap, tong_tien, ngay_nhap, is_deleted) " +
+            "VALUES (?, ?, ?, ?, ?, 0)";
+        String detailQuery = "INSERT INTO chi_tiet_nhap_hang (ma_chi_tiet_nhap_hang, ma_nhap_hang, ma_san_pham, so_luong, gia, is_deleted) " +
+            "VALUES (?, ?, ?, ?, ?, 0)";
+        String maxDetailIDQuery = "SELECT ma_chi_tiet_nhap_hang FROM chi_tiet_nhap_hang ORDER BY ma_chi_tiet_nhap_hang DESC LIMIT 1";
 
-            // 2. Save import details
-            String detailQuery = "INSERT INTO chi_tiet_nhap_hang (ma_chi_tiet_nhap_hang, ma_nhap_hang, ma_san_pham, so_luong, gia, is_deleted) " +
-                "VALUES (?, ?, ?, ?, ?, 0)";
-
-            // 3. Lấy ma_chi_tiet_nhap_hang lớn nhất
-            String maxDetailIDQuery = "SELECT ma_chi_tiet_nhap_hang FROM chi_tiet_nhap_hang ORDER BY ma_chi_tiet_nhap_hang DESC LIMIT 1";
-
-            Connection conn = DatabaseConnection.getConnection();
-            conn.setAutoCommit(false);
-
-            try (PreparedStatement importStmt = conn.prepareStatement(importQuery);
-                 PreparedStatement detailStmt = conn.prepareStatement(detailQuery);
-                 PreparedStatement maxDetailStmt = conn.prepareStatement(maxDetailIDQuery)) {
-
-                // Insert main import record
-                importStmt.setString(1, importID);
-                importStmt.setString(2, employeeID);
-                importStmt.setString(3, supplierID);
-                importStmt.setInt(4, totalAmount);
-                // Sử dụng ngày giờ hiện tại nếu receiptDate là null hoặc không hợp lệ
-                String dateTime = receiptDate != null ? receiptDate : LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                importStmt.setString(5, dateTime);
-                importStmt.executeUpdate();
-
-                // Lấy ma_chi_tiet_nhap_hang lớn nhất
-                ResultSet rs = maxDetailStmt.executeQuery();
-                int nextDetailNumber = 1;
-                if (rs.next()) {
-                    String lastDetailID = rs.getString("ma_chi_tiet_nhap_hang");
-                    nextDetailNumber = Integer.parseInt(lastDetailID.substring(5)) + 1;
-                }
-
-                // Insert each product detail
-                for (int i = 0; i < productData.length; i++) {
-                    String detailID = importID + String.format("%02d", nextDetailNumber + i);
-                    String productID = (String) productData[i][0];
-                    int quantity = (Integer) productData[i][2];
-                    int price = Integer.parseInt(productData[i][3].toString().replaceAll("[^0-9]", ""));
-
-                    detailStmt.setString(1, detailID);
-                    detailStmt.setString(2, importID);
-                    detailStmt.setString(3, productID);
-                    detailStmt.setInt(4, quantity);
-                    detailStmt.setInt(5, price);
-                    detailStmt.executeUpdate();
-                }
-
-                conn.commit();
-                return true;
-            } catch (Exception e) {
-                conn.rollback();
-                throw e;
-            } finally {
-                conn.setAutoCommit(true);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        Connection conn = DatabaseConnection.getConnection();
+        if (conn == null) {
+            System.out.println("Failed to connect to database");
             return false;
         }
+        conn.setAutoCommit(false);
+
+        try (PreparedStatement importStmt = conn.prepareStatement(importQuery);
+             PreparedStatement detailStmt = conn.prepareStatement(detailQuery);
+             PreparedStatement maxDetailStmt = conn.prepareStatement(maxDetailIDQuery)) {
+
+            importStmt.setString(1, importID);
+            importStmt.setString(2, employeeID);
+            importStmt.setString(3, supplierID);
+            importStmt.setInt(4, totalAmount);
+            importStmt.setString(5, receiptDate);
+            importStmt.executeUpdate();
+
+            ResultSet rs = maxDetailStmt.executeQuery();
+            int nextDetailNumber = 1;
+            if (rs.next()) {
+                String lastDetailID = rs.getString("ma_chi_tiet_nhap_hang");
+                nextDetailNumber = Integer.parseInt(lastDetailID.substring(5)) + 1;
+            }
+
+            for (int i = 0; i < productData.length; i++) {
+                String detailID = importID + String.format("%02d", nextDetailNumber + i);
+                String productID = (String) productData[i][0];
+                int quantity = (Integer) productData[i][2];
+                int price = Integer.parseInt(productData[i][3].toString().replaceAll("[^0-9]", ""));
+
+                detailStmt.setString(1, detailID);
+                detailStmt.setString(2, importID);
+                detailStmt.setString(3, productID);
+                detailStmt.setInt(4, quantity);
+                detailStmt.setInt(5, price);
+                detailStmt.executeUpdate();
+            }
+
+            conn.commit();
+            return true;
+        } catch (Exception e) {
+            conn.rollback();
+            System.out.println("Error during saveImport: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        } finally {
+            conn.setAutoCommit(true);
+        }
+    } catch (Exception e) {
+        System.out.println("Outer error in saveImport: " + e.getMessage());
+        e.printStackTrace();
+        return false;
+    }
     }
 }
