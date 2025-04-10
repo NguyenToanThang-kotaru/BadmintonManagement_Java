@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package DAO;
 
 import Connection.DatabaseConnection;
@@ -75,13 +71,13 @@ public class OrderDAO {
     }
     
     public boolean deleteOrder(String orderID) {
-        String query = "DELETE FROM hoa_don WHERE ma_hoa_don = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        String queery = "UPDATE hoa_don SET is_deleted = 1 WHERE ma_hoa_don = ?;";
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(queery)) {
             stmt.setString(1, orderID);
-            int rowsAffected = stmt.executeUpdate();
-            return rowsAffected > 0;
-        } catch (SQLException e) {
+            stmt.executeUpdate();
+            System.out.println("Xoa thanh cong");
+            return true;
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
