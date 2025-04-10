@@ -61,7 +61,7 @@ public class CustomerDAO {
 
             stmt.executeUpdate();
         } catch (SQLException e) {
-//            e.printStackTrace();
+           e.printStackTrace();
         }
     }
 
@@ -84,4 +84,69 @@ public class CustomerDAO {
         return customerName;
     }
     
+    public static CustomerDTO getCustomerByPhone(String phone) {
+        String query = "SELECT * FROM khach_hang WHERE so_dien_thoai = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, phone);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new CustomerDTO(
+                            rs.getString("ma_khach_hang"),
+                            rs.getString("ten_khach_hang"),
+                            rs.getString("so_dien_thoai"),
+                            rs.getString("email")
+                    );
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public static String getNextCustomerID() {
+        String query = "SELECT MAX(ma_khach_hang) AS max_id FROM khach_hang";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                String maxId = rs.getString("max_id"); // VD: KH009
+                if (maxId != null) {
+                    int num = Integer.parseInt(maxId.substring(2)) + 1;
+                    return String.format("KH%03d", num);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "KH001"; // Nếu chưa có khách nào
+    }
+    
+    public static void addCustomer(CustomerDTO customer) {
+        String query = "INSERT INTO khach_hang (ma_khach_hang, ten_khach_hang, so_dien_thoai, email) VALUES (?, ?, ?, ?)";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, customer.getcustomerID());
+            stmt.setString(2, customer.getFullName());
+            stmt.setString(3, customer.getPhone());
+            stmt.setString(4, customer.getEmail() != null ? customer.getEmail() : "");
+            stmt.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public static Boolean deleteCustomer(String customerID) {
+        String queery = "UPDATE khach_hang SET is_deleted = 1 WHERE ma_khach_hang = ?;";
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(queery)) {
+            stmt.setString(1, customerID);
+            stmt.executeUpdate();
+            System.out.println("Xoa thanh cong");
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

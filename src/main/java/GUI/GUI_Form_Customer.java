@@ -1,5 +1,8 @@
 package GUI;
 
+import DAO.CustomerDAO;
+import BUS.CustomerBUS;
+
 import javax.swing.*;
 import java.awt.*;
 import DTO.CustomerDTO;
@@ -10,6 +13,7 @@ public class GUI_Form_Customer extends JDialog {
     private JLabel title;
     private CustomCombobox<String> cbRole;
     private CustomButton btnSave, btnCancel;
+    private CustomerBUS customerBUS = new CustomerBUS();
 
     public GUI_Form_Customer(JPanel parent, CustomerDTO customer) {
         super((Frame) SwingUtilities.getWindowAncestor(parent), customer == null ? "Thêm Khách Hàng" : "Sửa Khách Hàng", true);
@@ -40,9 +44,18 @@ public class GUI_Form_Customer extends JDialog {
 
         if (customer != null) {
             txtCustomerID.setText(customer.getcustomerID());
+            txtCustomerID.setEditable(false); // Không cho sửa
+            txtCustomerID.setForeground(Color.BLACK);
+            txtCustomerID.setBackground(Color.WHITE); 
             txtFullName.setText(customer.getFullName());
             txtSDT.setText(customer.getPhone());
             txtEmail.setText(customer.getEmail());
+        } else {
+            txtCustomerID.setText(customerBUS.getNextCustomerID());
+            txtCustomerID.setEditable(false); // Không cho sửa
+            txtCustomerID.setForeground(Color.BLACK);
+            txtCustomerID.setBackground(Color.WHITE);
+
         }
 
         addComponent("Mã Khách Hàng:", txtCustomerID, gbc);
@@ -64,26 +77,41 @@ public class GUI_Form_Customer extends JDialog {
 
         btnCancel.addActionListener(e -> dispose());
 
-//        btnSave.addActionListener(e -> {
-//            if (customer == null) {
-//                saveNewCustomer();
-//            } else {
-//                updateCustomer(customer);
-//            }
-//        });
+        btnSave.addActionListener(e -> {
+            String customerID = txtCustomerID.getText().trim();
+            String fullName = txtFullName.getText().trim();
+            String phone = txtSDT.getText().trim();
+            String email = txtEmail.getText().trim();
+
+            if (fullName.isEmpty() || phone.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Tên và số điện thoại không được để trống.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            CustomerDTO newCustomer = new CustomerDTO(customerID, fullName, phone, email);
+
+            if (customer == null) {
+                customerBUS.addCustomer(newCustomer);
+                JOptionPane.showMessageDialog(this, "Thêm khách hàng thành công!");
+            } else {
+                customerBUS.updateCustomer(newCustomer);
+                JOptionPane.showMessageDialog(this, "Cập nhật khách hàng thành công!");
+            }
+            dispose();
+        });
     }
 
     private void addComponent(String label, JComponent component, GridBagConstraints gbc) {
         gbc.gridx = 0;
         gbc.gridy++;
         gbc.anchor = GridBagConstraints.WEST;
-        gbc.weightx = 0;  // Không mở rộng label
+        gbc.weightx = 0; 
         gbc.fill = GridBagConstraints.NONE;  
 
         add(new JLabel(label), gbc);
 
         gbc.gridx = 1;
-        gbc.weightx = 1;  // Cho phép JTextField mở rộng
+        gbc.weightx = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;  
 
         add(component, gbc);

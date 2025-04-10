@@ -81,5 +81,14 @@ public class ProductBUS {
             return false;
         }
     }
-
+    
+    //Chỗ Tiến sử dụng để làm:
+    public String getProductImage(String productID) {
+        return ProductDAO.getProductImage(productID);
+    }
+    
+    public ProductDTO getProductByID(String id) {
+        ProductDAO dao = new ProductDAO();
+        return dao.getProduct(id);
+    }
 }
