@@ -166,7 +166,7 @@ public class GUI_Product extends JPanel {
                 String productID = (String) productTable.getValueAt(selectedRow, 0);
                 ProductDTO product = ProductDAO.getProduct(productID);
                 productChoosing = product;
-        
+
                 // Kiểm tra null trước khi cập nhật
                 if (product != null) {
                     productLabel.setText(product.getProductID());
@@ -176,20 +176,34 @@ public class GUI_Product extends JPanel {
                     NameNCC.setText(product.gettenNCC());
                     TSKTLabel.setText(product.getTSKT());
                     TypeName.setText(product.getTL());
-        
+
                     infoPanel.add(buttonPanel, gbcInfo);
-        
+
                     // Cập nhật ảnh
-                    String productImg = product.getAnh();
+//                    if (employeeImg != null && !employeeImg.isEmpty()) {
+//                        String tempPath = "images/" + employeeImg;
+//                        File imageFile = new File(tempPath);
+//                        if (imageFile.exists()) {
+//                            imagePath = tempPath;
+//                        }
+//                    }
+//                    ImageIcon employeeIcon = new ImageIcon(imagePath);
+//                    Image img = employeeIcon.getImage().getScaledInstance(220, 220, Image.SCALE_SMOOTH);
+//                    imageLabel.setIcon(new ImageIcon(img));
+                    String productImg = productChoosing.getAnh();
                     if (productImg != null && !productImg.isEmpty()) {
-                        String imagePath = System.getProperty("user.dir") + "/images/" + productImg;
+                        String imagePath = "images/" + productImg;
                         File imageFile = new File(imagePath);
+                        System.out.println(imageFile);
+
                         if (imageFile.exists()) {
-                            ImageIcon productIcon = new ImageIcon(new ImageIcon(imageFile.getAbsolutePath())
-                                    .getImage().getScaledInstance(240, 220, Image.SCALE_SMOOTH));
-                            imageLabel.setIcon(productIcon);
+                            ImageIcon productIcon = new ImageIcon(imagePath);
+                            Image img = productIcon.getImage().getScaledInstance(240, 220, Image.SCALE_SMOOTH);
+                            imageLabel.setIcon(new ImageIcon(img));
+                            System.out.print("co ton tai");
                         } else {
                             imageLabel.setIcon(null);
+                            System.out.println("khong ton tai");
                         }
                     } else {
                         imageLabel.setIcon(null);
@@ -336,7 +350,7 @@ public class GUI_Product extends JPanel {
 //        saveButton = new CustomButton("Lưu");
 //
 //        saveButton.addActionListener(e -> {
-////        int selectedRow = warrantyTable.getAccountTable().getSelectedRow();
+    ////        int selectedRow = warrantyTable.getAccountTable().getSelectedRow();
 ////        if (selectedRow != -1) {
 ////            // Cập nhật giá trị trong bảng
 ////            warrantyTable.getAccountTable().setValueAt(serialField.getText(), selectedRow, 1);
@@ -378,7 +392,7 @@ public class GUI_Product extends JPanel {
         SwingUtilities.invokeLater(() -> {
             DefaultTableModel model = (DefaultTableModel) productTable.getModel();
             model.setRowCount(0); // Xóa dữ liệu cũ
-    
+
             ArrayList<ProductDTO> products = ProductDAO.getAllProducts();
             for (ProductDTO product : products) {
                 model.addRow(new Object[]{
@@ -388,8 +402,9 @@ public class GUI_Product extends JPanel {
                     product.getSoluong()
                 });
             }
-        }); 
+        });
     }
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Quản Lý Sản Phẩm");
