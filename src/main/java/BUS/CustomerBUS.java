@@ -15,4 +15,19 @@ public class CustomerBUS {
         dao.updateCustomer(customer);
     }
 
+    public CustomerDTO getCustomerByPhone(String phone) {
+        return CustomerDAO.getCustomerByPhone(phone);
+    }
+    
+    public String getNextCustomerID() {
+        return CustomerDAO.getNextCustomerID();
+    }
+    
+    public CustomerDTO getCustomerByID(String id) {
+        return CustomerDAO.getCustomer(id);
+    }
+    
+    public void addCustomer(CustomerDTO customer) {
+        CustomerDAO.addCustomer(customer);
+    }
 }
