@@ -166,36 +166,50 @@ public class GUI_Product extends JPanel {
                 String productID = (String) productTable.getValueAt(selectedRow, 0);
                 ProductDTO product = ProductDAO.getProduct(productID);
                 productChoosing = product;
-                // Cập nhật thông tin sản phẩm
-                productLabel.setText(String.valueOf(product.getProductID()));
-                namePDLabel.setText(product.getProductName());
-                priceLabel.setText(String.valueOf(product.getGia()));
-                quantityLabel.setText(String.valueOf(product.getSoluong()));
-                NameNCC.setText(String.valueOf(product.gettenNCC()));
-                TSKTLabel.setText(product.getTSKT());
-                TypeName.setText(String.valueOf(product.getTL()));
-
-                infoPanel.add(buttonPanel, gbcInfo);
-
-                // Cập nhật ảnh
-                String productImg = product.getAnh();
-                if (productImg != null && !productImg.isEmpty()) {
-                    String imagePath = System.getProperty("user.dir") + "/images/" + productImg;
-                    File imageFile = new File(imagePath);
-                    if (imageFile.exists()) {
-                        ImageIcon productIcon = new ImageIcon(new ImageIcon(imageFile.getAbsolutePath()).getImage()
-                                .getScaledInstance(240, 220, Image.SCALE_SMOOTH));
-                        imageLabel.setIcon(productIcon);
+        
+                // Kiểm tra null trước khi cập nhật
+                if (product != null) {
+                    productLabel.setText(product.getProductID());
+                    namePDLabel.setText(product.getProductName());
+                    priceLabel.setText(product.getGia());
+                    quantityLabel.setText(product.getSoluong());
+                    NameNCC.setText(product.gettenNCC());
+                    TSKTLabel.setText(product.getTSKT());
+                    TypeName.setText(product.getTL());
+        
+                    infoPanel.add(buttonPanel, gbcInfo);
+        
+                    // Cập nhật ảnh
+                    String productImg = product.getAnh();
+                    if (productImg != null && !productImg.isEmpty()) {
+                        String imagePath = System.getProperty("user.dir") + "/images/" + productImg;
+                        File imageFile = new File(imagePath);
+                        if (imageFile.exists()) {
+                            ImageIcon productIcon = new ImageIcon(new ImageIcon(imageFile.getAbsolutePath())
+                                    .getImage().getScaledInstance(240, 220, Image.SCALE_SMOOTH));
+                            imageLabel.setIcon(productIcon);
+                        } else {
+                            imageLabel.setIcon(null);
+                        }
                     } else {
-                        imageLabel.setIcon(null); // Ẩn ảnh nếu không tìm thấy
+                        imageLabel.setIcon(null);
                     }
-
                 } else {
+                    // Xử lý khi không tìm thấy sản phẩm
+                    productLabel.setText("Không tìm thấy sản phẩm");
+                    namePDLabel.setText("");
+                    priceLabel.setText("");
+                    quantityLabel.setText("");
+                    NameNCC.setText("");
+                    TSKTLabel.setText("");
+                    TypeName.setText("");
                     imageLabel.setIcon(null);
+                    infoPanel.remove(buttonPanel); // Ẩn nút nếu không có sản phẩm
+                    infoPanel.revalidate();
+                    infoPanel.repaint();
                 }
             }
         });
-
         add(topPanel);
         add(midPanel);
         add(botPanel);
@@ -361,26 +375,21 @@ public class GUI_Product extends JPanel {
     }
 
     public void loadProductData() {
-        DefaultTableModel model = (DefaultTableModel) productTable.getModel();
-        model.setRowCount(0); // Xóa toàn bộ dữ liệu cũ
-
-        ArrayList<ProductDTO> products = ProductDAO.getAllProducts();
-        for (ProductDTO product : products) {
-            model.addRow(new Object[]{
-                product.getProductID(),
-                product.getProductName(),
-                product.getGia(),
-                product.getSoluong(),
-                product.getTSKT(),
-                product.getTL(),
-                product.getAnh(),
-                product.gettenNCC()
-            });
-        }
-
-        model.fireTableDataChanged(); // Cập nhật lại bảng
+        SwingUtilities.invokeLater(() -> {
+            DefaultTableModel model = (DefaultTableModel) productTable.getModel();
+            model.setRowCount(0); // Xóa dữ liệu cũ
+    
+            ArrayList<ProductDTO> products = ProductDAO.getAllProducts();
+            for (ProductDTO product : products) {
+                model.addRow(new Object[]{
+                    product.getProductID(),
+                    product.getProductName(),
+                    product.getGia(),
+                    product.getSoluong()
+                });
+            }
+        }); 
     }
-
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Quản Lý Sản Phẩm");

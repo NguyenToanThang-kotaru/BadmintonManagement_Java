@@ -117,14 +117,17 @@ public class ProductDAO {
                 + "sp.thong_so_ki_thuat, sp.ma_loai, lsp.ten_loai, sp.hinh_anh, ncc.ten_nha_cung_cap "
                 + "FROM san_pham sp "
                 + "JOIN loai lsp ON sp.ma_loai = lsp.ma_loai "
-                + "JOIN nha_cung_cap ncc ON sp.ma_nha_cung_cap = ncc.ma_nha_cung_cap "
-                + "WHERE sp.ma_san_pham = ? AND sp.is_deleted = 0 AND ncc.is_deleted = 0";
-
-        try (Connection conn = DatabaseConnection.getConnection(); 
+                + "LEFT JOIN nha_cung_cap ncc ON sp.ma_nha_cung_cap = ncc.ma_nha_cung_cap "
+                + "WHERE sp.ma_san_pham = ? AND sp.is_deleted = 0";
+        try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, ProductID);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
+                    String supplierName = rs.getString("ten_nha_cung_cap");
+                    if (supplierName == null) {
+                        supplierName = "Nhà cung cấp đã xóa";
+                    }
                     return new ProductDTO(
                             rs.getString("ma_san_pham"),
                             rs.getString("ten_san_pham"),
@@ -135,7 +138,7 @@ public class ProductDAO {
                             rs.getString("ma_loai"),
                             rs.getString("ten_loai"),
                             rs.getString("hinh_anh"),
-                            rs.getString("ten_nha_cung_cap")
+                            supplierName
                     );
                 }
             }
@@ -188,12 +191,16 @@ public class ProductDAO {
                 + "sp.thong_so_ki_thuat, sp.ma_loai, lsp.ten_loai, sp.hinh_anh, ncc.ten_nha_cung_cap "
                 + "FROM san_pham sp "
                 + "JOIN loai lsp ON sp.ma_loai = lsp.ma_loai "
-                + "JOIN nha_cung_cap ncc ON sp.ma_nha_cung_cap = ncc.ma_nha_cung_cap where sp.is_deleted = 0";
-//                + "WHERE sp.ma_san_pham = ?";
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
-
-
+                + "LEFT JOIN nha_cung_cap ncc ON sp.ma_nha_cung_cap = ncc.ma_nha_cung_cap "
+                + "WHERE sp.is_deleted = 0"; // Chỉ lọc sản phẩm chưa bị xóa
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
+                String supplierName = rs.getString("ten_nha_cung_cap");
+                if (supplierName == null) {
+                    supplierName = "Nhà cung cấp đã xóa"; // Giá trị mặc định
+                }
                 products.add(new ProductDTO(
                         rs.getString("ma_san_pham"),
                         rs.getString("ten_san_pham"),
@@ -204,7 +211,7 @@ public class ProductDAO {
                         rs.getString("ma_loai"),
                         rs.getString("ten_loai"),
                         rs.getString("hinh_anh"),
-                        rs.getString("ten_nha_cung_cap")
+                        supplierName
                 ));
             }
             System.out.println("Lấy danh sách sản phẩm thành công.");
