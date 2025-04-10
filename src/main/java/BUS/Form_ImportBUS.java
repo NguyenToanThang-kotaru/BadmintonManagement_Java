@@ -1,46 +1,65 @@
 package BUS;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import DAO.EmployeeDAO;
+import DAO.Form_ImportDAO;
+import DAO.ProductDAO;
+import DAO.SuppliersDAO;
+import DTO.ProductDTO;
+import DTO.SuppliersDTO;
+import GUI.Utils;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import Connection.DatabaseConnection;
-import DTO.ProductDTO;
-import GUI.Utils;
-import DAO.Form_ImportDAO;
-import DAO.ProductDAO;
-
 public class Form_ImportBUS {
-    private final Form_ImportDAO dao;
+    private final Form_ImportDAO formImportDAO;
     private final ProductDAO productDAO;
+    private final EmployeeDAO employeeDAO;
+    private final SuppliersDAO suppliersDAO;
 
     public Form_ImportBUS() {
-        this.dao = new Form_ImportDAO();
+        this.formImportDAO = new Form_ImportDAO();
         this.productDAO = new ProductDAO();
+        this.employeeDAO = new EmployeeDAO();
+        this.suppliersDAO = new SuppliersDAO();
     }
 
+    // Gọi từ Form_ImportDAO
     public String generateNextImportID() {
-        return dao.generateNextImportID();
+        return formImportDAO.generateNextImportID();
     }
 
+    // Gọi từ EmployeeDAO
     public String getEmployeeName(String employeeID) {
         if (employeeID == null || employeeID.trim().isEmpty()) {
             return "";
         }
-        return dao.getEmployeeName(employeeID);
+        return employeeDAO.getEmployeeNameByID(employeeID);
     }
 
+    // Gọi từ SuppliersDAO và định dạng
     public String[] getSupplierNames() {
-        return dao.getSupplierNames();
+        List<String> supplierNames = new ArrayList<>();
+        ArrayList<SuppliersDTO> suppliers = suppliersDAO.getAllSuppliers();
+        for (SuppliersDTO supplier : suppliers) {
+            supplierNames.add(supplier.getsuppliersID() + " - " + supplier.getfullname());
+        }
+        return supplierNames.toArray(new String[0]);
     }
 
+    // Gọi từ ProductDAO và nhóm theo nhà cung cấp
     public Map<String, List<ProductDTO>> loadSupplierProducts() {
-        return dao.loadSupplierProducts();
+        Map<String, List<ProductDTO>> map = new HashMap<>();
+        ArrayList<ProductDTO> products = productDAO.getAllProducts();
+        for (ProductDTO product : products) {
+            String supplierID = product.getMaNCC();
+            map.computeIfAbsent(supplierID, k -> new ArrayList<>()).add(product);
+        }
+        return map;
     }
 
+    // Kiểm tra dữ liệu nhập hàng
     public boolean validateImportData(String supplierID, List<Object[]> productData) {
         if (supplierID == null || supplierID.trim().isEmpty()) {
             return false;
@@ -68,33 +87,37 @@ public class Form_ImportBUS {
         return true;
     }
 
-    // Sửa phương thức saveImport để nhận List<Object[]> thay vì Object[][]
-    public boolean saveImport(String importID, String employeeID, String supplierID, 
+    // Gọi từ Form_ImportDAO để lưu và từ ProductDAO để cập nhật số lượng
+    public boolean saveImport(String importID, String employeeID, String supplierID,
                               int totalAmount, String receiptDate, List<Object[]> productData) {
-        // Chuyển List<Object[]> thành Object[][] để tương thích với DAO
         Object[][] productArray = productData.toArray(new Object[0][]);
-        return dao.saveImport(importID, employeeID, supplierID, totalAmount, receiptDate, productArray);
+        boolean saved = formImportDAO.saveImport(importID, employeeID, supplierID, totalAmount, receiptDate, productArray);
+        if (saved) {
+            // Cập nhật số lượng sản phẩm sau khi lưu thành công
+            for (Object[] product : productData) {
+                String productID = (String) product[0];
+                int quantity = (Integer) product[2];
+                productDAO.updateProductQuantity(productID, quantity);
+            }
+        }
+        return saved;
     }
 
+    // Gọi từ ProductDAO
     public List<Object[]> loadAllProducts() {
         List<Object[]> products = new ArrayList<>();
-        String query = "SELECT ma_san_pham, ten_san_pham, gia FROM san_pham WHERE is_deleted = 0";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query);
-             ResultSet rs = stmt.executeQuery()) {
-            while (rs.next()) {
-                products.add(new Object[]{
-                    rs.getString("ma_san_pham"),
-                    rs.getString("ten_san_pham"),
-                    Utils.formatCurrency(rs.getInt("gia"))
-                });
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        ArrayList<ProductDTO> productList = productDAO.getAllProducts();
+        for (ProductDTO product : productList) {
+            products.add(new Object[]{
+                product.getProductID(),
+                product.getProductName(),
+                Utils.formatCurrency(Integer.parseInt(product.getGia()))
+            });
         }
         return products;
     }
 
+    // Gọi từ ProductDAO
     public Object[] getProductDetails(String productId) {
         ProductDTO product = productDAO.getProduct(productId);
         if (product != null) {
@@ -109,25 +132,17 @@ public class Form_ImportBUS {
         return null;
     }
 
+    // Gọi từ ProductDAO
     public boolean updateProductQuantity(String productId, int quantity) {
         return productDAO.updateProductQuantity(productId, quantity);
     }
 
+    // Gọi từ SuppliersDAO
     public String getSupplierIDByProduct(String productId) {
-        String query = "SELECT ma_nha_cung_cap FROM san_pham WHERE ma_san_pham = ? AND is_deleted = 0";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, productId);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getString("ma_nha_cung_cap");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "";
+        return suppliersDAO.getSupplierIDByProduct(productId);
     }
 
+    // Xác thực sản phẩm để thêm
     public String validateProductToAdd(String productId, String quantityText) {
         if (productId == null || productId.isEmpty() || productId.equals("Chọn sản phẩm từ danh sách")) {
             return "Vui lòng chọn một sản phẩm từ danh sách";
@@ -149,6 +164,7 @@ public class Form_ImportBUS {
         return null; // Không có lỗi
     }
 
+    // Tính tổng tiền
     public String calculateTotal(String priceText, String quantityText) {
         try {
             int price = Integer.parseInt(priceText.replaceAll("[^0-9]", ""));
