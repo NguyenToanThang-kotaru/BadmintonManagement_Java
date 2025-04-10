@@ -17,8 +17,9 @@ public class GUI_Detail_Suppliers extends JDialog {
     private SuppliersDTO supplier;
     private JTable productTable;
     private DefaultTableModel productTableModel;
-    private ProductDetailPanel detailPanel; // Sử dụng ProductDetailPanel thay vì tự tạo
-    private JPanel placeholderPanel, mainPanel;
+    private JLabel imageLabel;
+    private JLabel productIDLabel, nameLabel, priceLabel, quantityLabel, tsktLabel, supplierNameLabel, categoryLabel, totalLabel;
+    private JPanel detailPanel, placeholderPanel, mainPanel;
 
     public GUI_Detail_Suppliers(GUI_Suppliers parent, SuppliersDTO supplier) {
         super((Frame) SwingUtilities.getWindowAncestor(parent), "Danh Sách Sản Phẩm Nhà Cung Cấp", true);
@@ -60,7 +61,7 @@ public class GUI_Detail_Suppliers extends JDialog {
         infoPanel.add(new JLabel(supplier.getfullname()), gbc);
 
         // Product Table
-        String[] columnNames = {"Mã SP", "Tên SP", "Giá", "Số Lượng", "Thông Số Kỹ Thuật"};
+        String[] columnNames = {"Mã SP", "Tên SP", "Giá", "Số Lượng", "Thông Số Kỹ Thuật"}; // Bỏ cột "Tổng Tiền"
         productTableModel = new DefaultTableModel(columnNames, 0);
         productTable = new JTable(productTableModel);
         
@@ -89,15 +90,91 @@ public class GUI_Detail_Suppliers extends JDialog {
         placeholderPanel.setBackground(Color.WHITE);
         placeholderPanel.setPreferredSize(new Dimension(0, 200)); // Chừa sẵn khoảng trắng cao 200px
 
-        // Sử dụng ProductDetailPanel thay vì tự tạo detailPanel
-        detailPanel = new ProductDetailPanel(null, null); // Không cần ActionListener và Form_ImportBUS
-        // Ẩn các thành phần không cần thiết
-        detailPanel.getTxtQuantity().setVisible(false);
-        detailPanel.getLblTotal().setVisible(false);
-        JLabel lblThanhTien = (JLabel) detailPanel.getLblTotal().getParent().getComponent(0); // Nhãn "THÀNH TIỀN:"
-        lblThanhTien.setVisible(false);
-        detailPanel.getLblTotal().getParent().setVisible(false); // Ẩn toàn bộ bottomPanel chứa "THÀNH TIỀN"
-        detailPanel.getComponent(1).setVisible(false); // Ẩn nút "Thêm SP" (CustomButton)
+        // Panel hiển thị chi tiết sản phẩm (sẽ hiển thị khi chọn sản phẩm)
+        detailPanel = new JPanel(new BorderLayout(20, 0));
+        detailPanel.setBackground(Color.WHITE);
+        detailPanel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createTitledBorder("Chi Tiết Sản Phẩm"),
+            BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
+
+        // Phần hiển thị hình ảnh
+        JPanel leftPanel = new JPanel(null);
+        leftPanel.setPreferredSize(new Dimension(310, 200));
+        leftPanel.setBackground(Color.WHITE);
+
+        imageLabel = new JLabel();
+        imageLabel.setBounds(30, 10, 230, 180);
+        imageLabel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+        leftPanel.add(imageLabel);
+
+        // Phần hiển thị thông tin chi tiết
+        JPanel rightPanel = new JPanel(new GridBagLayout());
+        rightPanel.setBackground(Color.WHITE);
+
+        GridBagConstraints gbcInfo = new GridBagConstraints();
+        gbcInfo.insets = new Insets(5, 5, 5, 5);
+        gbcInfo.anchor = GridBagConstraints.WEST;
+
+        gbcInfo.gridx = 0;
+        gbcInfo.gridy = 0;
+        rightPanel.add(new JLabel("Mã sản phẩm: "), gbcInfo);
+        gbcInfo.gridx = 1;
+        productIDLabel = new JLabel("Chọn sản phẩm");
+        rightPanel.add(productIDLabel, gbcInfo);
+
+        gbcInfo.gridx = 0;
+        gbcInfo.gridy = 1;
+        rightPanel.add(new JLabel("Tên sản phẩm: "), gbcInfo);
+        gbcInfo.gridx = 1;
+        nameLabel = new JLabel("");
+        nameLabel.setPreferredSize(new Dimension(300, 20));
+        rightPanel.add(nameLabel, gbcInfo);
+
+        gbcInfo.gridx = 0;
+        gbcInfo.gridy = 2;
+        rightPanel.add(new JLabel("Giá: "), gbcInfo);
+        gbcInfo.gridx = 1;
+        priceLabel = new JLabel("");
+        rightPanel.add(priceLabel, gbcInfo);
+
+        gbcInfo.gridx = 0;
+        gbcInfo.gridy = 3;
+        rightPanel.add(new JLabel("Số lượng: "), gbcInfo);
+        gbcInfo.gridx = 1;
+        quantityLabel = new JLabel("");
+        rightPanel.add(quantityLabel, gbcInfo);
+
+        gbcInfo.gridx = 0;
+        gbcInfo.gridy = 4;
+        rightPanel.add(new JLabel("Tổng tiền: "), gbcInfo); // Thêm dòng Tổng tiền
+        gbcInfo.gridx = 1;
+        totalLabel = new JLabel("");
+        rightPanel.add(totalLabel, gbcInfo);
+
+        gbcInfo.gridx = 0;
+        gbcInfo.gridy = 5;
+        rightPanel.add(new JLabel("Tên NCC: "), gbcInfo);
+        gbcInfo.gridx = 1;
+        supplierNameLabel = new JLabel("");
+        rightPanel.add(supplierNameLabel, gbcInfo);
+
+        gbcInfo.gridx = 0;
+        gbcInfo.gridy = 6;
+        rightPanel.add(new JLabel("Thông số kỹ thuật: "), gbcInfo);
+        gbcInfo.gridx = 1;
+        tsktLabel = new JLabel("");
+        rightPanel.add(tsktLabel, gbcInfo);
+
+        gbcInfo.gridx = 0;
+        gbcInfo.gridy = 7;
+        rightPanel.add(new JLabel("Tên loại: "), gbcInfo);
+        gbcInfo.gridx = 1;
+        categoryLabel = new JLabel("");
+        rightPanel.add(categoryLabel, gbcInfo);
+
+        detailPanel.add(leftPanel, BorderLayout.WEST);
+        detailPanel.add(rightPanel, BorderLayout.CENTER);
 
         // Thêm sự kiện khi chọn hàng trong bảng
         productTable.getSelectionModel().addListSelectionListener(e -> {
@@ -109,22 +186,25 @@ public class GUI_Detail_Suppliers extends JDialog {
                     ProductDTO product = ProductDAO.getProduct(productID);
 
                     if (product != null) {
-                        // Cập nhật thông tin chi tiết trong ProductDetailPanel
-                        detailPanel.getLblProductId().setText(product.getProductID());
-                        detailPanel.getLblProductName().setText(product.getProductName());
-                        detailPanel.getLblPrice().setText(String.valueOf(product.getGia()));
-                        // ProductDetailPanel không có trường "Số lượng", nhưng chúng ta có thể bỏ qua vì không bắt buộc
-                        detailPanel.getLblSupplier().setText(product.gettenNCC());
+                        // Cập nhật thông tin chi tiết
+                        productIDLabel.setText(product.getProductID());
+                        nameLabel.setText(product.getProductName());
+                        priceLabel.setText(Utils.formatCurrency(product.getGia()) + " VND"); // Thêm VND
+                        quantityLabel.setText(String.valueOf(product.getSoluong()));
+                        totalLabel.setText(Utils.formatCurrency(Utils.parseCurrency(product.getGia()) * Utils.parseCurrency(product.getSoluong())) + " VND");
+                        supplierNameLabel.setText(product.gettenNCC());
+                        tsktLabel.setText(product.getTSKT());
+                        categoryLabel.setText(product.getTL());
 
                         // Cập nhật hình ảnh
                         String imageFileName = product.getAnh();
                         String imagePath = "/images/" + (imageFileName != null ? imageFileName : "default_product.png");
                         URL imageUrl = getClass().getResource(imagePath);
                         ImageIcon icon = (imageUrl != null) ? new ImageIcon(imageUrl) : null;
-                        detailPanel.getLblProductImage().setIcon(
-                            icon != null ? new ImageIcon(icon.getImage().getScaledInstance(140, 140, Image.SCALE_SMOOTH)) : null
+                        imageLabel.setIcon(
+                            icon != null ? new ImageIcon(icon.getImage().getScaledInstance(230, 180, Image.SCALE_SMOOTH)) : null
                         );
-                        detailPanel.getLblProductImage().setText(icon == null ? "Không có ảnh" : "");
+                        imageLabel.setText(icon == null ? "Không có ảnh" : "");
 
                         // Thay thế placeholderPanel bằng detailPanel
                         mainPanel.remove(placeholderPanel);
@@ -173,7 +253,7 @@ public class GUI_Detail_Suppliers extends JDialog {
             productTableModel.addRow(new Object[]{
                 product.getProductID(),
                 product.getProductName(),
-                product.getGia(),
+                Utils.formatCurrency(product.getGia()) + " VND", // Thêm VND
                 product.getSoluong(),
                 product.getTSKT()
             });
