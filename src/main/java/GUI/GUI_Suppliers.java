@@ -1,13 +1,15 @@
 package GUI;
 
 import BUS.SuppliersBUS;
+import Connection.DatabaseConnection;
 import DTO.SuppliersDTO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.sql.*;
-import Connection.DatabaseConnection;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 
 public class GUI_Suppliers extends JPanel {
@@ -15,10 +17,10 @@ public class GUI_Suppliers extends JPanel {
     private JPanel topPanel, midPanel, botPanel;
     private JTable supplierTable;
     private DefaultTableModel tableModel;
-    private CustomButton editButton, deleteButton;
+    private CustomButton editButton, deleteButton, productListButton;
     private CustomButton addButton;
     private CustomSearch searchField;
-    private SuppliersBUS suppliersBUS;   
+    private SuppliersBUS suppliersBUS;
     private JLabel suppliersnameLabel, suppliersidLabel, addressLabel, phoneLabel;
     private JPanel buttonPanel;
 
@@ -36,7 +38,6 @@ public class GUI_Suppliers extends JPanel {
 
         searchField = new CustomSearch(275, 20);
         searchField.setBackground(Color.WHITE);
-        // Gắn sự kiện tìm kiếm
         searchField.setSearchListener(e -> searchSuppliers());
         topPanel.add(searchField, BorderLayout.CENTER);
 
@@ -45,8 +46,8 @@ public class GUI_Suppliers extends JPanel {
         
         String[] columnNames = {"Mã NCC", "Tên NCC", "Địa chỉ", "SĐT"};
         CustomTable customTable = new CustomTable(columnNames);
-        supplierTable = customTable.getSuppliersTable(); 
-        tableModel = customTable.getTableModel(); 
+        supplierTable = customTable.getSuppliersTable();
+        tableModel = customTable.getTableModel();
         
         midPanel.add(customTable, BorderLayout.CENTER);
 
@@ -65,21 +66,21 @@ public class GUI_Suppliers extends JPanel {
         suppliersnameLabel = new JLabel("Chọn Nhà Cung Cấp");
         botPanel.add(suppliersnameLabel, gbc);
 
-        gbc.gridx = 0; 
+        gbc.gridx = 0;
         gbc.gridy = 1;
         botPanel.add(new JLabel("Mã Nhà Cung Cấp: "), gbc);
         gbc.gridx = 1;
         suppliersidLabel = new JLabel("");
         botPanel.add(suppliersidLabel, gbc);
         
-        gbc.gridx = 0; 
+        gbc.gridx = 0;
         gbc.gridy = 2;
         botPanel.add(new JLabel("Địa Chỉ: "), gbc);
         gbc.gridx = 1;
         addressLabel = new JLabel("");
         botPanel.add(addressLabel, gbc);
         
-        gbc.gridx = 0; 
+        gbc.gridx = 0;
         gbc.gridy = 3;
         botPanel.add(new JLabel("Số Điện Thoại: "), gbc);
         gbc.gridx = 1;
@@ -97,12 +98,14 @@ public class GUI_Suppliers extends JPanel {
         editButton.setCustomColor(new Color(0, 230, 0));
         buttonPanel.add(editButton);
 
-        addButton = new CustomButton("+ Thêm Nhà Cung Cấp"); 
+        productListButton = new CustomButton("Danh sách SP");
+        productListButton.setCustomColor(new Color(0, 0, 230));
+        buttonPanel.add(productListButton);
+
+        addButton = new CustomButton("+ Thêm Nhà Cung Cấp");
         topPanel.add(addButton, BorderLayout.EAST);
 
-        addButton.addActionListener(e -> {
-            new GUI_Form_Suppliers(this).setVisible(true);
-        });
+        addButton.addActionListener(e -> new GUI_Form_Suppliers(this).setVisible(true));
 
         editButton.addActionListener(e -> {
             int selectedRow = supplierTable.getSelectedRow();
@@ -128,13 +131,7 @@ public class GUI_Suppliers extends JPanel {
                 if (confirm == JOptionPane.YES_OPTION) {
                     deleteSupplier(supplierID);
                     loadSuppliers();
-                    suppliersnameLabel.setText("Chọn Nhà Cung Cấp");
-                    suppliersidLabel.setText("");
-                    addressLabel.setText("");
-                    phoneLabel.setText("");
-                    botPanel.remove(buttonPanel);
-                    botPanel.revalidate();
-                    botPanel.repaint();
+                    clearDetails();
                     JOptionPane.showMessageDialog(this, "Xóa nhà cung cấp thành công!");
                 }
             } else {
@@ -142,6 +139,18 @@ public class GUI_Suppliers extends JPanel {
             }
         });
 
+        productListButton.addActionListener(e -> {
+            int selectedRow = supplierTable.getSelectedRow();
+            if (selectedRow != -1) {
+                String supplierID = (String) supplierTable.getValueAt(selectedRow, 0);
+                String name = suppliersnameLabel.getText();
+                SuppliersDTO supplier = new SuppliersDTO(supplierID, name, addressLabel.getText(), phoneLabel.getText());
+                new GUI_Detail_Suppliers(this, supplier).setVisible(true);
+            } else {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn nhà cung cấp để xem danh sách sản phẩm!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        
         supplierTable.getSelectionModel().addListSelectionListener(e -> {
             int selectedRow = supplierTable.getSelectedRow();
             if (selectedRow != -1) {
@@ -164,7 +173,7 @@ public class GUI_Suppliers extends JPanel {
 
                 botPanel.revalidate();
                 botPanel.repaint();
-            }   
+            }
         });
         
         add(topPanel);
@@ -186,7 +195,6 @@ public class GUI_Suppliers extends JPanel {
         }
     }
 
-    // Thêm phương thức tìm kiếm
     private void searchSuppliers() {
         String keyword = searchField.getText().trim().toLowerCase();
         List<SuppliersDTO> suppliers = suppliersBUS.getAllSuppliers();
@@ -216,5 +224,15 @@ public class GUI_Suppliers extends JPanel {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Lỗi khi xóa nhà cung cấp: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private void clearDetails() {
+        suppliersnameLabel.setText("Chọn Nhà Cung Cấp");
+        suppliersidLabel.setText("");
+        addressLabel.setText("");
+        phoneLabel.setText("");
+        botPanel.remove(buttonPanel);
+        botPanel.revalidate();
+        botPanel.repaint();
     }
 }
