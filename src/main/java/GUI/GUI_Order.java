@@ -4,6 +4,9 @@ import BUS.OrderBUS;
 import DTO.OrderDTO;
 import DAO.OrderDAO;
 import DTO.AccountDTO;
+import BUS.DetailOrderBUS;
+import DAO.DetailOrderDAO;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
@@ -153,13 +156,19 @@ public class GUI_Order extends JPanel {
                         "Xác nhận xóa", JOptionPane.YES_NO_OPTION);
 
                 if (confirm == JOptionPane.YES_OPTION) {
+                    // 1. Xóa hóa đơn
                     boolean success = orderBUS.deleteOrder(orderID);
-                    //if (success) {
-                        //JOptionPane.showMessageDialog(this, "Xóa hóa đơn thành công!");
-                        loadOrder(); // reload bảng
-                    //} else {
-                        //JOptionPane.showMessageDialog(this, "Xóa hóa đơn thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-                    //}
+
+                    // 2. Xóa chi tiết hóa đơn
+                    DetailOrderBUS detailBUS = new DetailOrderBUS();
+                    detailBUS.deleteByOrderID(orderID);
+
+                    if (success) {
+                        JOptionPane.showMessageDialog(this, "Đã xóa hóa đơn và chi tiết!");
+                        loadOrder();
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Xóa hóa đơn thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             }
         });

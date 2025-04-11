@@ -35,7 +35,7 @@ public class OrderDAO {
     
     public static ArrayList<OrderDTO> getAllOrder() {
         ArrayList<OrderDTO> order = new ArrayList<>();
-        String query = "SELECT * FROM hoa_don";
+        String query = "SELECT * FROM hoa_don WHERE is_deleted = 0";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query);
              ResultSet rs = stmt.executeQuery()) {
@@ -85,7 +85,7 @@ public class OrderDAO {
     }
     
     public void insertOrder(OrderDTO order) {
-        String sql = "INSERT INTO hoa_don (ma_hoa_don, ma_nhan_vien, ma_khach_hang, tong_tien) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO hoa_don (ma_hoa_don, ma_nhan_vien, ma_khach_hang, tong_tien, is_deleted) VALUES (?, ?, ?, ?, 0)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 

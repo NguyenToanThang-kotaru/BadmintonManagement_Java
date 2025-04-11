@@ -34,7 +34,7 @@ public class CustomerDAO {
     // Lấy danh sách tài khoản cho bảng GUI
     public static ArrayList<CustomerDTO> getAllCustomer() {
         ArrayList<CustomerDTO> customer = new ArrayList<>();
-        String query = "SELECT * FROM khach_hang";
+        String query = "SELECT * FROM khach_hang WHERE is_deleted = 0";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 customer.add(new CustomerDTO(
@@ -137,7 +137,7 @@ public class CustomerDAO {
         }
     }
     
-    public static Boolean deleteCustomer(String customerID) {
+    public boolean deleteCustomer(String customerID) {
         String queery = "UPDATE khach_hang SET is_deleted = 1 WHERE ma_khach_hang = ?;";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(queery)) {
             stmt.setString(1, customerID);
