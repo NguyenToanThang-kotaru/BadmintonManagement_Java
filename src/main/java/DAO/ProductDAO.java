@@ -355,12 +355,13 @@ public class ProductDAO {
     
     public static List<String> getAvailableSerials(String maSanPham, int soLuong) {
         List<String> serials = new ArrayList<>();
-        String query = "SELECT ma_serial FROM danh_sach_san_pham WHERE ma_san_pham = ? AND is_delete = 0 ORDER BY ma_serial ASC LIMIT ?";
+        String query = "SELECT ma_serial FROM danh_sach_san_pham WHERE ma_san_pham = ? AND is_deleted = 0 ORDER BY ma_serial ASC LIMIT ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, maSanPham);
             stmt.setInt(2, soLuong);
+            System.out.print(soLuong);
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
@@ -374,7 +375,7 @@ public class ProductDAO {
     }
 
     public static void markSerialsAsUsed(List<String> serials) {
-        String query = "UPDATE danh_sach_san_pham SET is_delete = 1 WHERE ma_serial = ?";
+        String query = "UPDATE danh_sach_san_pham SET is_deleted = 1 WHERE ma_serial = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
