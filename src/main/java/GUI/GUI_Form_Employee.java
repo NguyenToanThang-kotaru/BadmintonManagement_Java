@@ -200,7 +200,7 @@ public class GUI_Form_Employee extends JDialog {
         }
     }
 
-    // Thêm component vào form
+    // Thêm component vào form  
     private void addComponent(String label, JComponent component, GridBagConstraints gbc) {
         gbc.gridx = 0;
         gbc.gridy++;

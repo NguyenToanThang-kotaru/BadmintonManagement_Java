@@ -8,7 +8,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableColumnModel;  
 import java.util.ArrayList;
 import java.io.File;
 import java.nio.file.Files;
@@ -19,7 +19,7 @@ public class GUI_Product extends JPanel {
     private JTable productTable;
     private DefaultTableModel tableModel;
     private JComboBox<String> roleComboBox;
-    private CustomButton fixButton, saveButton, deleteButton, addButton;
+    private CustomButton fixButton, saveButton, deleteButton, addButton, ShowSEButton;
     private CustomSearch searchField;
     private ProductDTO productChoosing;
 
@@ -139,17 +139,20 @@ public class GUI_Product extends JPanel {
         JLabel TypeName = new JLabel("");
         infoPanel.add(TypeName, gbcInfo);
 
-// Nút Lưu
-        JPanel buttonPanel = new JPanel(new BorderLayout());
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
         buttonPanel.setOpaque(false);
 
         deleteButton = new CustomButton("Xóa");
         deleteButton.setCustomColor(new Color(220, 0, 0));
-        buttonPanel.add(deleteButton, BorderLayout.WEST);
+        buttonPanel.add(deleteButton);
+
+        ShowSEButton = new CustomButton("Xem danh sách serial");
+        ShowSEButton.setCustomColor(new Color(0, 150, 130));
+        buttonPanel.add(ShowSEButton);
 
         fixButton = new CustomButton("Sửa");
         fixButton.setCustomColor(new Color(0, 230, 0));
-        buttonPanel.add(fixButton, BorderLayout.EAST);
+        buttonPanel.add(fixButton);
 
         gbcInfo.gridx = 0;
         gbcInfo.gridy = 7;
@@ -240,6 +243,19 @@ public class GUI_Product extends JPanel {
             }
         });
 
+        ShowSEButton.addActionListener(e -> {
+            int selectedRow = productTable.getSelectedRow();
+            if (selectedRow != -1) {
+                String productID = (String) productTable.getValueAt(selectedRow, 0);
+                ProductDTO product = ProductDAO.getProduct(productID);
+
+                // Hiển thị form danh sách SE
+                GUI_Form_SerialShower SEForm = new GUI_Form_SerialShower((JFrame) SwingUtilities.getWindowAncestor(this), product);
+                SEForm.setVisible(true);
+
+            }
+        });
+
         addButton.addActionListener(e -> {
             GUI_AddFormProduct addForm = new GUI_AddFormProduct((JFrame) SwingUtilities.getWindowAncestor(this), this);
             addForm.setVisible(true);
@@ -288,6 +304,12 @@ public class GUI_Product extends JPanel {
                 productChoosing = null;
             }
 
+        });
+
+        searchField.setSearchListener(e -> {
+            String keyword = searchField.getText();
+            ArrayList<ProductDTO> ketQua = ProductDAO.searchProducts(keyword);
+            capNhatBangSanPham(ketQua); // Hiển thị kết quả tìm được trên bảng
         });
 
     }
@@ -403,6 +425,18 @@ public class GUI_Product extends JPanel {
                 });
             }
         });
+    }
+
+    private void capNhatBangSanPham(ArrayList<ProductDTO> products) {
+        tableModel.setRowCount(0); // Xóa dữ liệu cũ
+        for (ProductDTO product : products) {
+            tableModel.addRow(new Object[]{
+                product.getProductID(),
+                product.getProductName(),
+                product.getGia(),
+                product.getSoluong()
+            });
+        }
     }
 
     public static void main(String[] args) {
