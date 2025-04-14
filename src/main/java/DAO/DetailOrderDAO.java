@@ -116,7 +116,7 @@ public class DetailOrderDAO {
     }
 
     public static void insertDetailOrder(DetailOrderDTO detail) {
-        String sql = "INSERT INTO chi_tiet_hoa_don (ma_chi_tiet_hoa_don, ma_san_pham, ma_hoa_don, ma_serial, so_luong, gia) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO chi_tiet_hoa_don (ma_chi_tiet_hoa_don, ma_san_pham, ma_hoa_don, ma_serial, so_luong, gia, is_deleted) VALUES (?, ?, ?, ?, ?, ?,0)";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -127,8 +127,9 @@ public class DetailOrderDAO {
             stmt.setString(4, detail.getserialID());
             stmt.setString(5, detail.getamount());
             stmt.setString(6, detail.getprice());
-
+            
             stmt.executeUpdate();
+            System.out.println("cap nhat chi tiet thanh cong");
         } catch (SQLException e) {
             e.printStackTrace();
         }
