@@ -1,4 +1,3 @@
-
 package DTO;
 
 public class SuppliersDTO {
@@ -7,12 +6,14 @@ public class SuppliersDTO {
     private String fullname;
     private String address;
     private String phone;
+    private int isDeleted; // Thêm thuộc tính isDeleted
     
     public SuppliersDTO() {
         this.suppliersID = "";
         this.fullname = "";
         this.address = "";
         this.phone = "";
+        this.isDeleted = 0; // Mặc định là 0 (chưa xóa)
     }
     
     public SuppliersDTO(String suppliersID, String fullname, String address, String phone) {
@@ -20,6 +21,15 @@ public class SuppliersDTO {
         this.fullname = fullname;
         this.address = address;
         this.phone = phone;
+        this.isDeleted = 0; // Mặc định là 0 (chưa xóa)
+    }
+    
+    public SuppliersDTO(String suppliersID, String fullname, String address, String phone, int isDeleted) {
+        this.suppliersID = suppliersID;
+        this.fullname = fullname;
+        this.address = address;
+        this.phone = phone;
+        this.isDeleted = isDeleted; // Constructor mới với isDeleted
     }
     
     public String getsuppliersID() {
@@ -52,5 +62,13 @@ public class SuppliersDTO {
     
     public void setphone(String phone) {
         this.phone = phone;
+    }
+    
+    public int getIsDeleted() {
+        return isDeleted;
+    }
+    
+    public void setIsDeleted(int isDeleted) {
+        this.isDeleted = isDeleted;
     }
 }

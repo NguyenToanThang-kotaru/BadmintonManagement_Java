@@ -113,4 +113,25 @@ public class SuppliersDAO {
         }
         return "";
     }
+    public SuppliersDTO getSupplierByID(String supplierID) {
+        String query = "SELECT * FROM nha_cung_cap WHERE ma_nha_cung_cap = ? AND is_deleted = 0";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, supplierID);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new SuppliersDTO(
+                        rs.getString("ma_nha_cung_cap"),
+                        rs.getString("ten_nha_cung_cap"),
+                        rs.getString("dia_chi"),
+                        rs.getString("so_dien_thoai"),
+                        rs.getInt("is_deleted")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

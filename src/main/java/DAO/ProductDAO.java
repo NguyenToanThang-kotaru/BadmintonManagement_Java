@@ -310,4 +310,45 @@ public class ProductDAO {
             return false;
         }
     }
+
+    public boolean generateSerials(String productId, int quantity) {
+        String lastSerialQuery = "SELECT ma_serial FROM danh_sach_san_pham ORDER BY ma_serial DESC LIMIT 1";
+        String insertSerialQuery = "INSERT INTO danh_sach_san_pham (ma_serial, ma_san_pham, is_deleted) VALUES (?, ?, 0)";
+        
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            conn.setAutoCommit(false);
+            
+            // Lấy mã serial cuối cùng
+            int startNumber = 1;
+            try (PreparedStatement lastSerialStmt = conn.prepareStatement(lastSerialQuery);
+                 ResultSet rs = lastSerialStmt.executeQuery()) {
+                if (rs.next()) {
+                    String lastSerial = rs.getString("ma_serial"); 
+                    startNumber = Integer.parseInt(lastSerial.substring(2)) + 1;
+                }
+            }
+            
+            // Tạo và lưu các mã serial mới
+            try (PreparedStatement insertStmt = conn.prepareStatement(insertSerialQuery)) {
+                for (int i = 0; i < quantity; i++) {
+                    String newSerial = String.format("SE%03d", startNumber + i);
+                    insertStmt.setString(1, newSerial);
+                    insertStmt.setString(2, productId);
+                    insertStmt.addBatch();
+                }
+                insertStmt.executeBatch();
+            }
+            
+            conn.commit();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            try (Connection conn = DatabaseConnection.getConnection()) {
+                conn.rollback();
+            } catch (SQLException rollbackEx) {
+                rollbackEx.printStackTrace();
+            }
+            return false;
+        }
+    }
 }

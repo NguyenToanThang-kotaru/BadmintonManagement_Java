@@ -65,6 +65,12 @@ public class Form_ImportBUS {
             return false;
         }
         
+        // Kiểm tra nhà cung cấp có bị xóa không
+        SuppliersDTO supplier = suppliersDAO.getSupplierByID(supplierID);
+        if (supplier == null || supplier.getIsDeleted() == 1) {
+            return false;
+        }
+        
         if (productData == null || productData.isEmpty()) {
             return false;
         }
@@ -77,6 +83,17 @@ public class Form_ImportBUS {
             try {
                 int quantity = (Integer) product[2];
                 if (quantity <= 0) {
+                    return false;
+                }
+                // Kiểm tra sản phẩm thuộc nhà cung cấp còn hoạt động
+                String productID = (String) product[0];
+                ProductDTO productDTO = productDAO.getProduct(productID);
+                if (productDTO == null) {
+                    return false;
+                }
+                // Kiểm tra nhà cung cấp của sản phẩm
+                SuppliersDTO productSupplier = suppliersDAO.getSupplierByID(productDTO.getMaNCC());
+                if (productSupplier == null || productSupplier.getIsDeleted() == 1) {
                     return false;
                 }
             } catch (Exception e) {
@@ -108,30 +125,38 @@ public class Form_ImportBUS {
         List<Object[]> products = new ArrayList<>();
         ArrayList<ProductDTO> productList = productDAO.getAllProducts();
         for (ProductDTO product : productList) {
-            products.add(new Object[]{
-                product.getProductID(),
-                product.getProductName(),
-                Utils.formatCurrency(Integer.parseInt(product.getGia()))
-            });
+            // Kiểm tra xem nhà cung cấp của sản phẩm có bị xóa không
+            String supplierID = product.getMaNCC();
+            SuppliersDTO supplier = suppliersDAO.getSupplierByID(supplierID);
+            if (supplier != null && supplier.getIsDeleted() == 0) {
+                products.add(new Object[]{
+                    product.getProductID(),
+                    product.getProductName(),
+                    Utils.formatCurrency(Integer.parseInt(product.getGia()))
+                });
+            }
         }
         return products;
     }
-
     // Gọi từ ProductDAO
     public Object[] getProductDetails(String productId) {
         ProductDTO product = productDAO.getProduct(productId);
         if (product != null) {
-            return new Object[]{
-                product.getProductID(),
-                product.getProductName(),
-                Utils.formatCurrency(Integer.parseInt(product.getGia())),
-                product.gettenNCC(),
-                product.getAnh()
-            };
+            // Kiểm tra nhà cung cấp của sản phẩm
+            String supplierID = product.getMaNCC();
+            SuppliersDTO supplier = suppliersDAO.getSupplierByID(supplierID);
+            if (supplier != null && supplier.getIsDeleted() == 0) {
+                return new Object[]{
+                    product.getProductID(),
+                    product.getProductName(),
+                    Utils.formatCurrency(Integer.parseInt(product.getGia())),
+                    product.gettenNCC(),
+                    product.getAnh()
+                };
+            }
         }
         return null;
     }
-
     // Gọi từ ProductDAO
     public boolean updateProductQuantity(String productId, int quantity) {
         return productDAO.updateProductQuantity(productId, quantity);
