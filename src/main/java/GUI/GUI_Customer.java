@@ -159,7 +159,16 @@ public class GUI_Customer extends JPanel {
                 }
                  System.out.println("Da xo customer") ;
              }
-        });      
+        });
+        
+        searchField.setSearchListener(e -> {
+            String keyword = searchField.getText().trim();
+            if (!keyword.isEmpty()) {
+                searchCustomer(keyword);
+            } else {
+                loadCustomer(); // Nếu ô tìm kiếm trống, load lại toàn bộ khách hàng
+            }
+        });
     }
 
     private void loadCustomer() {
@@ -171,5 +180,12 @@ public class GUI_Customer extends JPanel {
             tableModel.addRow(new Object[]{ctm.getcustomerID(), ctm.getFullName(), ctm.getPhone(), ctm.getEmail()});
         }
     }
-
+    
+    private void searchCustomer(String keyword) {
+        List<CustomerDTO> customers = customerBUS.searchCustomer(keyword);
+        tableModel.setRowCount(0);
+        for (CustomerDTO ctm : customers) {
+            tableModel.addRow(new Object[]{ctm.getcustomerID(), ctm.getFullName(), ctm.getPhone(), ctm.getEmail()});
+        }
+    }
 }

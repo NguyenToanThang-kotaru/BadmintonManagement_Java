@@ -212,8 +212,32 @@ public class GUI_Order extends JPanel {
                 JOptionPane.showMessageDialog(this, "Vui lòng chọn hóa đơn trước!", "Thông báo", JOptionPane.WARNING_MESSAGE);
             }
         });
+        
+        searchField.setSearchListener(e -> {
+            String keyword = searchField.getText().trim();
+            if (!keyword.isEmpty()) {
+                List<OrderDTO> searchResult = orderBUS.searchOrder(keyword);
+                updateTable(searchResult);
+            } else {
+                loadOrder(); // Nếu từ khóa rỗng, tải lại toàn bộ danh sách
+            }
+        });
     }
-
+    
+    // Thêm phương thức updateTable để cập nhật bảng với kết quả tìm kiếm
+    private void updateTable(List<OrderDTO> orders) {
+        tableModel.setRowCount(0);
+        for (OrderDTO odr : orders) {
+            tableModel.addRow(new Object[]{
+                odr.getorderID(),
+                odr.getemployeeID(),
+                odr.getcustomerID(),
+                odr.gettotalmoney(),
+                odr.getissuedate()
+            });
+        }
+    }
+    
     private void loadOrder() {
         List<OrderDTO> order = orderBUS.getAllOrder();
         tableModel.setRowCount(0);

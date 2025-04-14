@@ -43,6 +43,7 @@ public class CustomSearch extends JPanel {
     // Đặt sự kiện khi nhấn nút tìm kiếm
     public void setSearchListener(ActionListener listener) {
         searchButton.addActionListener(listener);
+        searchField.addActionListener(listener);
     }
 
     private void setBackgound(Color WHITE) {

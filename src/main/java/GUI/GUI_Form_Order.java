@@ -249,25 +249,32 @@ public class GUI_Form_Order extends JDialog {
         gbc.gridx = 1; txtQuantity = new JTextField(10); detailPanel.add(txtQuantity, gbc);
         gbc.gridx = 0; gbc.gridy = 5; detailPanel.add(new JLabel("Số điện thoại KH:"), gbc);
         gbc.gridx = 1; txtSoDienThoai = new JTextField(25); detailPanel.add(txtSoDienThoai, gbc);
-
+        
         txtSoDienThoai.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyReleased(KeyEvent e) {
-                String phone = txtSoDienThoai.getText().trim();
-                if (phone.length() >= 10) {
-                    CustomerDTO customer = customerBUS.getCustomerByPhone(phone);
-                    if (customer != null) {
-                        txtMaKhachHang.setText(customer.getcustomerID());
-                        txtTenKhachHang.setText(customer.getFullName());
-                        txtTenKhachHang.setEditable(false); // khóa lại nếu tìm thấy
-                    } else {
-                        txtMaKhachHang.setText(customerBUS.getNextCustomerID()); // gán mã mới
-                        txtTenKhachHang.setText("");
-                        txtTenKhachHang.setEditable(true); // cho nhập tên nếu chưa tồn tại
-                    }
+        @Override
+        public void keyReleased(KeyEvent e) {
+            String phone = txtSoDienThoai.getText().trim();
+
+            // Chỉ xử lý khi đúng 10 số và bắt đầu bằng 0
+            if (phone.matches("0\\d{9}")) {
+                CustomerDTO customer = customerBUS.getCustomerByPhone(phone);
+                if (customer != null) {
+                    txtMaKhachHang.setText(customer.getcustomerID());
+                    txtTenKhachHang.setText(customer.getFullName());
+                    txtTenKhachHang.setEditable(false); // khóa lại nếu tìm thấy
+                } else {
+                    txtMaKhachHang.setText(customerBUS.getNextCustomerID()); // gán mã mới
+                    txtTenKhachHang.setText("");
+                    txtTenKhachHang.setEditable(true); // cho nhập tên nếu chưa tồn tại
                 }
+            } else {
+                // Nếu không đúng 10 số → reset
+                txtMaKhachHang.setText("");
+                txtTenKhachHang.setText("");
+                txtTenKhachHang.setEditable(false);
             }
-        });
+        }
+    });
 
         gbc.gridx = 0; gbc.gridy = 6; detailPanel.add(new JLabel("Mã khách hàng:"), gbc);
         gbc.gridx = 1; txtMaKhachHang = new JTextField(25); txtMaKhachHang.setEditable(false); detailPanel.add(txtMaKhachHang, gbc);
@@ -355,11 +362,15 @@ public class GUI_Form_Order extends JDialog {
     private void addProductToOrder() {
         try {
             String phone = txtSoDienThoai.getText().trim();
-            if (phone.isEmpty() || phone.length() < 10) {
-                JOptionPane.showMessageDialog(this, "Vui lòng nhập số điện thoại khách hàng hợp lệ trước khi thêm sản phẩm.");
+            if (phone.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Số điện thoại không được bỏ trống!");
                 return;
             }
-
+            if (!phone.matches("0\\d{9}")) {
+                JOptionPane.showMessageDialog(this, "Số điện thoại không hợp lệ!\nPhải bắt đầu bằng 0 và gồm 10 chữ số.");
+                return;
+            }
+            
             int selectedRow = allProductsTable.getSelectedRow();
             if (selectedRow < 0) {
                 JOptionPane.showMessageDialog(this, "Vui lòng chọn sản phẩm từ danh sách.");
@@ -519,4 +530,6 @@ public class GUI_Form_Order extends JDialog {
     private String formatCurrency(int amount) {
         return String.format("%,d VND", amount);
     }
+    
+    private boolean hasShownError = false;
 }
