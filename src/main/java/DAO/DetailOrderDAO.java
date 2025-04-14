@@ -116,11 +116,7 @@ public class DetailOrderDAO {
     }
 
     public static void insertDetailOrder(DetailOrderDTO detail) {
-<<<<<<< HEAD
         String sql = "INSERT INTO chi_tiet_hoa_don (ma_chi_tiet_hoa_don, ma_san_pham, ma_hoa_don, ma_serial, so_luong, gia, is_deleted) VALUES (?, ?, ?, ?, ?, ?,0)";
-=======
-        String sql = "INSERT INTO chi_tiet_hoa_don (ma_chi_tiet_hoa_don, ma_san_pham, ma_hoa_don, ma_serial, so_luong, gia, is_deleted) VALUES (?, ?, ?, ?, ?, ?, 0)";
->>>>>>> 2a91e12d59237b164ac953d808c35ad3970d6cd8
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -141,12 +137,7 @@ public class DetailOrderDAO {
             stmt.setString(6, detail.getprice());
             
             stmt.executeUpdate();
-<<<<<<< HEAD
-            System.out.println("cap nhat chi tiet thanh cong");
-=======
-            System.out.println("Insert chi tiết hóa đơn thành công!");
 
->>>>>>> 2a91e12d59237b164ac953d808c35ad3970d6cd8
         } catch (SQLException e) {
             System.out.println("Lỗi khi insert chi tiết hóa đơn:");
             e.printStackTrace();

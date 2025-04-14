@@ -91,4 +91,12 @@ public class ProductBUS {
         ProductDAO dao = new ProductDAO();
         return dao.getProduct(id);
     }
+    
+    public List<String> getAvailableSerials(String maSanPham, int soLuong) {
+        return ProductDAO.getAvailableSerials(maSanPham, soLuong);
+    }
+
+    public void markSerialsAsUsed(List<String> serials) {
+        ProductDAO.markSerialsAsUsed(serials);
+    }
 }

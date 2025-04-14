@@ -482,15 +482,12 @@ public class GUI_Form_Order extends JDialog {
         String tenKH = txtTenKhachHang.getText().trim();
         String sdt = txtSoDienThoai.getText().trim();
 
-        // 1. Nếu khách hàng chưa tồn tại, thêm vào database
         CustomerDTO existingCustomer = customerBUS.getCustomerByPhone(sdt);
         if (existingCustomer == null) {
-            // Trường hợp khách mới => thêm vào
-            CustomerDTO newCustomer = new CustomerDTO(maKH, tenKH, sdt, ""); // Có thể thêm email nếu có
-            customerBUS.addCustomer(newCustomer);  // Bạn cần tạo hàm addCustomer trong BUS và DAO
+            CustomerDTO newCustomer = new CustomerDTO(maKH, tenKH, sdt, "");
+            customerBUS.addCustomer(newCustomer);
         }
 
-        // 2. Lưu hóa đơn
         OrderDTO dto = new OrderDTO();
         dto.setorderID(orderID);
         dto.setemployeeID(currentAccount.getUsername());
@@ -501,35 +498,47 @@ public class GUI_Form_Order extends JDialog {
         if (currentOrder == null) orderBUS.addOrder(dto);
         else orderBUS.updateOrder(dto);
 
-        // 3. Lưu chi tiết hóa đơn
         DetailOrderBUS detailOrderBUS = new DetailOrderBUS();
         if (currentOrder != null) {
             detailOrderBUS.deleteByOrderID(orderID);
         }
+
         int baseNumber = DetailOrderDAO.getMaxDetailOrderNumber() + 1;
+        int detailIndex = 1;
 
         for (int i = 0; i < orderTableModel.getRowCount(); i++) {
-            DetailOrderDTO detail = new DetailOrderDTO();
-            String detailID = String.format("CTHD%03d%03d", baseNumber, i + 1);
-
-            detail.setdetailorderID(detailID);
-            detail.setorderID(orderID);
-            detail.setproductID(orderTableModel.getValueAt(i, 0).toString());
-            detail.setserialID("");
-            detail.setamount(orderTableModel.getValueAt(i, 3).toString());
+            String productID = orderTableModel.getValueAt(i, 0).toString();
+            int quantity = Integer.parseInt(orderTableModel.getValueAt(i, 3).toString());
             String priceStr = orderTableModel.getValueAt(i, 4).toString().replaceAll("[^0-9]", "");
-            detail.setprice(priceStr);
 
-            detailOrderBUS.addDetailOrder(detail);
+            List<String> serials = productBUS.getAvailableSerials(productID, quantity);
+
+            if (serials.size() < quantity) {
+                JOptionPane.showMessageDialog(this, "Không đủ số lượng serial cho sản phẩm " + productID);
+                return;
+            }
+
+            for (int j = 0; j < quantity; j++) {
+                DetailOrderDTO detail = new DetailOrderDTO();
+                String detailID = String.format("CTHD%03d%03d", baseNumber, detailIndex++);
+                detail.setdetailorderID(detailID);
+                detail.setorderID(orderID);
+                detail.setproductID(productID);
+                detail.setserialID(serials.get(j));
+                detail.setamount("1");
+                detail.setprice(priceStr);
+                detailOrderBUS.addDetailOrder(detail);
+            }
+
+            productBUS.markSerialsAsUsed(serials);
         }
-        
+
         JOptionPane.showMessageDialog(this, "Lưu hóa đơn thành công!");
         dispose();
     }
 
+
     private String formatCurrency(int amount) {
         return String.format("%,d VND", amount);
     }
-    
-    private boolean hasShownError = false;
 }
