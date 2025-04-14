@@ -147,21 +147,28 @@ public class GUI_Customer extends JPanel {
         deleteButton.addActionListener(e -> {
             int selectedRow = customerTable.getSelectedRow();
 
-            
-            String customerID = (String) customerTable.getValueAt(selectedRow, 2); // Giả sử cột 2 là khách hàng
+            String customerID = (String) customerTable.getValueAt(selectedRow, 0);
 
             int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn xóa khách hàng này?", "Xác nhận xóa", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
-//                if (customerBUS.deleteCustomer(customerID)) { // Giả sử có hàm xóa trong BUS
-//                    JOptionPane.showMessageDialog(this, "Xóa thành công!");
-//                    loadCustomer(); // Cập nhật lại bảng
-//                } else {
-//                    JOptionPane.showMessageDialog(this, "Xóa thất bại, vui lòng thử lại!");
-//                }
-                System.out.println("Da xo customer") ;
-            }
+                if (customerBUS.deleteCustomer(customerID)) { 
+                    JOptionPane.showMessageDialog(this, "Xóa thành công!");
+                    loadCustomer();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Xóa thất bại, vui lòng thử lại!");
+                }
+                 System.out.println("Da xo customer") ;
+             }
         });
         
+        searchField.setSearchListener(e -> {
+            String keyword = searchField.getText().trim();
+            if (!keyword.isEmpty()) {
+                searchCustomer(keyword);
+            } else {
+                loadCustomer(); // Nếu ô tìm kiếm trống, load lại toàn bộ khách hàng
+            }
+        });
     }
 
     private void loadCustomer() {
@@ -173,5 +180,12 @@ public class GUI_Customer extends JPanel {
             tableModel.addRow(new Object[]{ctm.getcustomerID(), ctm.getFullName(), ctm.getPhone(), ctm.getEmail()});
         }
     }
-
+    
+    private void searchCustomer(String keyword) {
+        List<CustomerDTO> customers = customerBUS.searchCustomer(keyword);
+        tableModel.setRowCount(0);
+        for (CustomerDTO ctm : customers) {
+            tableModel.addRow(new Object[]{ctm.getcustomerID(), ctm.getFullName(), ctm.getPhone(), ctm.getEmail()});
+        }
+    }
 }

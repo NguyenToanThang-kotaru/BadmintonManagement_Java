@@ -38,4 +38,8 @@ public class OrderBUS {
     public String getNextOrderID() {
         return new OrderDAO().getNextOrderID();
     }
+    
+    public List<OrderDTO> searchOrder(String keyword) {
+        return OrderDAO.searchOrder(keyword);
+    }
 }

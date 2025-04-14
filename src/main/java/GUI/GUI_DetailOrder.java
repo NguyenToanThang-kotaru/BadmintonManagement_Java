@@ -134,5 +134,4 @@ public class GUI_DetailOrder extends JFrame {
 
         return rowPanel;
     }
-
 }

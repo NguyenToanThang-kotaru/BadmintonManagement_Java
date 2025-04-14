@@ -30,4 +30,13 @@ public class CustomerBUS {
     public void addCustomer(CustomerDTO customer) {
         CustomerDAO.addCustomer(customer);
     }
+    
+    public boolean deleteCustomer(String orderID) {
+        CustomerDAO customer = new CustomerDAO();
+        return customer.deleteCustomer(orderID);
+    }
+    
+    public List<CustomerDTO> searchCustomer(String keyword) {
+        return CustomerDAO.searchCustomer(keyword);
+    }
 }

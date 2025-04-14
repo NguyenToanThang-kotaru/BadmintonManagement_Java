@@ -34,7 +34,7 @@ public class CustomerDAO {
     // Lấy danh sách tài khoản cho bảng GUI
     public static ArrayList<CustomerDTO> getAllCustomer() {
         ArrayList<CustomerDTO> customer = new ArrayList<>();
-        String query = "SELECT * FROM khach_hang";
+        String query = "SELECT * FROM khach_hang WHERE is_deleted = 0";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 customer.add(new CustomerDTO(
@@ -137,7 +137,7 @@ public class CustomerDAO {
         }
     }
     
-    public static Boolean deleteCustomer(String customerID) {
+    public boolean deleteCustomer(String customerID) {
         String queery = "UPDATE khach_hang SET is_deleted = 1 WHERE ma_khach_hang = ?;";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(queery)) {
             stmt.setString(1, customerID);
@@ -148,5 +148,35 @@ public class CustomerDAO {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public static ArrayList<CustomerDTO> searchCustomer(String keyword) {
+        ArrayList<CustomerDTO> customers = new ArrayList<>();
+        String query = "SELECT * FROM khach_hang WHERE is_deleted = 0 AND " +
+                      "(ma_khach_hang LIKE ? OR ten_khach_hang LIKE ? OR so_dien_thoai LIKE ? OR email LIKE ?)";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            String searchPattern = "%" + keyword + "%";
+            stmt.setString(1, searchPattern);
+            stmt.setString(2, searchPattern);
+            stmt.setString(3, searchPattern);
+            stmt.setString(4, searchPattern);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    customers.add(new CustomerDTO(
+                        rs.getString("ma_khach_hang"),
+                        rs.getString("ten_khach_hang"),
+                        rs.getString("so_dien_thoai"),
+                        rs.getString("email")
+                    ));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return customers;
     }
 }

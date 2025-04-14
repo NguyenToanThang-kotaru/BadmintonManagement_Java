@@ -4,6 +4,9 @@ import BUS.OrderBUS;
 import DTO.OrderDTO;
 import DAO.OrderDAO;
 import DTO.AccountDTO;
+import BUS.DetailOrderBUS;
+import DAO.DetailOrderDAO;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
@@ -153,13 +156,19 @@ public class GUI_Order extends JPanel {
                         "Xác nhận xóa", JOptionPane.YES_NO_OPTION);
 
                 if (confirm == JOptionPane.YES_OPTION) {
+                    // 1. Xóa hóa đơn
                     boolean success = orderBUS.deleteOrder(orderID);
-                    //if (success) {
-                        //JOptionPane.showMessageDialog(this, "Xóa hóa đơn thành công!");
-                        loadOrder(); // reload bảng
-                    //} else {
-                        //JOptionPane.showMessageDialog(this, "Xóa hóa đơn thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-                    //}
+
+                    // 2. Xóa chi tiết hóa đơn
+                    DetailOrderBUS detailBUS = new DetailOrderBUS();
+                    detailBUS.deleteByOrderID(orderID);
+
+                    if (success) {
+                        JOptionPane.showMessageDialog(this, "Đã xóa hóa đơn và chi tiết!");
+                        loadOrder();
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Xóa hóa đơn thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             }
         });
@@ -203,8 +212,32 @@ public class GUI_Order extends JPanel {
                 JOptionPane.showMessageDialog(this, "Vui lòng chọn hóa đơn trước!", "Thông báo", JOptionPane.WARNING_MESSAGE);
             }
         });
+        
+        searchField.setSearchListener(e -> {
+            String keyword = searchField.getText().trim();
+            if (!keyword.isEmpty()) {
+                List<OrderDTO> searchResult = orderBUS.searchOrder(keyword);
+                updateTable(searchResult);
+            } else {
+                loadOrder(); // Nếu từ khóa rỗng, tải lại toàn bộ danh sách
+            }
+        });
     }
-
+    
+    // Thêm phương thức updateTable để cập nhật bảng với kết quả tìm kiếm
+    private void updateTable(List<OrderDTO> orders) {
+        tableModel.setRowCount(0);
+        for (OrderDTO odr : orders) {
+            tableModel.addRow(new Object[]{
+                odr.getorderID(),
+                odr.getemployeeID(),
+                odr.getcustomerID(),
+                odr.gettotalmoney(),
+                odr.getissuedate()
+            });
+        }
+    }
+    
     private void loadOrder() {
         List<OrderDTO> order = orderBUS.getAllOrder();
         tableModel.setRowCount(0);

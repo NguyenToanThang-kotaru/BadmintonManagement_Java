@@ -35,7 +35,7 @@ public class OrderDAO {
     
     public static ArrayList<OrderDTO> getAllOrder() {
         ArrayList<OrderDTO> order = new ArrayList<>();
-        String query = "SELECT * FROM hoa_don";
+        String query = "SELECT * FROM hoa_don WHERE is_deleted = 0";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query);
              ResultSet rs = stmt.executeQuery()) {
@@ -85,7 +85,7 @@ public class OrderDAO {
     }
     
     public void insertOrder(OrderDTO order) {
-        String sql = "INSERT INTO hoa_don (ma_hoa_don, ma_nhan_vien, ma_khach_hang, tong_tien) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO hoa_don (ma_hoa_don, ma_nhan_vien, ma_khach_hang, tong_tien, is_deleted) VALUES (?, ?, ?, ?, 0)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -124,5 +124,35 @@ public class OrderDAO {
         }
 
         return "HD001"; // Nếu không có nhân viên nào, bắt đầu từ "NV001"
+    }
+    
+    public static ArrayList<OrderDTO> searchOrder(String keyword) {
+        ArrayList<OrderDTO> orders = new ArrayList<>();
+        String query = "SELECT * FROM hoa_don WHERE is_deleted = 0 AND " +
+                       "(ma_hoa_don LIKE ? OR ma_nhan_vien LIKE ? OR ma_khach_hang LIKE ? OR ngay_xuat LIKE ?)";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            String searchPattern = "%" + keyword + "%";
+            stmt.setString(1, searchPattern);
+            stmt.setString(2, searchPattern);
+            stmt.setString(3, searchPattern);
+            stmt.setString(4, searchPattern);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    orders.add(new OrderDTO(
+                        rs.getString("ma_hoa_don"),
+                        rs.getString("ma_nhan_vien"),
+                        rs.getString("ma_khach_hang"),
+                        rs.getString("tong_tien"),
+                        rs.getString("ngay_xuat")
+                    ));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return orders;
     }
 }

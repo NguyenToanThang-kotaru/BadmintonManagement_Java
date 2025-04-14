@@ -36,7 +36,7 @@ public class DetailOrderDAO {
     // Lấy danh sách tài khoản cho bảng GUI
     public static ArrayList<DetailOrderDTO> getAllDetailOrder() {
         ArrayList<DetailOrderDTO> detailorder = new ArrayList<>();
-        String query = "SELECT * FROM chi_tiet_hoa_don";
+        String query = "SELECT * FROM chi_tiet_hoa_don WHERE is_deleted = 0";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 detailorder.add(new DetailOrderDTO(
@@ -102,10 +102,10 @@ public class DetailOrderDAO {
         return detailorderList;
     }
     
-    public static Boolean deleteDetailOrder(String detailorderID) {
-        String queery = "UPDATE chi_tiet_hoa_don SET is_deleted = 1 WHERE ma_chi_tiet_hoa_don = ?;";
+    public static Boolean deleteDetailOrder(String orderID) {
+        String queery = "UPDATE chi_tiet_hoa_don SET is_deleted = 1 WHERE ma_hoa_don = ?;";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(queery)) {
-            stmt.setString(1, detailorderID);
+            stmt.setString(1, orderID);
             stmt.executeUpdate();
             System.out.println("Xoa thanh cong");
             return true;
@@ -116,24 +116,43 @@ public class DetailOrderDAO {
     }
 
     public static void insertDetailOrder(DetailOrderDTO detail) {
+<<<<<<< HEAD
         String sql = "INSERT INTO chi_tiet_hoa_don (ma_chi_tiet_hoa_don, ma_san_pham, ma_hoa_don, ma_serial, so_luong, gia, is_deleted) VALUES (?, ?, ?, ?, ?, ?,0)";
+=======
+        String sql = "INSERT INTO chi_tiet_hoa_don (ma_chi_tiet_hoa_don, ma_san_pham, ma_hoa_don, ma_serial, so_luong, gia, is_deleted) VALUES (?, ?, ?, ?, ?, ?, 0)";
+>>>>>>> 2a91e12d59237b164ac953d808c35ad3970d6cd8
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
+            System.out.println("INSERTING DETAIL: " + detail.getdetailorderID() + ", " + detail.getproductID() + ", " + detail.getorderID() + ", " + detail.getserialID() + ", " + detail.getamount() + ", " + detail.getprice());
+
             stmt.setString(1, detail.getdetailorderID());
             stmt.setString(2, detail.getproductID());
             stmt.setString(3, detail.getorderID());
-            stmt.setString(4, detail.getserialID());
+
+            if (detail.getserialID() == null || detail.getserialID().trim().isEmpty()) {
+                stmt.setNull(4, java.sql.Types.VARCHAR);
+            } else {
+                stmt.setString(4, detail.getserialID());
+            }
+
             stmt.setString(5, detail.getamount());
             stmt.setString(6, detail.getprice());
             
             stmt.executeUpdate();
+<<<<<<< HEAD
             System.out.println("cap nhat chi tiet thanh cong");
+=======
+            System.out.println("Insert chi tiết hóa đơn thành công!");
+
+>>>>>>> 2a91e12d59237b164ac953d808c35ad3970d6cd8
         } catch (SQLException e) {
+            System.out.println("Lỗi khi insert chi tiết hóa đơn:");
             e.printStackTrace();
         }
     }
+
     
     public static int getMaxDetailOrderNumber() {
         String sql = "SELECT MAX(CAST(SUBSTRING(ma_chi_tiet_hoa_don, 5, 3) AS UNSIGNED)) AS max_number FROM chi_tiet_hoa_don";
