@@ -1,13 +1,8 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package DAO;
 
-import BUS.PermissionBUS;
-import Connection.DatabaseConnection;
-import DTO.EmployeeDTO;
 import DTO.PermissionDTO;
+
+import Connection.DatabaseConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,10 +10,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- * @author ADMIN
- */
 public class PermissionDAO {
 
     public static PermissionDTO getPermission(String maquyen) {
@@ -297,27 +288,33 @@ public class PermissionDAO {
         return "1"; // Nếu không có nhân viên nào, bắt đầu từ "NV001"
     }
 
-    public static void main(String[] args) {
-        // Gọi hàm lấy thông tin quyền với mã quyền "1"
+    public static ArrayList<PermissionDTO> searchPermission(String keyword) {
+        ArrayList<PermissionDTO> permissions = new ArrayList<>();
+        String query = "SELECT q.ten_quyen, " +
+                       "COUNT(pq.ma_quyen) AS sl_quyen, " +
+                       "(SELECT COUNT(*) FROM tai_khoan tk " +
+                       " WHERE tk.ma_quyen = q.ma_quyen AND tk.is_deleted = 0) AS sl_tk " +
+                       "FROM quyen q " +
+                       "LEFT JOIN phan_quyen pq ON q.ma_quyen = pq.ma_quyen AND is_deleted = 0 " +
+                       "WHERE q.ten_quyen LIKE ? " +
+                       "GROUP BY q.ma_quyen, q.ten_quyen";
 
-//        System.out.println("ID: " + generateNewPermissionID());
-        PermissionDTO permission = new PermissionDTO();
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
 
-        if (addPermission(permission) == true) {
-            System.out.println("Dung roi");
+            String searchPattern = "%" + keyword + "%";
+            stmt.setString(1, searchPattern);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+//                  List<String> chucNangList = 
+                    PermissionDTO temp = getPermissionByName(rs.getString("ten_quyen"));
+                    permissions.add(temp);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-//        System.out.println("khong dung");
-//        PermissionDTO permission = PermissionDAO.getPermission("1");
-//        if (permission != null) {
-//            System.out.println("Mã quyền: " + permission.getID());
-//            System.out.println("Tên quyền: " + permission.getName());
-//            System.out.println("Số lượng quyền: " + permission.getSlChucNang());
-//            System.out.println("Danh sách chức năng:");
-//            for (String chucNang : permission.getChucNang()) {
-//                System.out.println(" - " + chucNang);
-//            }
-//        } else {
-//            System.out.println("Không tìm thấy quyền với mã quyền = 1.");
-//        }
+        return permissions;
     }
 }

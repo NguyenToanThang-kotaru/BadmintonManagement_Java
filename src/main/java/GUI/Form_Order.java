@@ -22,7 +22,7 @@ import java.awt.event.*;
 import java.time.LocalDate;
 import java.util.List;
 
-public class GUI_Form_Order extends JDialog {
+public class Form_Order extends JDialog {
 
     private JLabel lblMaHoaDon, lblNgayXuat, lblNhanVien, lblTongTien;
     private JTable productsTable, allProductsTable;
@@ -37,7 +37,7 @@ public class GUI_Form_Order extends JDialog {
     private ProductBUS productBUS = new ProductBUS();
     private CustomerBUS customerBUS = new CustomerBUS();
 
-    public GUI_Form_Order(GUI_Order parent, OrderDTO order, AccountDTO account) {
+    public Form_Order(GUI_Order parent, OrderDTO order, AccountDTO account) {
         super((Frame) SwingUtilities.getWindowAncestor(parent), order == null ? "Tạo Hóa Đơn" : "Sửa Hóa Đơn", true);
         this.orderBUS = new OrderBUS();
         this.currentOrder = order;

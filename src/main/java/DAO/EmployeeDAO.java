@@ -1,7 +1,8 @@
 package DAO;
 
-import Connection.DatabaseConnection;
 import DTO.EmployeeDTO;
+
+import Connection.DatabaseConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -194,5 +195,36 @@ public class EmployeeDAO {
             e.printStackTrace();
         }
         return null;
+    }
+    
+    public static ArrayList<EmployeeDTO> searchEmployee(String keyword) {
+        ArrayList<EmployeeDTO> employee = new ArrayList<>();
+        String query = "SELECT * FROM nhan_vien WHERE is_deleted = 0 AND " +
+                      "(ma_nhan_vien LIKE ? OR ten_nhan_vien LIKE ? OR dia_chi LIKE ? OR so_dien_thoai LIKE ?)";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            String searchPattern = "%" + keyword + "%";
+            stmt.setString(1, searchPattern);
+            stmt.setString(2, searchPattern);
+            stmt.setString(3, searchPattern);
+            stmt.setString(4, searchPattern);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    employee.add(new EmployeeDTO(
+                        rs.getString("ma_nhan_vien"),
+                        rs.getString("ten_nhan_vien"),
+                        rs.getString("dia_chi"),
+                        rs.getString("so_dien_thoai"),
+                        rs.getString("hinh_anh")
+                    ));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return employee;
     }
 }

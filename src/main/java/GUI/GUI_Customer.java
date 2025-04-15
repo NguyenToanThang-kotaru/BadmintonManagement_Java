@@ -2,6 +2,7 @@ package GUI;
 
 import BUS.CustomerBUS;
 import DTO.CustomerDTO;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
@@ -135,12 +136,12 @@ public class GUI_Customer extends JPanel {
         
         addButton.addActionListener(e -> {
 //            
-            GUI_Form_Customer GFC = new GUI_Form_Customer(this,null);
+            Form_Customer GFC = new Form_Customer(this,null);
             GFC.setVisible(true);
         });
 
         editButton.addActionListener(e -> {
-            GUI_Form_Customer GFC = new GUI_Form_Customer(this, customerChoosing);     
+            Form_Customer GFC = new Form_Customer(this, customerChoosing);     
             GFC.setVisible(true);
         });
         

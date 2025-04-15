@@ -4,6 +4,7 @@ import DTO.ProductDTO;
 import DAO.ProductDAO;
 import BUS.ProductBUS;
 import DAO.SuppliersDAO;
+
 import java.awt.*;
 import java.io.File;
 import java.nio.file.Files;
@@ -12,7 +13,7 @@ import java.util.ArrayList;
 import javax.swing.*;
 import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 
-public class GUI_Form_FixProduct extends JDialog {
+public class Form_FixProduct extends JDialog {
 
     private JTextField nameField, priceField, soluongField, tsktField;
     private CustomCombobox TLField, NCCField;
@@ -22,7 +23,7 @@ public class GUI_Form_FixProduct extends JDialog {
     private ProductDTO product;
     private GUI_Product parentGUI;
 
-    public GUI_Form_FixProduct(JFrame parent, GUI_Product parentGUI, ProductDTO product) {
+    public Form_FixProduct(JFrame parent, GUI_Product parentGUI, ProductDTO product) {
         super(parent, "Sửa sản phẩm", true);
         this.parentGUI = parentGUI;
         this.product = product;

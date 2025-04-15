@@ -4,6 +4,7 @@ import BUS.SuppliersBUS;
 import DAO.ProductDAO;
 import DTO.ProductDTO;
 import DTO.SuppliersDTO;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;

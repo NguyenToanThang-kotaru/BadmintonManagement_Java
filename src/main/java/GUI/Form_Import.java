@@ -1,16 +1,16 @@
 package GUI;
 
+import BUS.Form_ImportBUS;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-
 import java.awt.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import BUS.Form_ImportBUS;
 
-public class GUI_Form_Import extends JDialog {
+public class Form_Import extends JDialog {
     private InfoPanel infoPanel;
     private ImportProductsPanel importProductsPanel;
     private ProductDetailPanel productDetailPanel;
@@ -22,7 +22,7 @@ public class GUI_Form_Import extends JDialog {
     private GUI_Import parentImportPanel;
     private int totalAmount = 0;
 
-    public GUI_Form_Import(GUI_Import parentImportPanel, String username) {
+    public Form_Import(GUI_Import parentImportPanel, String username) {
         super((Frame) SwingUtilities.getWindowAncestor(parentImportPanel), "Nhập Hàng Mới", true);
         this.parentImportPanel = parentImportPanel;
         this.currentUser = username;

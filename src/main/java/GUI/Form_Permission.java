@@ -3,14 +3,13 @@ package GUI;
 import DAO.PermissionDAO;
 import DTO.PermissionDTO;
 import BUS.PermissionBUS;
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GUI_Form_Permission extends JDialog {
+public class Form_Permission extends JDialog {
 
     private JTextField txtPermissionName;
     private JLabel title;
@@ -18,7 +17,7 @@ public class GUI_Form_Permission extends JDialog {
     private List<JCheckBox> allCheckBoxes = new ArrayList<>();
     private CustomButton btnSave, btnCancel;
 
-    public GUI_Form_Permission(JPanel parent, PermissionDTO permission) {
+    public Form_Permission(JPanel parent, PermissionDTO permission) {
         super((Frame) SwingUtilities.getWindowAncestor(parent),
                 permission == null ? "Thêm Quyền" : "Sửa Quyền", true);
 

@@ -1,13 +1,12 @@
 package GUI;
 
-import DAO.CustomerDAO;
 import BUS.CustomerBUS;
+import DTO.CustomerDTO;
 
 import javax.swing.*;
 import java.awt.*;
-import DTO.CustomerDTO;
 
-public class GUI_Form_Customer extends JDialog {
+public class Form_Customer extends JDialog {
 
     private JTextField txtCustomerID, txtFullName, txtSDT, txtEmail;
     private JLabel title;
@@ -15,7 +14,7 @@ public class GUI_Form_Customer extends JDialog {
     private CustomButton btnSave, btnCancel;
     private CustomerBUS customerBUS = new CustomerBUS();
 
-    public GUI_Form_Customer(JPanel parent, CustomerDTO customer) {
+    public Form_Customer(JPanel parent, CustomerDTO customer) {
         super((Frame) SwingUtilities.getWindowAncestor(parent), customer == null ? "Thêm Khách Hàng" : "Sửa Khách Hàng", true);
         setSize(400, 300);
         setLocationRelativeTo(parent);

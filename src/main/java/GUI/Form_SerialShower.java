@@ -2,16 +2,17 @@ package GUI;
 
 import DTO.ProductDTO;
 import DAO.ProductDAO;
+
 import java.awt.*;
 import java.util.ArrayList;
 import javax.swing.*;
 
-public class GUI_Form_SerialShower extends JDialog {
+public class Form_SerialShower extends JDialog {
 
     private CustomButton closeButton;
     private ProductDTO product;
 
-    public GUI_Form_SerialShower(JFrame parent, ProductDTO product) {
+    public Form_SerialShower(JFrame parent, ProductDTO product) {
         super(parent, "Danh sách Serial", true);
         this.product = product;
 

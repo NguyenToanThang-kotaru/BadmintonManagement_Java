@@ -3,6 +3,7 @@ package GUI;
 import BUS.EmployeeBUS;
 import DAO.EmployeeDAO;
 import DTO.EmployeeDTO;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
@@ -171,7 +172,7 @@ public class GUI_Employee extends JPanel {
 
         addButton.addActionListener(e -> {
 //            JOptionPane.showMessageDialog(this, "Chức năng thêm nhân viên chưa được triển khai!");
-            GUI_Form_Employee GFE = new GUI_Form_Employee(this, null);
+            Form_Employee GFE = new Form_Employee(this, null);
             GFE.setVisible(true);
         });
 
@@ -206,9 +207,19 @@ public class GUI_Employee extends JPanel {
         });
 
         editButton.addActionListener(e -> {
-            GUI_Form_Employee GFE = new GUI_Form_Employee(this, employeeChoosing);
+            Form_Employee GFE = new Form_Employee(this, employeeChoosing);
             GFE.setVisible(true);
         });
+        
+        searchField.setSearchListener(e -> {
+            String keyword = searchField.getText().trim();
+            if (!keyword.isEmpty()) {
+                searchEmployee(keyword);
+            } else {
+                loadEmployees(); // Nếu ô tìm kiếm trống, load lại toàn bộ khách hàng
+            }
+        });
+        
         // Thêm các panel vào giao diện chính
         add(topPanel);
         add(Box.createVerticalStrut(5));
@@ -254,6 +265,14 @@ public class GUI_Employee extends JPanel {
                 emp.getPhone(),
                 emp.getImage()
             });
+        }
+    }
+    
+    private void searchEmployee(String keyword) {
+        List<EmployeeDTO> employee = employeeBUS.searchEmployee(keyword);
+        tableModel.setRowCount(0);
+        for (EmployeeDTO emp : employee) {
+            tableModel.addRow(new Object[]{emp.getEmployeeID(), emp.getFullName(), emp.getAddress(), emp.getPhone(), emp.getImage()});
         }
     }
 }

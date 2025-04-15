@@ -2,17 +2,15 @@ package GUI;
 
 import DTO.EmployeeDTO;
 import DAO.EmployeeDAO;
+
 import java.awt.*;
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import javax.swing.*;
 import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
-public class GUI_Form_Employee extends JDialog {
+public class Form_Employee extends JDialog {
 
     private JTextField txtEmployeeName, txtAddress, txtPhone;
     private JLabel title;
@@ -20,7 +18,7 @@ public class GUI_Form_Employee extends JDialog {
     private CustomButton btnSave, btnCancel, btnChooseImage;
     private File selectedImageFile = null; // Chỉ lưu ảnh sau khi lưu database thành công
 
-    public GUI_Form_Employee(JPanel parent, EmployeeDTO employee) {
+    public Form_Employee(JPanel parent, EmployeeDTO employee) {
         super((Frame) SwingUtilities.getWindowAncestor(parent), employee == null ? "Thêm Nhân Viên" : "Sửa Nhân Viên", true);
         setSize(600, 500);
         setLocationRelativeTo(parent);

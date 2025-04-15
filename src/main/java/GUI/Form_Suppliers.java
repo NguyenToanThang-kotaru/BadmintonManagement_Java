@@ -2,10 +2,11 @@ package GUI;
 
 import BUS.SuppliersBUS;
 import DTO.SuppliersDTO;
+
 import javax.swing.*;
 import java.awt.*;  
 
-public class GUI_Form_Suppliers extends JDialog {
+public class Form_Suppliers extends JDialog {
     
     private JLabel lblSupplierID;
     private JTextField txtName, txtAddress, txtPhone;
@@ -13,7 +14,7 @@ public class GUI_Form_Suppliers extends JDialog {
     private SuppliersBUS suppliersBUS;
     private GUI_Suppliers parent;
 
-    public GUI_Form_Suppliers(GUI_Suppliers parent) {
+    public Form_Suppliers(GUI_Suppliers parent) {
         super((Frame) SwingUtilities.getWindowAncestor(parent), "Thêm Nhà Cung Cấp", true);
         this.parent = parent;
         suppliersBUS = new SuppliersBUS();

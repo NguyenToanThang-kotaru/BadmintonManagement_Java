@@ -1,19 +1,19 @@
 package GUI;
 
 import BUS.AccountBUS;
-import DAO.AccountDAO;
 import DAO.PermissionDAO;
 import DTO.EmployeeDTO;
-import javax.swing.*;
-import java.awt.*;
 import DTO.AccountDTO;
 import DAO.EmployeeDAO;
 import DTO.PermissionDTO;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 
-public class GUI_Form_Account extends JDialog {
+
+public class Form_Account extends JDialog {
 
     private JTextField txtEditPassword;
     private JPasswordField txtRePassword, txtPassword;
@@ -21,7 +21,7 @@ public class GUI_Form_Account extends JDialog {
     private CustomCombobox<String> cbRole, cbEmployeeName;
     private CustomButton btnSave, btnCancel;
 
-    public GUI_Form_Account(JPanel parent, AccountDTO account) {
+    public Form_Account(JPanel parent, AccountDTO account) {
         super((Frame) SwingUtilities.getWindowAncestor(parent), account == null ? "Thêm Tài Khoản" : "Sửa Tài Khoản", true);
         setSize(400, 300);
         setLocationRelativeTo(parent);

@@ -1,16 +1,11 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package BUS;
+
+import DTO.PermissionDTO;
+import DAO.PermissionDAO;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- * @author Thang Nguyen
- */
 public class PermissionBUS {
 
     public static List<String> getModule(List<String> functionCodes) {
@@ -214,5 +209,8 @@ public class PermissionBUS {
                 numberCode.toLowerCase(); // Trả về dạng lowercase nếu không khớp
         };
     }
-
+    
+    public static List<PermissionDTO> searchPermission(String keyword) {
+        return PermissionDAO.searchPermission(keyword);
+    }
 }
