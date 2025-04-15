@@ -102,7 +102,7 @@ public class EmployeeDAO {
                         rs.getString("hinh_anh")
                 ));
             }
-            System.out.println("Lấy danh sách nhân viên thành công.");
+//            System.out.println("Lấy danh sách nhân viên thành công.");
         } catch (Exception e) {
             System.out.println("Lỗi lấy danh sách nhân viên: " + e.getMessage());
             e.printStackTrace();

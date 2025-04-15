@@ -114,6 +114,7 @@ public class Form_ImportBUS {
             for (Object[] product : productData) {
                 String productID = (String) product[0];
                 int quantity = (Integer) product[2];
+//                System.out.println(quantity+productID);
                 productDAO.updateProductQuantity(productID, quantity);
             }
         }

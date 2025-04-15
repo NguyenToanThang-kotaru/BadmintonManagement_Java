@@ -248,7 +248,7 @@ public class PermissionDAO {
 
                 permissions.add(new PermissionDTO(maQuyen, tenQuyen, chucNangList, slTk));
             }
-            System.out.println("Lấy danh sách quyền thành công.");
+//            System.out.println("Lấy danh sách quyền thành công.");
         } catch (Exception e) {
             System.out.println("Lỗi lấy danh sách quyền: " + e.getMessage());
             e.printStackTrace();

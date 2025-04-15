@@ -17,7 +17,7 @@ public class GUI_MainLayout extends JFrame {
     public GUI_MainLayout(JFrame login, String username, String password) {
         AccountDTO logned = AccountDAO.getAccount(username, password);
         List<String> permissions = PermissionBUS.convertName(logned.getPermission().getChucNang());
-        System.out.println((logned.getPermission().getChucNang()));
+//        System.out.println((logned.getPermission().getChucNang()));
         setTitle("Quản Lý Kho Hàng");
         setSize(1000, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

@@ -27,7 +27,7 @@ public class GUI_Account extends JPanel {
 
     public GUI_Account(List<String> a) {
         accountBUS = new AccountBUS(); // Khởi tạo đối tượng BUS để lấy dữ liệu tài khoản
-        System.out.println(a);
+//        System.out.println(a);
         // Cấu hình layout chính
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -51,7 +51,7 @@ public class GUI_Account extends JPanel {
         addButton = new CustomButton("+ Thêm Tài Khoản"); // Nút thêm tài khoản
         if (a.contains("them_tk")) {
             topPanel.add(addButton, BorderLayout.EAST);
-            System.out.println("Co them tai khoan");
+//            System.out.println("Co them tai khoan");
         } else {
             System.out.println("Khong co them tk");
         }

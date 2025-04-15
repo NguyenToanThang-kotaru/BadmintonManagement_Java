@@ -154,8 +154,8 @@ public class GUI_Form_Import extends JDialog {
             totalAmount += total;
             infoPanel.getLblTongTien().setText(Utils.formatCurrency(totalAmount));
 
-            if (bus.updateProductQuantity(productId, quantity)) loadAllProducts();
-            else JOptionPane.showMessageDialog(this, "Lỗi khi cập nhật số lượng sản phẩm", "Lỗi", JOptionPane.ERROR_MESSAGE);
+//            if (bus.updateProductQuantity(productId, quantity)) loadAllProducts();
+//            else JOptionPane.showMessageDialog(this, "Lỗi khi cập nhật số lượng sản phẩm", "Lỗi", JOptionPane.ERROR_MESSAGE);
 
             resetProductDetail();
         } catch (Exception e) {
@@ -184,7 +184,7 @@ public class GUI_Form_Import extends JDialog {
         }
     
         String supplierID = bus.getSupplierIDByProduct((String) importProductsPanel.getImportTableModel().getValueAt(0, 0));
-        System.out.println("Saving import: importID=" + importID + ", supplierID=" + supplierID + ", totalAmount=" + totalAmount);
+//        System.out.println("Saving import: importID=" + importID + ", supplierID=" + supplierID + ", totalAmount=" + totalAmount);
         if (bus.saveImport(importID, currentUser, supplierID, totalAmount, receiptDate, productData)) {
             JOptionPane.showMessageDialog(this, "Lưu phiếu nhập thành công", "Thành công", JOptionPane.INFORMATION_MESSAGE);
             parentImportPanel.loadImport();

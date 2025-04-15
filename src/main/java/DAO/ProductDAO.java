@@ -216,7 +216,7 @@ public class ProductDAO {
                         supplierName
                 ));
             }
-            System.out.println("Lấy danh sách sản phẩm thành công.");
+//            System.out.println("Lấy danh sách sản phẩm thành công.");
         } catch (Exception e) {
             System.out.println("Lỗi lấy danh sách sản phẩm: " + e.getMessage());
             e.printStackTrace();
@@ -304,6 +304,7 @@ public class ProductDAO {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, quantity);
+            System.out.println(quantity);
             stmt.setString(2, productId);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {

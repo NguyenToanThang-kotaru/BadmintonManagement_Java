@@ -57,7 +57,7 @@ public class GuaranteeDAO {
                 ));
             }
 
-            System.out.println("Lấy danh sách sản phẩm bảo hành thành công.");
+//            System.out.println("Lấy danh sách sản phẩm bảo hành thành công.");
         } catch (Exception e) {
             System.out.println("Lỗi lấy danh sách sản phẩm: " + e.getMessage());
             e.printStackTrace();
