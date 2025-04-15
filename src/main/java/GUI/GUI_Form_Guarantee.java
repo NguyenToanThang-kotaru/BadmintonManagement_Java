@@ -48,7 +48,7 @@ public class GUI_Form_Guarantee extends JDialog {
         gbc.gridy = 1;
         add(new JLabel("Mã serial: "), gbc);
         gbc.gridx = 1;
-        JTextField SerialID = new JTextField("");
+        JLabel SerialID = new JLabel("");
         SerialID.setText(String.valueOf(guarantee.getSerialID()));
         gbc.fill = GridBagConstraints.NONE;
         gbc.anchor = GridBagConstraints.WEST;
@@ -117,12 +117,12 @@ public class GUI_Form_Guarantee extends JDialog {
         saveButton = new CustomButton("Lưu");
         saveButton.addActionListener(e -> {
             // Lấy dữ liệu từ form
-            String serialID = SerialID.getText();
+//            String serialID = SerialID.getText();
             String status = (String) statusBaohanh.getSelectedItem();
             String lydo = reasonField.getText();
 
             // Cập nhật vào ProductDTO
-            guarantee.setSerialID(serialID);
+//            guarantee.setSerialID(serialID);
             guarantee.settrangthai(status);
             guarantee.setLydo(lydo);
 
