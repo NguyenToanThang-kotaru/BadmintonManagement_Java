@@ -99,4 +99,9 @@ public class ProductBUS {
     public void markSerialsAsUsed(List<String> serials) {
         ProductDAO.markSerialsAsUsed(serials);
     }
+    
+    public boolean reduceStock(String productId, int quantity) {
+        ProductDAO dao = new ProductDAO();
+        return dao.updateStockAfterSale(productId, quantity);
+    }
 }

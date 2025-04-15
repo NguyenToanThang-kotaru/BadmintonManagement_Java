@@ -528,8 +528,8 @@ public class GUI_Form_Order extends JDialog {
                 detail.setamount("1");
                 detail.setprice(priceStr);
                 detailOrderBUS.addDetailOrder(detail);
+                productBUS.reduceStock(productID, 1);
             }
-
             productBUS.markSerialsAsUsed(serials);
         }
 
