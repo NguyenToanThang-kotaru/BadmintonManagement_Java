@@ -393,7 +393,8 @@ public class ProductDAO {
                 + "JOIN loai lsp ON sp.ma_loai = lsp.ma_loai "
                 + "JOIN nha_cung_cap ncc ON sp.ma_nha_cung_cap = ncc.ma_nha_cung_cap "
                 + "WHERE sp.is_deleted = 0 AND "
-                + "(sp.ma_san_pham LIKE ? OR sp.ten_san_pham LIKE ? OR lsp.ten_loai LIKE ? OR ncc.ten_nha_cung_cap LIKE ?)";
+                + "(sp.ma_san_pham LIKE ? OR sp.ten_san_pham LIKE ? OR lsp.ten_loai LIKE ? OR ncc.ten_nha_cung_cap LIKE ?)"
+                + "ORDER BY sp.ma_san_pham ASC";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
 
