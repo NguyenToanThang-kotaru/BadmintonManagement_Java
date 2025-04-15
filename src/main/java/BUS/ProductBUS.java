@@ -92,7 +92,7 @@ public class ProductBUS {
         return dao.getProduct(id);
     }
     
-    public List<String> getAvailableSerials(String maSanPham, int soLuong) {
+    public List<String> getAvailableSerials(String maSanPham,int soLuong) {
         return ProductDAO.getAvailableSerials(maSanPham, soLuong);
     }
 

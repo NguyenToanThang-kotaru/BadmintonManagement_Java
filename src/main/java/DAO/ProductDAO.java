@@ -361,6 +361,7 @@ public class ProductDAO {
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, maSanPham);
             stmt.setInt(2, soLuong);
+            System.out.print(soLuong);
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
