@@ -290,22 +290,28 @@ public class PermissionDAO {
 
     public static ArrayList<PermissionDTO> searchPermission(String keyword) {
         ArrayList<PermissionDTO> permissions = new ArrayList<>();
-        String query = "SELECT q.ten_quyen, " +
-                       "COUNT(pq.ma_quyen) AS sl_quyen, " +
-                       "(SELECT COUNT(*) FROM tai_khoan tk " +
-                       " WHERE tk.ma_quyen = q.ma_quyen AND tk.is_deleted = 0) AS sl_tk " +
-                       "FROM quyen q " +
-                       "LEFT JOIN phan_quyen pq ON q.ma_quyen = pq.ma_quyen AND is_deleted = 0 " +
-                       "WHERE q.ten_quyen LIKE ? " +
-                       "GROUP BY q.ma_quyen, q.ten_quyen";
+        String query = "SELECT * FROM ( " +
+                       "  SELECT q.ten_quyen, " +
+                       "         COUNT(pq.ma_quyen) AS sl_quyen, " +
+                       "         (SELECT COUNT(*) FROM tai_khoan tk " +
+                       "          WHERE tk.ma_quyen = q.ma_quyen AND tk.is_deleted = 0) AS sl_tk " +
+                       "  FROM quyen q " +
+                       "  LEFT JOIN phan_quyen pq ON q.ma_quyen = pq.ma_quyen AND is_deleted = 0 " +
+                       "  GROUP BY q.ma_quyen, q.ten_quyen " +
+                       ") AS t " +
+                       "WHERE t.ten_quyen LIKE ? OR " +
+                       "      CAST(t.sl_quyen AS CHAR) LIKE ? OR " +
+                       "      CAST(t.sl_tk AS CHAR) LIKE ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
             String searchPattern = "%" + keyword + "%";
             stmt.setString(1, searchPattern);
+            stmt.setString(2, searchPattern);
+            stmt.setString(3, searchPattern);
 
-            try (ResultSet rs = stmt.executeQuery()) {
+             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
 //                  List<String> chucNangList = 
                     PermissionDTO temp = getPermissionByName(rs.getString("ten_quyen"));
