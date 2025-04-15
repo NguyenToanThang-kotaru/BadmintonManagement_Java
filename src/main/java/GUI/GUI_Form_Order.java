@@ -75,9 +75,6 @@ public class GUI_Form_Order extends JDialog {
         productDetailPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 250));
         mainPanel.add(productDetailPanel);
 
-        /*JPanel buttonPanel = createButtonPanel();
-        buttonPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
-        mainPanel.add(buttonPanel);*/
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         panel.setBackground(Color.WHITE);
         btnLuu = new CustomButton("Lưu hóa đơn");
