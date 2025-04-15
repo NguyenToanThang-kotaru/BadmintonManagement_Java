@@ -23,6 +23,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class GUI_Form_Order extends JDialog {
+
     private JLabel lblMaHoaDon, lblNgayXuat, lblNhanVien, lblTongTien;
     private JTable productsTable, allProductsTable;
     private DefaultTableModel orderTableModel, productTableModel;
@@ -36,7 +37,7 @@ public class GUI_Form_Order extends JDialog {
     private ProductBUS productBUS = new ProductBUS();
     private CustomerBUS customerBUS = new CustomerBUS();
 
-    public GUI_Form_Order(JPanel parent, OrderDTO order, AccountDTO account) {
+    public GUI_Form_Order(GUI_Order parent, OrderDTO order, AccountDTO account) {
         super((Frame) SwingUtilities.getWindowAncestor(parent), order == null ? "Tạo Hóa Đơn" : "Sửa Hóa Đơn", true);
         this.orderBUS = new OrderBUS();
         this.currentOrder = order;
@@ -74,9 +75,20 @@ public class GUI_Form_Order extends JDialog {
         productDetailPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 250));
         mainPanel.add(productDetailPanel);
 
-        JPanel buttonPanel = createButtonPanel();
+        /*JPanel buttonPanel = createButtonPanel();
         buttonPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
-        mainPanel.add(buttonPanel);
+        mainPanel.add(buttonPanel);*/
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        panel.setBackground(Color.WHITE);
+        btnLuu = new CustomButton("Lưu hóa đơn");
+        btnLuu.setPreferredSize(new Dimension(150, 35));
+        btnLuu.addActionListener(e -> saveOrder(parent));
+        btnHuy = new CustomButton("Hủy");
+        btnHuy.setPreferredSize(new Dimension(150, 35));
+        btnHuy.addActionListener(e -> dispose());
+        panel.add(btnLuu);
+        panel.add(btnHuy);
+        mainPanel.add(panel);
 
         add(mainPanel);
 
@@ -131,7 +143,9 @@ public class GUI_Form_Order extends JDialog {
 
         String[] columns = {"Mã SP", "Tên SP", "Loại", "Đơn giá", "Tồn kho"};
         productTableModel = new DefaultTableModel(columns, 0) {
-            public boolean isCellEditable(int row, int column) { return false; }
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
         };
 
         allProductsTable = new JTable(productTableModel);
@@ -152,10 +166,10 @@ public class GUI_Form_Order extends JDialog {
                 int selectedRow = allProductsTable.getSelectedRow();
                 if (selectedRow >= 0) {
                     displayProductDetails(
-                        productTableModel.getValueAt(selectedRow, 0).toString(),
-                        productTableModel.getValueAt(selectedRow, 1).toString(),
-                        productTableModel.getValueAt(selectedRow, 2).toString(),
-                        productTableModel.getValueAt(selectedRow, 3).toString()
+                            productTableModel.getValueAt(selectedRow, 0).toString(),
+                            productTableModel.getValueAt(selectedRow, 1).toString(),
+                            productTableModel.getValueAt(selectedRow, 2).toString(),
+                            productTableModel.getValueAt(selectedRow, 3).toString()
                     );
                 }
             }
@@ -172,7 +186,9 @@ public class GUI_Form_Order extends JDialog {
 
         String[] columns = {"Mã SP", "Tên SP", "Loại", "Số lượng", "Đơn giá", "Thành tiền"};
         orderTableModel = new DefaultTableModel(columns, 0) {
-            public boolean isCellEditable(int row, int column) { return false; }
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
         };
 
         productsTable = new JTable(orderTableModel);
@@ -209,9 +225,11 @@ public class GUI_Form_Order extends JDialog {
 
         TableColumnModel columnModel = productsTable.getColumnModel();
         for (int i = 0; i < productsTable.getColumnCount(); i++) {
-            columnModel.getColumn(i).setCellRenderer(new DefaultTableCellRenderer() {{
-                setHorizontalAlignment(JLabel.CENTER);
-            }});
+            columnModel.getColumn(i).setCellRenderer(new DefaultTableCellRenderer() {
+                {
+                    setHorizontalAlignment(JLabel.CENTER);
+                }
+            });
         }
 
         panel.add(new JScrollPane(productsTable), BorderLayout.CENTER);
@@ -237,50 +255,84 @@ public class GUI_Form_Order extends JDialog {
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
 
-        gbc.gridx = 0; gbc.gridy = 0; detailPanel.add(new JLabel("Mã sản phẩm:"), gbc);
-        gbc.gridx = 1; lblProductId = new JLabel("Chọn sản phẩm từ danh sách"); detailPanel.add(lblProductId, gbc);
-        gbc.gridx = 0; gbc.gridy = 1; detailPanel.add(new JLabel("Tên sản phẩm:"), gbc);
-        gbc.gridx = 1; lblProductName = new JLabel(); detailPanel.add(lblProductName, gbc);
-        gbc.gridx = 0; gbc.gridy = 2; detailPanel.add(new JLabel("Loại sản phẩm:"), gbc);
-        gbc.gridx = 1; lblCategory = new JLabel(); detailPanel.add(lblCategory, gbc);
-        gbc.gridx = 0; gbc.gridy = 3; detailPanel.add(new JLabel("Đơn giá:"), gbc);
-        gbc.gridx = 1; lblPrice = new JLabel(); detailPanel.add(lblPrice, gbc);
-        gbc.gridx = 0; gbc.gridy = 4; detailPanel.add(new JLabel("Số lượng:"), gbc);
-        gbc.gridx = 1; txtQuantity = new JTextField(10); detailPanel.add(txtQuantity, gbc);
-        gbc.gridx = 0; gbc.gridy = 5; detailPanel.add(new JLabel("Số điện thoại KH:"), gbc);
-        gbc.gridx = 1; txtSoDienThoai = new JTextField(25); detailPanel.add(txtSoDienThoai, gbc);
-        
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        detailPanel.add(new JLabel("Mã sản phẩm:"), gbc);
+        gbc.gridx = 1;
+        lblProductId = new JLabel("Chọn sản phẩm từ danh sách");
+        detailPanel.add(lblProductId, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        detailPanel.add(new JLabel("Tên sản phẩm:"), gbc);
+        gbc.gridx = 1;
+        lblProductName = new JLabel();
+        detailPanel.add(lblProductName, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        detailPanel.add(new JLabel("Loại sản phẩm:"), gbc);
+        gbc.gridx = 1;
+        lblCategory = new JLabel();
+        detailPanel.add(lblCategory, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        detailPanel.add(new JLabel("Đơn giá:"), gbc);
+        gbc.gridx = 1;
+        lblPrice = new JLabel();
+        detailPanel.add(lblPrice, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        detailPanel.add(new JLabel("Số lượng:"), gbc);
+        gbc.gridx = 1;
+        txtQuantity = new JTextField(10);
+        detailPanel.add(txtQuantity, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        detailPanel.add(new JLabel("Số điện thoại KH:"), gbc);
+        gbc.gridx = 1;
+        txtSoDienThoai = new JTextField(25);
+        detailPanel.add(txtSoDienThoai, gbc);
+
         txtSoDienThoai.addKeyListener(new KeyAdapter() {
-        @Override
-        public void keyReleased(KeyEvent e) {
-            String phone = txtSoDienThoai.getText().trim();
+            @Override
+            public void keyReleased(KeyEvent e) {
+                String phone = txtSoDienThoai.getText().trim();
 
-            // Chỉ xử lý khi đúng 10 số và bắt đầu bằng 0
-            if (phone.matches("0\\d{9}")) {
-                CustomerDTO customer = customerBUS.getCustomerByPhone(phone);
-                if (customer != null) {
-                    txtMaKhachHang.setText(customer.getcustomerID());
-                    txtTenKhachHang.setText(customer.getFullName());
-                    txtTenKhachHang.setEditable(false); // khóa lại nếu tìm thấy
+                // Chỉ xử lý khi đúng 10 số và bắt đầu bằng 0
+                if (phone.matches("0\\d{9}")) {
+                    CustomerDTO customer = customerBUS.getCustomerByPhone(phone);
+                    if (customer != null) {
+                        txtMaKhachHang.setText(customer.getcustomerID());
+                        txtTenKhachHang.setText(customer.getFullName());
+                        txtTenKhachHang.setEditable(false); // khóa lại nếu tìm thấy
+                    } else {
+                        txtMaKhachHang.setText(customerBUS.getNextCustomerID()); // gán mã mới
+                        txtTenKhachHang.setText("");
+                        txtTenKhachHang.setEditable(true); // cho nhập tên nếu chưa tồn tại
+                    }
                 } else {
-                    txtMaKhachHang.setText(customerBUS.getNextCustomerID()); // gán mã mới
+                    // Nếu không đúng 10 số → reset
+                    txtMaKhachHang.setText("");
                     txtTenKhachHang.setText("");
-                    txtTenKhachHang.setEditable(true); // cho nhập tên nếu chưa tồn tại
+                    txtTenKhachHang.setEditable(false);
                 }
-            } else {
-                // Nếu không đúng 10 số → reset
-                txtMaKhachHang.setText("");
-                txtTenKhachHang.setText("");
-                txtTenKhachHang.setEditable(false);
             }
-        }
-    });
+        });
 
-        gbc.gridx = 0; gbc.gridy = 6; detailPanel.add(new JLabel("Mã khách hàng:"), gbc);
-        gbc.gridx = 1; txtMaKhachHang = new JTextField(25); txtMaKhachHang.setEditable(false); detailPanel.add(txtMaKhachHang, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 6;
+        detailPanel.add(new JLabel("Mã khách hàng:"), gbc);
+        gbc.gridx = 1;
+        txtMaKhachHang = new JTextField(25);
+        txtMaKhachHang.setEditable(false);
+        detailPanel.add(txtMaKhachHang, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 7; detailPanel.add(new JLabel("Tên khách hàng:"), gbc);
-        gbc.gridx = 1; txtTenKhachHang = new JTextField(25); txtTenKhachHang.setEditable(false); detailPanel.add(txtTenKhachHang, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 7;
+        detailPanel.add(new JLabel("Tên khách hàng:"), gbc);
+        gbc.gridx = 1;
+        txtTenKhachHang = new JTextField(25);
+        txtTenKhachHang.setEditable(false);
+        detailPanel.add(txtTenKhachHang, gbc);
 
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 5));
         bottomPanel.setBackground(Color.WHITE);
@@ -301,20 +353,6 @@ public class GUI_Form_Order extends JDialog {
         panel.add(bottomPanel, BorderLayout.SOUTH);
         return panel;
     }
-    
-    private JPanel createButtonPanel() {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
-        panel.setBackground(Color.WHITE);
-        btnLuu = new CustomButton("Lưu hóa đơn");
-        btnLuu.setPreferredSize(new Dimension(150, 35));
-        btnLuu.addActionListener(e -> saveOrder());
-        btnHuy = new CustomButton("Hủy");
-        btnHuy.setPreferredSize(new Dimension(150, 35));
-        btnHuy.addActionListener(e -> dispose());
-        panel.add(btnLuu);
-        panel.add(btnHuy);
-        return panel;
-    }
 
     private void displayProductDetails(String productId, String productName, String category, String price) {
         lblProductId.setText(productId);
@@ -331,7 +369,7 @@ public class GUI_Form_Order extends JDialog {
             lblProductImage.setText("Không có ảnh");
         }
     }
-    
+
     private void updateQuantityInOrder() {
         try {
             int selectedRow = productsTable.getSelectedRow();
@@ -370,7 +408,7 @@ public class GUI_Form_Order extends JDialog {
                 JOptionPane.showMessageDialog(this, "Số điện thoại không hợp lệ!\nPhải bắt đầu bằng 0 và gồm 10 chữ số.");
                 return;
             }
-            
+
             int selectedRow = allProductsTable.getSelectedRow();
             if (selectedRow < 0) {
                 JOptionPane.showMessageDialog(this, "Vui lòng chọn sản phẩm từ danh sách.");
@@ -394,7 +432,7 @@ public class GUI_Form_Order extends JDialog {
                 JOptionPane.showMessageDialog(this, "Số lượng vượt quá tồn kho!");
                 return;
             }
-            
+
             String productId = lblProductId.getText();
             String productName = lblProductName.getText();
             String category = lblCategory.getText();
@@ -425,7 +463,6 @@ public class GUI_Form_Order extends JDialog {
             }
         }
     }
-
 
     private void loadAllProducts() {
         productTableModel.setRowCount(0);
@@ -476,7 +513,7 @@ public class GUI_Form_Order extends JDialog {
         }
     }
 
-    private void saveOrder() {
+    private void saveOrder(GUI_Order parent) {
         String orderID = lblMaHoaDon.getText();
         String maKH = txtMaKhachHang.getText().trim();
         String tenKH = txtTenKhachHang.getText().trim();
@@ -495,8 +532,11 @@ public class GUI_Form_Order extends JDialog {
         dto.settotalmoney(String.valueOf(totalAmount));
         dto.setissuedate(LocalDate.now().toString());
 
-        if (currentOrder == null) orderBUS.addOrder(dto);
-        else orderBUS.updateOrder(dto);
+        if (currentOrder == null) {
+            orderBUS.addOrder(dto);
+        } else {
+            orderBUS.updateOrder(dto);
+        }
 
         DetailOrderBUS detailOrderBUS = new DetailOrderBUS();
         if (currentOrder != null) {
@@ -534,9 +574,9 @@ public class GUI_Form_Order extends JDialog {
         }
 
         JOptionPane.showMessageDialog(this, "Lưu hóa đơn thành công!");
+        parent.loadOrder();
         dispose();
     }
-
 
     private String formatCurrency(int amount) {
         return String.format("%,d VND", amount);

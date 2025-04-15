@@ -5,7 +5,6 @@ import DTO.OrderDTO;
 import DAO.OrderDAO;
 import DTO.AccountDTO;
 import BUS.DetailOrderBUS;
-import DAO.DetailOrderDAO;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -238,7 +237,7 @@ public class GUI_Order extends JPanel {
         }
     }
     
-    private void loadOrder() {
+    public void loadOrder() {
         List<OrderDTO> order = orderBUS.getAllOrder();
         tableModel.setRowCount(0);
         //int index = 0;
