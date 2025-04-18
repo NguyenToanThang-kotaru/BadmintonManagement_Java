@@ -17,7 +17,7 @@ public class GUI_Import_Detail extends JDialog {
     public GUI_Import_Detail(JFrame parent, ImportDTO importDTO) {
         super(parent, "Chi Tiết Phiếu Nhập", true);
         bus = new DetailImportBUS();
-        setSize(700, 550);
+        setSize(800, 550);
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout());
         setBackground(Color.WHITE);
@@ -48,8 +48,6 @@ public class GUI_Import_Detail extends JDialog {
         addDetailRow(mainPanel, gbc, "Ngày nhập:", importDTO.getreceiptdate());
         gbc.gridy++;
         addDetailRow(mainPanel, gbc, "Nhân viên nhập:", bus.getEmployeeInfo(importDTO.getemployeeID()));
-        gbc.gridy++;
-        addDetailRow(mainPanel, gbc, "Nhà cung cấp:", bus.getSupplierInfo(importDTO.getsupplierID()));
 
         // Tạo bảng sản phẩm
         gbc.gridy++;
@@ -58,7 +56,7 @@ public class GUI_Import_Detail extends JDialog {
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
 
-        String[] columnNames = {"Mã SP", "Tên SP", "Số lượng", "Đơn giá", "Thành tiền"};
+        String[] columnNames = {"Mã SP", "Tên SP", "Nhà cung cấp", "Số lượng", "Giá gốc", "Giá bán", "Thành tiền"};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -76,13 +74,13 @@ public class GUI_Import_Detail extends JDialog {
         }
 
         scrollPane = new JScrollPane(productsTable);
-        scrollPane.setPreferredSize(new Dimension(600, 200));
+        scrollPane.setPreferredSize(new Dimension(700, 200));
         mainPanel.add(scrollPane, gbc);
 
         // Tải chi tiết phiếu nhập và tính tổng tiền
         int calculatedTotal = loadImportDetails(importDTO.getimportID(), model);
 
-        // Hiển thị tổng tiền (chỉ thêm một lần)
+        // Hiển thị tổng tiền
         gbc.gridy++;
         gbc.gridwidth = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -123,8 +121,8 @@ public class GUI_Import_Detail extends JDialog {
         model.setRowCount(0);
 
         for (Object[] detail : details) {
-            int quantity = (int) detail[2];
-            int price = Integer.parseInt(((String) detail[3]).replaceAll("[^0-9]", ""));
+            int quantity = (int) detail[3]; // Số lượng ở vị trí mới
+            int price = Integer.parseInt(((String) detail[4]).replaceAll("[^0-9]", "")); // Giá gốc
             total += quantity * price;
             model.addRow(detail);
         }

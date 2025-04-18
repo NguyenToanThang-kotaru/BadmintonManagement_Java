@@ -1,43 +1,47 @@
 package DTO;
 
+
+
 public class ProductDTO {
+        private String productID;
+        private String productName;
+        private String gia;
+        private String giaGoc; 
+        private String soluong;
+        private String maNCC;
+        private String TSKT;
+        private String ML;
+        private String anh;
+        private String TL;
+        private String tenNCC;
+    
+        public ProductDTO() {
+            this.productID = "";
+            this.productName = "";
+            this.gia = "";
+            this.giaGoc = "";
+            this.soluong = "";
+            this.maNCC = "";
+            this.TSKT = "";
+            this.ML = "";
+            this.anh = "";
+            this.TL = "";
+            this.tenNCC = "";
+        }
 
-    private String productID;
-    private String productName;
-    private String gia;
-    private String soluong;
-    private String maNCC;
-    private String TSKT;
-    private String ML;
-    private String anh;
-    private String TL;
-    private String tenNCC;
-
-    public ProductDTO() {
-        this.productID = "";
-        this.productName = "";
-        this.gia = "";
-        this.soluong = "";
-        this.maNCC = "";
-        this.TSKT = "";
-        this.ML = "";
-        this.anh = "";
-        this.TL = "";
-        this.tenNCC = "";
-    }
-
-    public ProductDTO(String productID, String productName, String gia, String soluong, String maNCC, String TSKT, String ML, String TL, String anh, String tenNCC) {
-        this.productID = productID;
-        this.productName = productName;
-        this.gia = gia;
-        this.soluong = soluong;
-        this.maNCC = maNCC;
-        this.TSKT = TSKT;
-        this.ML = ML;
-        this.anh = anh;
-        this.TL = TL;
-        this.tenNCC = tenNCC;
-    }
+        public ProductDTO(String productID, String productName, String gia, String giaGoc, String soluong, String maNCC, String TSKT, String ML, String TL, String anh, String tenNCC) {
+            this.productID = productID;
+            this.productName = productName;
+            this.gia = gia;
+            this.giaGoc = giaGoc;
+            this.soluong = soluong;
+            this.maNCC = maNCC;
+            this.TSKT = TSKT;
+            this.ML = ML;
+            this.anh = anh;
+            this.TL = TL;
+            this.tenNCC = tenNCC;
+        }
 
     public String getProductID() {
         return productID;
@@ -62,7 +66,13 @@ public class ProductDTO {
     public void setGia(String gia) {
         this.gia = gia;
     }
+    public String getGiaGoc() {
+        return giaGoc;
+    }
 
+    public void setGiaGoc(String giaGoc) {
+        this.giaGoc = giaGoc;
+    }
     public String getSoluong() {
         return soluong;
     }

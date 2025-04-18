@@ -16,7 +16,7 @@ public class ImportProductsPanel extends JPanel {
         setBorder(new CompoundBorder(new TitledBorder("Danh sách sản phẩm nhập"), new EmptyBorder(5, 5, 5, 5)));
         setBackground(Color.WHITE);
 
-        String[] columns = {"Mã SP", "Tên SP", "Số lượng", "Đơn giá", "Thành tiền"};
+        String[] columns = {"Mã SP", "Tên SP", "Số lượng", "Đơn giá", "Thành tiền", "Nhà Cung Cấp"};
         importTableModel = new DefaultTableModel(columns, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
@@ -32,6 +32,7 @@ public class ImportProductsPanel extends JPanel {
         columnModel.getColumn(2).setPreferredWidth(80);
         columnModel.getColumn(3).setPreferredWidth(120);
         columnModel.getColumn(4).setPreferredWidth(150);
+        columnModel.getColumn(5).setPreferredWidth(150); // Độ rộng cho cột Nhà Cung Cấp
         for (int i = 0; i < columnModel.getColumnCount(); i++) {
             columnModel.getColumn(i).setCellRenderer(centerRenderer);
         }

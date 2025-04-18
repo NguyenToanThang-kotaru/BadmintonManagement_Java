@@ -16,55 +16,58 @@ public class ProductDAO {
     public static Boolean addProduct(ProductDTO product) {
         String findMaLoaiSQL = "SELECT ma_loai FROM loai WHERE ten_loai = ?";
         String findMaNCCSQL = "SELECT ma_nha_cung_cap FROM nha_cung_cap WHERE ten_nha_cung_cap = ?";
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement findMaLoaiStmt = conn.prepareStatement(findMaLoaiSQL); PreparedStatement findMaNCCStmt = conn.prepareStatement(findMaNCCSQL)) {
-
+        try (Connection conn = DatabaseConnection.getConnection(); 
+             PreparedStatement findMaLoaiStmt = conn.prepareStatement(findMaLoaiSQL); 
+             PreparedStatement findMaNCCStmt = conn.prepareStatement(findMaNCCSQL)) {
+    
             findMaLoaiStmt.setString(1, product.getTL()); // TL là tên loại
             ResultSet rs = findMaLoaiStmt.executeQuery();
             String maLoai = null;
-
+    
             findMaNCCStmt.setString(1, product.gettenNCC()); // tenNCC là tên nhà cung cấp
             ResultSet rs2 = findMaNCCStmt.executeQuery();
             String maNCC = null;
-
+    
             if (rs.next()) {
                 maLoai = rs.getString("ma_loai");
             } else {
                 System.out.println("Không tìm thấy mã loại cho tên loại: " + product.getTL());
                 return false; // Dừng lại nếu không tìm thấy mã loại
             }
-
+    
             if (rs2.next()) {
                 maNCC = rs2.getString("ma_nha_cung_cap");
             } else {
                 System.out.println("Không tìm thấy mã nhà cung cấp cho tên nhà cung cấp: " + product.gettenNCC());
                 return false; // Dừng lại nếu không tìm thấy mã NCC
             }
-
-            // Tiếp tục thêm sản phẩm...
-            String sql = "INSERT INTO san_pham (ma_san_pham, ten_san_pham, gia, so_luong, ma_nha_cung_cap, thong_so_ki_thuat, ma_loai, hinh_anh) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    
+            // Thêm sản phẩm, bao gồm gia_goc
+            String sql = "INSERT INTO san_pham (ma_san_pham, ten_san_pham, gia, gia_goc, so_luong, ma_nha_cung_cap, thong_so_ki_thuat, ma_loai, hinh_anh) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-
+    
                 String newID = generateNewProductID(); // Tạo ID mới
-
+    
                 stmt.setString(1, newID);
                 stmt.setString(2, product.getProductName());
-                stmt.setDouble(3, Double.parseDouble(product.getGia())); // Chuyển String thành Double
-                stmt.setInt(4, Integer.parseInt(product.getSoluong())); // Chuyển String thành Int
-                stmt.setString(5, maNCC);
-                stmt.setString(6, product.getTSKT());
-                stmt.setString(7, maLoai);
-                stmt.setString(8, product.getAnh());
-
+                stmt.setDouble(3, Double.parseDouble(product.getGia())); // Giá bán
+                stmt.setDouble(4, Double.parseDouble(product.getGiaGoc())); // Giá gốc
+                stmt.setInt(5, Integer.parseInt(product.getSoluong()));
+                stmt.setString(6, maNCC);
+                stmt.setString(7, product.getTSKT());
+                stmt.setString(8, maLoai);
+                stmt.setString(9, product.getAnh());
+    
                 stmt.executeUpdate();
                 System.out.println("Thêm sản phẩm thành công với ID: " + newID);
                 return true;
-
+    
             } catch (SQLException e) {
                 System.out.println("Lỗi thêm sản phẩm: " + e.getMessage());
                 e.printStackTrace();
                 return false;
             }
-
+    
         } catch (SQLException e) {
             System.out.println("Lỗi truy vấn mã loại: " + e.getMessage());
             e.printStackTrace();
@@ -109,8 +112,8 @@ public class ProductDAO {
     }
 
     // Lấy thông tin của một sản phẩm
-    public static ProductDTO getProduct(String ProductID) {
-        String query = "SELECT sp.ma_san_pham, sp.ten_san_pham, sp.gia, sp.so_luong, sp.ma_nha_cung_cap, "
+   public static ProductDTO getProduct(String ProductID) {
+        String query = "SELECT sp.ma_san_pham, sp.ten_san_pham, sp.gia, sp.gia_goc, sp.so_luong, sp.ma_nha_cung_cap, "
                 + "sp.thong_so_ki_thuat, sp.ma_loai, lsp.ten_loai, sp.hinh_anh, ncc.ten_nha_cung_cap "
                 + "FROM san_pham sp "
                 + "JOIN loai lsp ON sp.ma_loai = lsp.ma_loai "
@@ -127,8 +130,9 @@ public class ProductDAO {
                     return new ProductDTO(
                             rs.getString("ma_san_pham"),
                             rs.getString("ten_san_pham"),
-                            rs.getString("gia"),
-                            rs.getString("so_luong"),
+                            String.valueOf(rs.getInt("gia")),
+                            String.valueOf(rs.getInt("gia_goc")), // Lấy giá gốc
+                            String.valueOf(rs.getInt("so_luong")),
                             rs.getString("ma_nha_cung_cap"),
                             rs.getString("thong_so_ki_thuat"),
                             rs.getString("ma_loai"),
@@ -179,24 +183,24 @@ public class ProductDAO {
     // Lấy danh sách tất cả sản phẩm
     public static ArrayList<ProductDTO> getAllProducts() {
         ArrayList<ProductDTO> products = new ArrayList<>();
-        String query = "SELECT sp.ma_san_pham, sp.ten_san_pham, sp.gia, sp.so_luong, sp.ma_nha_cung_cap, "
+        String query = "SELECT sp.ma_san_pham, sp.ten_san_pham, sp.gia, sp.gia_goc, sp.so_luong, sp.ma_nha_cung_cap, "
                 + "sp.thong_so_ki_thuat, sp.ma_loai, lsp.ten_loai, sp.hinh_anh, ncc.ten_nha_cung_cap "
                 + "FROM san_pham sp "
                 + "JOIN loai lsp ON sp.ma_loai = lsp.ma_loai "
                 + "LEFT JOIN nha_cung_cap ncc ON sp.ma_nha_cung_cap = ncc.ma_nha_cung_cap "
-                + "WHERE sp.is_deleted = 0 ORDER BY sp.ma_san_pham ASC"; // Chỉ lọc sản phẩm chưa bị xóa
+                + "WHERE sp.is_deleted = 0 ORDER BY sp.ma_san_pham ASC";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
-
             while (rs.next()) {
                 String supplierName = rs.getString("ten_nha_cung_cap");
                 if (supplierName == null) {
-                    supplierName = "Nhà cung cấp đã xóa"; // Giá trị mặc định
+                    supplierName = "Nhà cung cấp đã xóa";
                 }
                 products.add(new ProductDTO(
                         rs.getString("ma_san_pham"),
                         rs.getString("ten_san_pham"),
-                        rs.getString("gia"),
-                        rs.getString("so_luong"),
+                        String.valueOf(rs.getInt("gia")),
+                        String.valueOf(rs.getInt("gia_goc")), // Lấy giá gốc
+                        String.valueOf(rs.getInt("so_luong")),
                         rs.getString("ma_nha_cung_cap"),
                         rs.getString("thong_so_ki_thuat"),
                         rs.getString("ma_loai"),
@@ -205,7 +209,6 @@ public class ProductDAO {
                         supplierName
                 ));
             }
-//            System.out.println("Lấy danh sách sản phẩm thành công.");
         } catch (Exception e) {
             System.out.println("Lỗi lấy danh sách sản phẩm: " + e.getMessage());
             e.printStackTrace();
@@ -386,8 +389,8 @@ public class ProductDAO {
     }
     public static ArrayList<ProductDTO> searchProducts(String keyword) {
         ArrayList<ProductDTO> products = new ArrayList<>();
-
-        String query = "SELECT sp.ma_san_pham, sp.ten_san_pham, sp.gia, sp.so_luong, "
+    
+        String query = "SELECT sp.ma_san_pham, sp.ten_san_pham, sp.gia, sp.gia_goc, sp.so_luong, "
                 + "sp.ma_nha_cung_cap, sp.thong_so_ki_thuat, sp.ma_loai, "
                 + "lsp.ten_loai, sp.hinh_anh, ncc.ten_nha_cung_cap "
                 + "FROM san_pham sp "
@@ -400,22 +403,29 @@ public class ProductDAO {
 
 =======
         
+<<<<<<< Updated upstream
 >>>>>>> main
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
 
+=======
+        try (Connection conn = DatabaseConnection.getConnection(); 
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+    
+>>>>>>> Stashed changes
             String searchKeyword = "%" + keyword + "%";
             stmt.setString(1, searchKeyword);
             stmt.setString(2, searchKeyword);
             stmt.setString(3, searchKeyword);
             stmt.setString(4, searchKeyword);
-
+    
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     products.add(new ProductDTO(
                             rs.getString("ma_san_pham"),
                             rs.getString("ten_san_pham"),
-                            rs.getString("gia"),
-                            rs.getString("so_luong"),
+                            String.valueOf(rs.getInt("gia")),
+                            String.valueOf(rs.getInt("gia_goc")), // Lấy giá gốc
+                            String.valueOf(rs.getInt("so_luong")),
                             rs.getString("ma_nha_cung_cap"),
                             rs.getString("thong_so_ki_thuat"),
                             rs.getString("ma_loai"),

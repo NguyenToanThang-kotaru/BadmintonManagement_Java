@@ -14,7 +14,7 @@ import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 
 public class GUI_AddFormProduct extends JDialog {
 
-    private JTextField nameField, priceField, maNCCField, soluongField, tsktField;
+    private JTextField nameField, priceField, giaGocField, soluongField, tsktField;
     private CustomCombobox TLField, NCCField;
     private CustomButton saveButton, cancelButton, btnChooseImage;
     private JLabel imageLabel;
@@ -37,6 +37,7 @@ public class GUI_AddFormProduct extends JDialog {
         // Các trường nhập liệu
         addComponent("Tên sản phẩm:", nameField = new JTextField(20), gbc, 0);
         addComponent("Giá:", priceField = new JTextField(20), gbc, 1);
+        addComponent("Giá gốc:", giaGocField = new JTextField(20), gbc, 2);
 //        addComponent("Mã NCC:", maNCCField = new JTextField(20), gbc, 2);
 //        addComponent("Số lượng:", soluongField = new JTextField(20), gbc, 3);
         addComponent("Thông số kỹ thuật:", tsktField = new JTextField(20), gbc, 4);
@@ -125,6 +126,7 @@ public class GUI_AddFormProduct extends JDialog {
     private void saveProduct() {
         String name = nameField.getText().trim();
         String price = priceField.getText().trim();
+        String giaGoc = giaGocField.getText().trim();
         String soluong = "0";
         String tskt = tsktField.getText().trim();
         String tenLoai = (String) TLField.getSelectedItem();
@@ -142,7 +144,7 @@ public class GUI_AddFormProduct extends JDialog {
         }
 
         // Tạo sản phẩm mới, truyền vào productID là null vì đây là sản phẩm mới (sẽ tự động sinh ID khi thêm vào DB)
-        ProductDTO newProduct = new ProductDTO(null, name, price, soluong, null, tskt, null, tenLoai, anh, tenNCC);
+        ProductDTO newProduct = new ProductDTO(null, name, price, giaGoc, soluong, null, tskt, null, tenLoai, anh, tenNCC);
         
           ProductBUS bus = new ProductBUS();
         if (!bus.validateProduct(newProduct)) {

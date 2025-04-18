@@ -65,24 +65,28 @@ public class DetailImportBUS {
 
     public List<Object[]> loadImportDetails(String importID) {
         List<Object[]> details = new ArrayList<>();
-        String query = "SELECT sp.ma_san_pham, sp.ten_san_pham, ctnh.so_luong, ctnh.gia " +
-                       "FROM chi_tiet_nhap_hang ctnh " +
-                       "JOIN san_pham sp ON ctnh.ma_san_pham = sp.ma_san_pham " +
-                       "WHERE ctnh.ma_nhap_hang = ?";
+        String query = "SELECT sp.ma_san_pham, sp.ten_san_pham, ncc.ten_nha_cung_cap, ctnh.so_luong, ctnh.gia, sp.gia as gia_ban " +
+                      "FROM chi_tiet_nhap_hang ctnh " +
+                      "JOIN san_pham sp ON ctnh.ma_san_pham = sp.ma_san_pham " +
+                      "JOIN nha_cung_cap ncc ON ctnh.ma_nha_cung_cap = ncc.ma_nha_cung_cap " +
+                      "WHERE ctnh.ma_nhap_hang = ? AND ctnh.is_deleted = 0";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, importID);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 int quantity = rs.getInt("so_luong");
-                int price = rs.getInt("gia");
+                int price = rs.getInt("gia"); // Giá gốc từ chi_tiet_nhap_hang
+                int sellingPrice = rs.getInt("gia_ban"); // Giá bán từ san_pham
                 int rowTotal = quantity * price;
                 details.add(new Object[]{
-                    rs.getString("ma_san_pham"),
-                    rs.getString("ten_san_pham"),
-                    quantity,
-                    Utils.formatCurrency(price),
-                    Utils.formatCurrency(rowTotal)
+                        rs.getString("ma_san_pham"),
+                        rs.getString("ten_san_pham"),
+                        rs.getString("ten_nha_cung_cap"),
+                        quantity,
+                        Utils.formatCurrency(price),
+                        Utils.formatCurrency(sellingPrice),
+                        Utils.formatCurrency(rowTotal)
                 });
             }
         } catch (Exception e) {

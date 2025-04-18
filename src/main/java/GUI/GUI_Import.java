@@ -16,7 +16,6 @@ public class GUI_Import extends JPanel {
     private final CustomSearch searchField;
     private final JLabel importIdLabel;
     private final JLabel employeeIdLabel;
-    private final JLabel supplierIdLabel;
     private final JLabel totalMoneyLabel;
     private final JLabel receiptDateLabel;
     private ImportDTO selectedImport;
@@ -48,7 +47,7 @@ public class GUI_Import extends JPanel {
         topPanel.add(addButton, BorderLayout.EAST);
 
         // Bảng hiển thị danh sách phiếu nhập
-        String[] columnNames = {"Mã PN", "Mã NV", "Mã NCC", "Tổng Tiền", "Ngày Nhập"};
+        String[] columnNames = {"Mã PN", "Mã NV", "Tổng Tiền", "Ngày Nhập"}; // Xóa "Mã NCC"
         CustomTable customTable = new CustomTable(columnNames);
         importTable = customTable.getImportTable();
         tableModel = customTable.getTableModel();
@@ -61,11 +60,11 @@ public class GUI_Import extends JPanel {
         JPanel botPanel = new JPanel(new GridBagLayout());
         botPanel.setBackground(Color.WHITE);
         botPanel.setBorder(BorderFactory.createTitledBorder("Hóa Đơn Nhập"));
-
+        
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
-
+        
         gbc.gridx = 0;
         gbc.gridy = 0;
         botPanel.add(new JLabel("Mã Phiếu Nhập: "), gbc);
@@ -82,24 +81,24 @@ public class GUI_Import extends JPanel {
 
         gbc.gridx = 0;
         gbc.gridy = 2;
-        botPanel.add(new JLabel("Mã Nhà Cung Cấp: "), gbc);
-        gbc.gridx = 1;
-        supplierIdLabel = new JLabel("");
-        botPanel.add(supplierIdLabel, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 3;
         botPanel.add(new JLabel("Tổng Tiền: "), gbc);
         gbc.gridx = 1;
         totalMoneyLabel = new JLabel("");
         botPanel.add(totalMoneyLabel, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 4;
+        gbc.gridy = 3;
         botPanel.add(new JLabel("Ngày Nhập: "), gbc);
         gbc.gridx = 1;
         receiptDateLabel = new JLabel("");
         botPanel.add(receiptDateLabel, gbc);
+        
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        botPanel.add(new JLabel("Tổng Giá Gốc: "), gbc);
+        gbc.gridx = 1;
+        JLabel totalOriginalPriceLabel = new JLabel("");
+        botPanel.add(totalOriginalPriceLabel, gbc);
 
         // Panel chứa các nút Xóa và Xem Chi Tiết
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 5));
@@ -137,16 +136,15 @@ public class GUI_Import extends JPanel {
             if (selectedRow != -1) {
                 String importID = (String) importTable.getValueAt(selectedRow, 0);
                 String employeeID = (String) importTable.getValueAt(selectedRow, 1);
-                String supplierID = (String) importTable.getValueAt(selectedRow, 2);
-                String receiptDate = (String) importTable.getValueAt(selectedRow, 4);
-
+                String receiptDate = (String) importTable.getValueAt(selectedRow, 3);
+        
                 int calculatedTotal = importBUS.calculateImportTotal(importID);
-                selectedImport = new ImportDTO(importID, employeeID, supplierID, String.valueOf(calculatedTotal), receiptDate);
-
+                selectedImport = new ImportDTO(importID, employeeID, String.valueOf(calculatedTotal), receiptDate);
+        
                 importIdLabel.setText(importID);
                 employeeIdLabel.setText(employeeID);
-                supplierIdLabel.setText(supplierID);
                 totalMoneyLabel.setText(Utils.formatCurrency(calculatedTotal));
+                totalOriginalPriceLabel.setText(Utils.formatCurrency(calculatedTotal));
                 receiptDateLabel.setText(receiptDate);
             }
         });
@@ -161,7 +159,6 @@ public class GUI_Import extends JPanel {
             tableModel.addRow(new Object[]{
                     importDTO.getimportID(),
                     importDTO.getemployeeID(),
-                    importDTO.getsupplierID(),
                     Utils.formatCurrency(calculatedTotal),
                     importDTO.getreceiptdate()
             });
@@ -176,13 +173,11 @@ public class GUI_Import extends JPanel {
 
         for (ImportDTO importDTO : importList) {
             if (importDTO.getimportID().toLowerCase().contains(keyword) ||
-                importDTO.getemployeeID().toLowerCase().contains(keyword) ||
-                importDTO.getsupplierID().toLowerCase().contains(keyword)) {
+                importDTO.getemployeeID().toLowerCase().contains(keyword)) {
                 int calculatedTotal = importBUS.calculateImportTotal(importDTO.getimportID());
                 tableModel.addRow(new Object[]{
                         importDTO.getimportID(),
                         importDTO.getemployeeID(),
-                        importDTO.getsupplierID(),
                         Utils.formatCurrency(calculatedTotal),
                         importDTO.getreceiptdate()
                 });
@@ -205,7 +200,6 @@ public class GUI_Import extends JPanel {
             // Reset thông tin chi tiết
             importIdLabel.setText("Chọn Hóa Đơn Nhập");
             employeeIdLabel.setText("");
-            supplierIdLabel.setText("");
             totalMoneyLabel.setText("");
             receiptDateLabel.setText("");
             selectedImport = null;

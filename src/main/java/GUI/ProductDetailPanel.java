@@ -1,7 +1,6 @@
 package GUI;
 
 import BUS.Form_ImportBUS;
-
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -11,7 +10,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class ProductDetailPanel extends JPanel {
-    private JLabel lblProductImage, lblProductId, lblProductName, lblSupplier, lblPrice, lblTotal;
+    private JLabel lblProductImage, lblProductId, lblProductName, lblSupplier, lblPrice, lblOriginalPrice, lblTotal;
     private JTextField txtQuantity;
     private CustomButton btnThemSP;
 
@@ -44,10 +43,13 @@ public class ProductDetailPanel extends JPanel {
         gbc.gridx = 0; gbc.gridy = 2; detailPanel.add(new JLabel("Nhà cung cấp:"), gbc);
         gbc.gridx = 1; lblSupplier = new JLabel(); detailPanel.add(lblSupplier, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 3; detailPanel.add(new JLabel("Đơn giá:"), gbc);
+        gbc.gridx = 0; gbc.gridy = 3; detailPanel.add(new JLabel("Giá bán:"), gbc);
         gbc.gridx = 1; lblPrice = new JLabel(); detailPanel.add(lblPrice, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 4; detailPanel.add(new JLabel("Số lượng:"), gbc);
+        gbc.gridx = 0; gbc.gridy = 4; detailPanel.add(new JLabel("Giá gốc:"), gbc);
+        gbc.gridx = 1; lblOriginalPrice = new JLabel(); detailPanel.add(lblOriginalPrice, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 5; detailPanel.add(new JLabel("Số lượng:"), gbc);
         gbc.gridx = 1; txtQuantity = new JTextField(5); txtQuantity.setHorizontalAlignment(JTextField.RIGHT); detailPanel.add(txtQuantity, gbc);
 
         JPanel bottomPanel = new JPanel(new GridBagLayout());
@@ -87,7 +89,8 @@ public class ProductDetailPanel extends JPanel {
     }
 
     private void updateTotal(Form_ImportBUS bus) {
-        lblTotal.setText(bus.calculateTotal(lblPrice.getText(), txtQuantity.getText()));
+        // Sử dụng lblOriginalPrice thay vì lblPrice để tính tổng tiền
+        lblTotal.setText(bus.calculateTotal(lblOriginalPrice.getText(), txtQuantity.getText()));
     }
 
     // Getters
@@ -96,6 +99,7 @@ public class ProductDetailPanel extends JPanel {
     public JLabel getLblProductName() { return lblProductName; }
     public JLabel getLblSupplier() { return lblSupplier; }
     public JLabel getLblPrice() { return lblPrice; }
+    public JLabel getLblOriginalPrice() { return lblOriginalPrice; } // Thêm getter cho giá gốc
     public JTextField getTxtQuantity() { return txtQuantity; }
     public JLabel getLblTotal() { return lblTotal; }
 }
