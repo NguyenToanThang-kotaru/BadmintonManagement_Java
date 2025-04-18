@@ -103,4 +103,8 @@ public class SuppliersBUS {
     public String generateSupplierID() {
         return suppliersDAO.generateSupplierID();
     }
+    
+      public static ArrayList<String> getAllNCCNames() {
+          return SuppliersDAO.getAllNCCNames();
+      }
 }

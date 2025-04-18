@@ -39,7 +39,7 @@ public class GuaranteeDAO {
     public static ArrayList<GuaranteeDTO> getAllGuarantee() {
         ArrayList<GuaranteeDTO> products = new ArrayList<>();
 
-        String query = "SELECT * FROM bao_hanh WHERE thoi_gian_bao_hanh < 50";
+        String query = "SELECT * FROM bao_hanh WHERE thoi_gian_bao_hanh < 12 AND is_deleted = 1";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {

@@ -1,6 +1,7 @@
 package GUI;
 
 import DTO.GuaranteeDTO;
+import BUS.GuaranteeBUS;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -127,7 +128,7 @@ public class GUI_Form_Guarantee extends JDialog {
             guarantee.setLydo(lydo);
 
             // Gọi updateProduct để cập nhật sản phẩm với mã loại tương ứng
-            GuaranteeDAO.updateGuarantee(guarantee);
+            GuaranteeBUS.updateGuarantee(guarantee);
 //
             JOptionPane.showMessageDialog(this, "Cập nhật bảo hành thành công!");
             parentGUI.loadGuaranteeData();

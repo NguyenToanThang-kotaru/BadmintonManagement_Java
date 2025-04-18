@@ -72,7 +72,7 @@ public class SuppliersDAO {
 
     public static ArrayList<String> getAllNCCNames() {
         ArrayList<String> NCCList = new ArrayList<>();
-        String query = "SELECT ten_nha_cung_cap FROM nha_cung_cap";
+        String query = "SELECT ten_nha_cung_cap FROM nha_cung_cap WHERE is_deleted = 0";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
 
