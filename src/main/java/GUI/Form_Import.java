@@ -129,18 +129,15 @@ public class Form_Import extends JDialog {
     private void loadProductImage(String imageFileName) {
         String imagePath = "images/" + (imageFileName != null && !imageFileName.isEmpty() ? imageFileName : "default_product.png");
         File imageFile = new File(imagePath);
-        System.out.println("Đường dẫn hình ảnh: " + imagePath);
-    
+        
         if (imageFile.exists()) {
             ImageIcon productIcon = new ImageIcon(imagePath);
             Image img = productIcon.getImage().getScaledInstance(140, 140, Image.SCALE_SMOOTH);
             productDetailPanel.getLblProductImage().setIcon(new ImageIcon(img));
             productDetailPanel.getLblProductImage().setText("");
-            System.out.println("Hình ảnh tồn tại và được tải thành công.");
         } else {
             productDetailPanel.getLblProductImage().setIcon(null);
             productDetailPanel.getLblProductImage().setText("Không có ảnh");
-            System.out.println("Hình ảnh không tồn tại.");
         }
     }
 
