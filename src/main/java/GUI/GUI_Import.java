@@ -2,6 +2,7 @@ package GUI;
 
 import BUS.ImportBUS;
 import DTO.ImportDTO;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
@@ -41,7 +42,7 @@ public class GUI_Import extends JPanel {
 
         CustomButton addButton = new CustomButton("+ Thêm Phiếu Nhập");
         addButton.addActionListener(e -> {
-            GUI_Form_Import form = new GUI_Form_Import(this, currentUsername);
+            Form_Import form = new Form_Import(this, currentUsername);
             form.setVisible(true);
         });
         topPanel.add(addButton, BorderLayout.EAST);

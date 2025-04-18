@@ -1,12 +1,14 @@
 package GUI;
 
+import DAO.PermissionDAO;
+import DTO.PermissionDTO;
+import BUS.PermissionBUS;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
-import DAO.PermissionDAO;
-import DTO.PermissionDTO;
 
 public class GUI_Permission extends JPanel {
 
@@ -14,7 +16,6 @@ public class GUI_Permission extends JPanel {
     private JPanel midPanel, topPanel, botPanel;
     private JTable permissionTable;
     private DefaultTableModel tableModel;
-    private JComboBox<String> roleComboBox;
     private CustomButton detailPermissionButton, editButton, addButton, deleteButton, reloadButton;
     private CustomSearch searchField;
     private PermissionDTO permissionChoosing;
@@ -139,12 +140,12 @@ public class GUI_Permission extends JPanel {
         if(b.contains("xem_quyen"))
             loadPermissions();
         addButton.addActionListener(e -> {
-            GUI_Form_Permission a = new GUI_Form_Permission(this, null);
+            Form_Permission a = new Form_Permission(this, null);
             a.setVisible(true);
         });
 
         editButton.addActionListener(e -> {
-            GUI_Form_Permission a = new GUI_Form_Permission(this, permissionChoosing);
+            Form_Permission a = new Form_Permission(this, permissionChoosing);
             a.setVisible(true);
         });
 
@@ -163,6 +164,15 @@ public class GUI_Permission extends JPanel {
         reloadButton.addActionListener(e -> {
             loadPermissions();
         });
+        
+        searchField.setSearchListener(e -> {
+            String keyword = searchField.getText().trim();
+            if (!keyword.isEmpty()) {
+                searchPermission(keyword);
+            } else {
+                loadPermissions(); // Nếu ô tìm kiếm trống, load lại toàn bộ khách hàng
+            }
+        });
     }
 
     // Phương thức tải danh sách tài khoản từ database lên bảng
@@ -171,6 +181,15 @@ public class GUI_Permission extends JPanel {
         tableModel.setRowCount(0); // Xóa dữ liệu cũ trước khi cập nhật
         int index = 1;
         for (PermissionDTO per : permissions) {
+            tableModel.addRow(new Object[]{index++, per.getName(), per.getSlChucNang(), per.getSlTk()});
+        }
+    }
+    
+    private void searchPermission(String keyword) {
+        List<PermissionDTO> permission = PermissionBUS.searchPermission(keyword);
+        tableModel.setRowCount(0);
+        int index = 1;
+        for (PermissionDTO per : permission) {
             tableModel.addRow(new Object[]{index++, per.getName(), per.getSlChucNang(), per.getSlTk()});
         }
     }

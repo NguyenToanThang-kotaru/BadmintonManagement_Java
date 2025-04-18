@@ -2,6 +2,7 @@ package BUS;
 
 import DAO.EmployeeDAO;
 import DTO.EmployeeDTO;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,5 +54,9 @@ public class EmployeeBUS {
 
     public void setEmployees(List<EmployeeDTO> employees) {
         this.employeeList = new ArrayList<>(employees);
+    }
+    
+    public List<EmployeeDTO> searchEmployee(String keyword) {
+        return EmployeeDAO.searchEmployee(keyword);
     }
 }

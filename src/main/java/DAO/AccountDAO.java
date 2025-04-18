@@ -1,8 +1,9 @@
  package DAO;
 
-import Connection.DatabaseConnection;
 import DTO.AccountDTO;
 import DTO.PermissionDTO;
+ 
+import Connection.DatabaseConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

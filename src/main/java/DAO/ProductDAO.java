@@ -1,7 +1,8 @@
 package DAO;
 
-import Connection.DatabaseConnection;
 import DTO.ProductDTO;
+
+import Connection.DatabaseConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -395,7 +396,11 @@ public class ProductDAO {
                 + "WHERE sp.is_deleted = 0 AND "
                 + "(sp.ma_san_pham LIKE ? OR sp.ten_san_pham LIKE ? OR lsp.ten_loai LIKE ? OR ncc.ten_nha_cung_cap LIKE ?)"
                 + "ORDER BY sp.ma_san_pham ASC";
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> main
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
 
             String searchKeyword = "%" + keyword + "%";

@@ -1,9 +1,10 @@
 package GUI;
 
-import javax.swing.*;
-import java.awt.*;
 import BUS.DetailImportBUS;
 import DTO.ImportDTO;
+
+import javax.swing.*;
+import java.awt.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.util.List;

@@ -174,13 +174,13 @@ public class GUI_Order extends JPanel {
         
         addButton.addActionListener(e -> {
 //            JOptionPane.showMessageDialog(this, "Chức năng thêm nhân viên chưa được triển khai!");
-            GUI_Form_Order GFO = new GUI_Form_Order(this, null, cn);
+            Form_Order GFO = new Form_Order(this, null, cn);
             GFO.setVisible(true);
         });
         
         editButton.addActionListener(e -> {
 //            JOptionPane.showMessageDialog(this, "Chức năng thêm nhân viên chưa được triển khai!");
-            GUI_Form_Order GFO = new GUI_Form_Order(this, order, cn);
+            Form_Order GFO = new Form_Order(this, order, cn);
             GFO.setVisible(true);
         });
         

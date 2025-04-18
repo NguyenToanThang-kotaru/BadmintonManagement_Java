@@ -6,6 +6,7 @@ import DAO.ProductDAO;
 import DAO.SuppliersDAO;
 import DTO.ProductDTO;
 import DTO.SuppliersDTO;
+
 import GUI.Utils;
 import java.util.ArrayList;
 import java.util.HashMap;
