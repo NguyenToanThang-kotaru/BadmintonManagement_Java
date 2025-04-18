@@ -17,14 +17,14 @@ public class GUI_Import_Detail extends JDialog {
     public GUI_Import_Detail(JFrame parent, ImportDTO importDTO) {
         super(parent, "Chi Tiết Phiếu Nhập", true);
         bus = new DetailImportBUS();
-        setSize(800, 550);
+        setSize(1000, 650);
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout());
         setBackground(Color.WHITE);
 
         // Tạo panel chính với GridBagLayout
         JPanel mainPanel = new JPanel(new GridBagLayout());
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Giảm padding trái/phải để bảng rộng hơn
         mainPanel.setBackground(Color.WHITE);
 
         GridBagConstraints gbc = new GridBagConstraints();
@@ -56,7 +56,7 @@ public class GUI_Import_Detail extends JDialog {
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
 
-        String[] columnNames = {"Mã SP", "Tên SP", "Nhà cung cấp", "Số lượng", "Giá gốc", "Giá bán", "Thành tiền"};
+        String[] columnNames = {"Mã SP", "Tên SP", "Nhà cung cấp", "Số lượng", "Giá gốc", "Giá bán", "Tổng tiền nhập", "Tổng tiền bán"};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -64,7 +64,7 @@ public class GUI_Import_Detail extends JDialog {
             }
         };
         productsTable = new JTable(model);
-        productsTable.setRowHeight(25);
+        productsTable.setRowHeight(30); // Tăng chiều cao hàng để dễ đọc
 
         // Căn giữa nội dung các cột
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
@@ -73,8 +73,18 @@ public class GUI_Import_Detail extends JDialog {
             productsTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
 
+        // Điều chỉnh độ rộng cột
+        productsTable.getColumnModel().getColumn(0).setPreferredWidth(120); // Mã SP
+        productsTable.getColumnModel().getColumn(1).setPreferredWidth(250); // Tên SP
+        productsTable.getColumnModel().getColumn(2).setPreferredWidth(200); // Nhà cung cấp
+        productsTable.getColumnModel().getColumn(3).setPreferredWidth(100); // Số lượng
+        productsTable.getColumnModel().getColumn(4).setPreferredWidth(150); // Giá gốc
+        productsTable.getColumnModel().getColumn(5).setPreferredWidth(150); // Giá bán
+        productsTable.getColumnModel().getColumn(6).setPreferredWidth(170); // Tổng tiền nhập
+        productsTable.getColumnModel().getColumn(7).setPreferredWidth(170); // Tổng tiền bán
+
         scrollPane = new JScrollPane(productsTable);
-        scrollPane.setPreferredSize(new Dimension(700, 200));
+        scrollPane.setPreferredSize(new Dimension(950, 350)); // Tăng chiều rộng và chiều cao bảng
         mainPanel.add(scrollPane, gbc);
 
         // Tải chi tiết phiếu nhập và tính tổng tiền
@@ -121,7 +131,7 @@ public class GUI_Import_Detail extends JDialog {
         model.setRowCount(0);
 
         for (Object[] detail : details) {
-            int quantity = (int) detail[3]; // Số lượng ở vị trí mới
+            int quantity = (int) detail[3]; // Số lượng
             int price = Integer.parseInt(((String) detail[4]).replaceAll("[^0-9]", "")); // Giá gốc
             total += quantity * price;
             model.addRow(detail);

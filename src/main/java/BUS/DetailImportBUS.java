@@ -78,7 +78,8 @@ public class DetailImportBUS {
                 int quantity = rs.getInt("so_luong");
                 int price = rs.getInt("gia"); // Giá gốc từ chi_tiet_nhap_hang
                 int sellingPrice = rs.getInt("gia_ban"); // Giá bán từ san_pham
-                int rowTotal = quantity * price;
+                int importTotal = quantity * price; // Tổng tiền nhập
+                int sellingTotal = quantity * sellingPrice; // Tổng tiền bán
                 details.add(new Object[]{
                         rs.getString("ma_san_pham"),
                         rs.getString("ten_san_pham"),
@@ -86,7 +87,8 @@ public class DetailImportBUS {
                         quantity,
                         Utils.formatCurrency(price),
                         Utils.formatCurrency(sellingPrice),
-                        Utils.formatCurrency(rowTotal)
+                        Utils.formatCurrency(importTotal),
+                        Utils.formatCurrency(sellingTotal)
                 });
             }
         } catch (Exception e) {
