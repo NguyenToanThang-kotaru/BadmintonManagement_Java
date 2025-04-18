@@ -59,7 +59,7 @@ public class GUI_Detail_Suppliers extends JDialog {
         gbc.gridx = 1;
         infoPanel.add(new JLabel(supplier.getfullname()), gbc);
 
-        String[] columnNames = {"Mã SP", "Tên SP", "Giá bán", "Giá nhập", "Số Lượng", "Thông Số Kỹ Thuật"};
+        String[] columnNames = {"Mã SP", "Tên SP", "Giá bán", "Giá nhập", "Thông Số Kỹ Thuật"};
         productTableModel = new DefaultTableModel(columnNames, 0);
         productTable = new JTable(productTableModel);
         
@@ -72,9 +72,8 @@ public class GUI_Detail_Suppliers extends JDialog {
         columnModel.getColumn(2).setPreferredWidth(100);
         columnModel.getColumn(3).setPreferredWidth(100);
         columnModel.getColumn(4).setPreferredWidth(80);
-        columnModel.getColumn(5).setPreferredWidth(300);
 
-        JScrollPane scrollPane = new JScrollPane(productTable);
+        CustomScrollPane scrollPane = new CustomScrollPane(productTable);
         scrollPane.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createTitledBorder("Danh Sách Sản Phẩm"),
             BorderFactory.createEmptyBorder(10, 10, 10, 10)
@@ -274,7 +273,6 @@ public class GUI_Detail_Suppliers extends JDialog {
                 product.getProductName(),
                 Utils.formatCurrency(Integer.parseInt(product.getGia())) + " VND",
                 Utils.formatCurrency(Integer.parseInt(product.getGiaGoc())) + " VND",
-                product.getSoluong(),
                 product.getTSKT()
             });
         }
