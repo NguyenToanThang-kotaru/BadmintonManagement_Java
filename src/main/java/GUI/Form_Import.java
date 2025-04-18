@@ -4,8 +4,9 @@ import BUS.Form_ImportBUS;
 import DTO.SuppliersDTO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableModel; // Thêm import
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -126,13 +127,21 @@ public class Form_Import extends JDialog {
     }
 
     private void loadProductImage(String imageFileName) {
-        String imagePath = "/images/" + (imageFileName != null ? imageFileName : "default_product.png");
-        java.net.URL imageUrl = getClass().getResource(imagePath);
-        ImageIcon icon = (imageUrl != null) ? new ImageIcon(imageUrl) : null;
-        productDetailPanel.getLblProductImage().setIcon(
-            icon != null ? new ImageIcon(icon.getImage().getScaledInstance(140, 140, Image.SCALE_SMOOTH)) : null
-        );
-        productDetailPanel.getLblProductImage().setText(icon == null ? "Không có ảnh" : "");
+        String imagePath = "images/" + (imageFileName != null && !imageFileName.isEmpty() ? imageFileName : "default_product.png");
+        File imageFile = new File(imagePath);
+        System.out.println("Đường dẫn hình ảnh: " + imagePath);
+    
+        if (imageFile.exists()) {
+            ImageIcon productIcon = new ImageIcon(imagePath);
+            Image img = productIcon.getImage().getScaledInstance(140, 140, Image.SCALE_SMOOTH);
+            productDetailPanel.getLblProductImage().setIcon(new ImageIcon(img));
+            productDetailPanel.getLblProductImage().setText("");
+            System.out.println("Hình ảnh tồn tại và được tải thành công.");
+        } else {
+            productDetailPanel.getLblProductImage().setIcon(null);
+            productDetailPanel.getLblProductImage().setText("Không có ảnh");
+            System.out.println("Hình ảnh không tồn tại.");
+        }
     }
 
     private void addProductToImport() {

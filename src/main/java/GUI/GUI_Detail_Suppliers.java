@@ -9,6 +9,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 import java.awt.*;
+import java.io.File;
 import java.net.URL;
 import java.util.List;
 
@@ -179,50 +180,54 @@ public class GUI_Detail_Suppliers extends JDialog {
 
         // Thêm sự kiện khi chọn hàng trong bảng
         productTable.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) { // Tránh sự kiện được gọi nhiều lần
+            if (!e.getValueIsAdjusting()) {
                 int selectedRow = productTable.getSelectedRow();
                 if (selectedRow != -1) {
                     String productID = (String) productTable.getValueAt(selectedRow, 0);
-
                     ProductDTO product = ProductDAO.getProduct(productID);
-
+        
                     if (product != null) {
                         // Cập nhật thông tin chi tiết
                         productIDLabel.setText(product.getProductID());
                         nameLabel.setText(product.getProductName());
-                        priceLabel.setText(Utils.formatCurrency(product.getGia()) + " VND"); // Thêm VND
+                        priceLabel.setText(Utils.formatCurrency(product.getGia()) + " VND");
                         quantityLabel.setText(String.valueOf(product.getSoluong()));
                         totalLabel.setText(Utils.formatCurrency(Utils.parseCurrency(product.getGia()) * Utils.parseCurrency(product.getSoluong())) + " VND");
                         supplierNameLabel.setText(product.gettenNCC());
                         tsktLabel.setText(product.getTSKT());
                         categoryLabel.setText(product.getTL());
-
+        
                         // Cập nhật hình ảnh
                         String imageFileName = product.getAnh();
-                        String imagePath = "/images/" + (imageFileName != null ? imageFileName : "default_product.png");
-                        URL imageUrl = getClass().getResource(imagePath);
-                        ImageIcon icon = (imageUrl != null) ? new ImageIcon(imageUrl) : null;
-                        imageLabel.setIcon(
-                            icon != null ? new ImageIcon(icon.getImage().getScaledInstance(230, 180, Image.SCALE_SMOOTH)) : null
-                        );
-                        imageLabel.setText(icon == null ? "Không có ảnh" : "");
-
+                        String imagePath = "images/" + (imageFileName != null && !imageFileName.isEmpty() ? imageFileName : "default_product.png");
+                        File imageFile = new File(imagePath);
+                        System.out.println("Đường dẫn hình ảnh: " + imagePath);
+        
+                        if (imageFile.exists()) {
+                            ImageIcon productIcon = new ImageIcon(imagePath);
+                            Image img = productIcon.getImage().getScaledInstance(230, 180, Image.SCALE_SMOOTH);
+                            imageLabel.setIcon(new ImageIcon(img));
+                            imageLabel.setText("");
+                            System.out.println("Hình ảnh tồn tại và được tải thành công.");
+                        } else {
+                            imageLabel.setIcon(null);
+                            imageLabel.setText("Không có ảnh");
+                            System.out.println("Hình ảnh không tồn tại.");
+                        }
+        
                         // Thay thế placeholderPanel bằng detailPanel
                         mainPanel.remove(placeholderPanel);
                         mainPanel.add(detailPanel, BorderLayout.SOUTH);
                         mainPanel.revalidate();
                         mainPanel.repaint();
                     } else {
-                        // Thông báo lỗi nếu không tìm thấy sản phẩm
                         JOptionPane.showMessageDialog(this, "Không tìm thấy sản phẩm với ID: " + productID, "Lỗi", JOptionPane.ERROR_MESSAGE);
-                        // Hiển thị lại placeholderPanel
                         mainPanel.remove(detailPanel);
                         mainPanel.add(placeholderPanel, BorderLayout.SOUTH);
                         mainPanel.revalidate();
                         mainPanel.repaint();
                     }
                 } else {
-                    // Nếu không có hàng nào được chọn, hiển thị lại placeholderPanel
                     mainPanel.remove(detailPanel);
                     mainPanel.add(placeholderPanel, BorderLayout.SOUTH);
                     mainPanel.revalidate();

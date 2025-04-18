@@ -399,19 +399,10 @@ public class ProductDAO {
                 + "WHERE sp.is_deleted = 0 AND "
                 + "(sp.ma_san_pham LIKE ? OR sp.ten_san_pham LIKE ? OR lsp.ten_loai LIKE ? OR ncc.ten_nha_cung_cap LIKE ?)"
                 + "ORDER BY sp.ma_san_pham ASC";
-<<<<<<< HEAD
-
-=======
         
-<<<<<<< Updated upstream
->>>>>>> main
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
-
-=======
         try (Connection conn = DatabaseConnection.getConnection(); 
              PreparedStatement stmt = conn.prepareStatement(query)) {
     
->>>>>>> Stashed changes
             String searchKeyword = "%" + keyword + "%";
             stmt.setString(1, searchKeyword);
             stmt.setString(2, searchKeyword);
