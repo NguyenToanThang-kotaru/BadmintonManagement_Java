@@ -12,6 +12,8 @@ public class ProductDTO {
     private String anh;
     private String TL;
     private String tenNCC;
+    private String giaGoc;
+    private String khuyenMai;
 
     public ProductDTO() {
         this.productID = "";
@@ -24,9 +26,11 @@ public class ProductDTO {
         this.anh = "";
         this.TL = "";
         this.tenNCC = "";
+        this.giaGoc = "";
+        this.khuyenMai = "";
     }
 
-    public ProductDTO(String productID, String productName, String gia, String soluong, String maNCC, String TSKT, String ML, String TL, String anh, String tenNCC) {
+    public ProductDTO(String productID, String productName, String gia, String soluong, String maNCC, String TSKT, String ML, String TL, String anh, String tenNCC, String giaGoc, String khuyenMai) {
         this.productID = productID;
         this.productName = productName;
         this.gia = gia;
@@ -37,6 +41,21 @@ public class ProductDTO {
         this.anh = anh;
         this.TL = TL;
         this.tenNCC = tenNCC;
+        this.giaGoc = giaGoc;
+        this.khuyenMai = khuyenMai;
+    }
+
+    public ProductDTO(String productID, String productName, String gia, String soluong, String maNCC, String TSKT, String ML, String anh, String giaGocString, String khuyenMai) {
+        this.productID = productID;
+        this.productName = productName;
+        this.gia = gia;
+        this.soluong = soluong;
+        this.maNCC = maNCC;
+        this.TSKT = TSKT;
+        this.ML = ML;
+        this.anh = anh;
+        this.giaGoc = "";
+        this.khuyenMai = "";
     }
 
     public String getProductID() {
@@ -117,5 +136,21 @@ public class ProductDTO {
 
     public void settenNCC(String tenNCC) {
         this.tenNCC = tenNCC;
+    }
+
+    public String getgiaGoc() {
+        return giaGoc;
+    }
+
+    public void setgiaGoc(String giaGoc) {
+        this.giaGoc = giaGoc;
+    }
+
+    public String getkhuyenMai() {
+        return khuyenMai;
+    }
+
+    public void setkhuyenMai(String khuyenMai) {
+        this.khuyenMai = khuyenMai;
     }
 }

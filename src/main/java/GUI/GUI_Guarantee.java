@@ -3,6 +3,7 @@ package GUI;
 import DAO.GuaranteeDAO;
 import DTO.GuaranteeDTO;
 
+import BUS.GuaranteeBUS;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -108,7 +109,7 @@ public class GUI_Guarantee extends JPanel {
 
             if (selectedRow != -1) {
                 String guaranteeID = (String) warrantyTable.getValueAt(selectedRow, 0);
-                GuaranteeDTO guarantee = GuaranteeDAO.getGuarantee(guaranteeID);
+                GuaranteeDTO guarantee = GuaranteeBUS.getGuarantee(guaranteeID);
 //                System.out.println("Dang chon ");
                 serialLabel.setText(guarantee.getSerialID());
                 textReasonLabel.setText(guarantee.getLydo());
@@ -139,7 +140,7 @@ public class GUI_Guarantee extends JPanel {
             String guaranteeID = (String) warrantyTable.getValueAt(selectedRow, 0);
 
             // Lấy dữ liệu bảo hành từ database
-            GuaranteeDTO guarantee = GuaranteeDAO.getGuarantee(guaranteeID);
+            GuaranteeDTO guarantee = GuaranteeBUS.getGuarantee(guaranteeID);
 
             Form_Guarantee fixForm = new Form_Guarantee((JFrame) SwingUtilities.getWindowAncestor(this), this, guarantee);
             fixForm.setVisible(true);
@@ -154,7 +155,7 @@ public class GUI_Guarantee extends JPanel {
     }
 
     public void loadGuaranteeData() {
-        ArrayList<GuaranteeDTO> guaranteeList = GuaranteeDAO.getAllGuarantee();
+        ArrayList<GuaranteeDTO> guaranteeList = GuaranteeBUS.getAllGuarantee();
         tableModel.setRowCount(0);
         for (GuaranteeDTO guarantee : guaranteeList) {
             tableModel.addRow(new Object[]{

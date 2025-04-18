@@ -1,6 +1,7 @@
 package GUI;
 
 import DTO.ProductDTO;
+import BUS.ProductBUS;
 import DAO.ProductDAO;
 
 import java.awt.*;
@@ -33,9 +34,9 @@ public class Form_SerialShower extends JDialog {
         serialListPanel.setBackground(Color.WHITE);
 
         // Lấy danh sách serial từ DAO bằng productID
-        ArrayList<String> serials = ProductDAO.getSerialsForProduct(product.getProductID());
+        ArrayList<String> serials = ProductBUS.getSerialsForProduct(product.getProductID());
         for (String serial : serials) {
-            serialListPanel.add(createSerialLabel(serial));
+            serialListPanel.add(createSerialLabel(serial)); 
         }
 
         JScrollPane scrollPane = new JScrollPane(serialListPanel);

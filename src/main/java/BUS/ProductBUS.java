@@ -4,22 +4,51 @@ import DAO.ProductDAO;
 import DTO.ProductDTO;
 
 import java.util.List;
+import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
 public class ProductBUS {
 
-    public List<ProductDTO> getAllProducts() {
+    public static List<ProductDTO> getAllProducts() {
         return ProductDAO.getAllProducts();
     }
 
-    public void updateProduct(ProductDTO product) {
+    public static void updateProduct(ProductDTO product) {
         ProductDAO dao = new ProductDAO();
         dao.updateProduct(product);
+    }
+
+    public static Boolean addProduct(ProductDTO product) {
+        return ProductDAO.addProduct(product);
+    }
+
+    public static ProductDTO getProduct(String ProductID) {
+        ProductDAO dao = new ProductDAO();
+        return dao.getProduct(ProductID); // Trả về đối tượng lấy được từ DAO
+    }
+
+    public static ArrayList<ProductDTO> searchProducts(String keyword) {
+        return ProductDAO.searchProducts(keyword);
+    }
+
+    public static ArrayList<String> getSerialsForProduct(String productID) {
+        return ProductDAO.getSerialsForProduct(productID);
+    }
+
+    public static ArrayList<String> getAllCategoryNames() {
+        return ProductDAO.getAllCategoryNames();
+    }
+
+    // Xóa sản phẩm theo mã
+    public static boolean deleteProduct(String productID) {
+        return ProductDAO.deleteProduct(productID);
     }
 
     public boolean validateProduct(ProductDTO product) {
         String productName = product.getProductName().trim();
         String gia = product.getGia().trim();
+        String gianhap = product.getgiaGoc().trim();
+        String khuyenmai = product.getkhuyenMai().trim();
         String soluong = product.getSoluong().trim();
 
         // Không cho tên chỉ toàn số
@@ -43,6 +72,22 @@ public class ProductBUS {
         if (!gia.matches("^\\d+$")) {
             JOptionPane.showMessageDialog(null,
                     "Giá chỉ được chứa số.",
+                    "Lỗi nhập liệu",
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        if (!gianhap.matches("^\\d+$")) {
+            JOptionPane.showMessageDialog(null,
+                    "Giá nhập chỉ được chứa số.",
+                    "Lỗi nhập liệu",
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        if (!khuyenmai.matches("^\\d+$")) {
+            JOptionPane.showMessageDialog(null,
+                    "Khuyến mãi chỉ được chứa số.",
                     "Lỗi nhập liệu",
                     JOptionPane.ERROR_MESSAGE);
             return false;
@@ -82,25 +127,25 @@ public class ProductBUS {
             return false;
         }
     }
-    
+
     //Chỗ Tiến sử dụng để làm:
     public String getProductImage(String productID) {
         return ProductDAO.getProductImage(productID);
     }
-    
+
     public ProductDTO getProductByID(String id) {
         ProductDAO dao = new ProductDAO();
         return dao.getProduct(id);
     }
-    
-    public List<String> getAvailableSerials(String maSanPham,int soLuong) {
+
+    public List<String> getAvailableSerials(String maSanPham, int soLuong) {
         return ProductDAO.getAvailableSerials(maSanPham, soLuong);
     }
 
     public void markSerialsAsUsed(List<String> serials) {
         ProductDAO.markSerialsAsUsed(serials);
     }
-    
+
     public boolean reduceStock(String productId, int quantity) {
         ProductDAO dao = new ProductDAO();
         return dao.updateStockAfterSale(productId, quantity);

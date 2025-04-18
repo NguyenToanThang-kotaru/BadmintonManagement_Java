@@ -3,6 +3,7 @@ package GUI;
 import DTO.ProductDTO;
 import DAO.ProductDAO;
 import BUS.ProductBUS;
+import BUS.SuppliersBUS;
 import DAO.SuppliersDAO;
 
 import java.awt.*;
@@ -14,7 +15,7 @@ import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 
 public class GUI_AddFormProduct extends JDialog {
 
-    private JTextField nameField, priceField, maNCCField, soluongField, tsktField;
+    private JTextField nameField, priceField, maNCCField, soluongField, tsktField, priceIntoField, saleField ;
     private CustomCombobox TLField, NCCField;
     private CustomButton saveButton, cancelButton, btnChooseImage;
     private JLabel imageLabel;
@@ -39,7 +40,9 @@ public class GUI_AddFormProduct extends JDialog {
         addComponent("Giá:", priceField = new JTextField(20), gbc, 1);
 //        addComponent("Mã NCC:", maNCCField = new JTextField(20), gbc, 2);
 //        addComponent("Số lượng:", soluongField = new JTextField(20), gbc, 3);
-        addComponent("Thông số kỹ thuật:", tsktField = new JTextField(20), gbc, 4);
+        addComponent("Thông số kỹ thuật:", tsktField = new JTextField(20), gbc, 2);
+        addComponent("Giá nhập:", priceIntoField = new JTextField(20), gbc, 3);
+        addComponent("Khuyến mãi:", saleField = new JTextField(20), gbc, 4);
 
         // Loại sản phẩm
         gbc.gridx = 0;
@@ -47,7 +50,7 @@ public class GUI_AddFormProduct extends JDialog {
         add(new JLabel("Tên loại:"), gbc);
         gbc.gridx = 1;
         // Lấy danh sách các loại sản phẩm từ database
-        String[] categoryNames = ProductDAO.getAllCategoryNames().toArray(new String[0]);
+        String[] categoryNames = ProductBUS.getAllCategoryNames().toArray(new String[0]);
         TLField = new CustomCombobox(categoryNames);
         add(TLField, gbc);
 
@@ -55,7 +58,7 @@ public class GUI_AddFormProduct extends JDialog {
         gbc.gridy = 6;
         add(new JLabel("Nhà cung cấp:"), gbc);
         gbc.gridx = 1;
-        String[] NCCNames = SuppliersDAO.getAllNCCNames().toArray(new String[0]);
+        String[] NCCNames = SuppliersBUS.getAllNCCNames().toArray(new String[0]);
         NCCField = new CustomCombobox(NCCNames);
         add(NCCField, gbc);
 
@@ -127,6 +130,8 @@ public class GUI_AddFormProduct extends JDialog {
         String price = priceField.getText().trim();
         String soluong = "0";
         String tskt = tsktField.getText().trim();
+        String gianhap = priceIntoField.getText().trim();
+        String khuyenmai = saleField.getText().trim();
         String tenLoai = (String) TLField.getSelectedItem();
         String tenNCC = (String) NCCField.getSelectedItem();
         String anh = null;
@@ -142,14 +147,14 @@ public class GUI_AddFormProduct extends JDialog {
         }
 
         // Tạo sản phẩm mới, truyền vào productID là null vì đây là sản phẩm mới (sẽ tự động sinh ID khi thêm vào DB)
-        ProductDTO newProduct = new ProductDTO(null, name, price, soluong, null, tskt, null, tenLoai, anh, tenNCC);
-        
-          ProductBUS bus = new ProductBUS();
+        ProductDTO newProduct = new ProductDTO(null, name, price, soluong, null, tskt, null, tenLoai, anh, tenNCC, gianhap, khuyenmai);
+
+        ProductBUS bus = new ProductBUS();
         if (!bus.validateProduct(newProduct)) {
             return; // Dừng lại nếu không hợp lệ
         }
-        
-        boolean success = ProductDAO.addProduct(newProduct);
+
+        boolean success = ProductBUS.addProduct(newProduct);
         if (success) {
             JOptionPane.showMessageDialog(this, "Thêm sản phẩm thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
             dispose();
