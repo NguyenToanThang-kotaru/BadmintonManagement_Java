@@ -41,7 +41,7 @@ public class GUI_AddFormProduct extends JDialog {
 //        addComponent("Số lượng:", soluongField = new JTextField(20), gbc, 3);
         addComponent("Thông số kỹ thuật:", tsktField = new JTextField(20), gbc, 2);
         addComponent("Giá nhập:", priceIntoField = new JTextField(20), gbc, 3);
-        addComponent("Khuyến mãi:", saleField = new JTextField(20), gbc, 4);
+//        addComponent("Khuyến mãi:", saleField = new JTextField(20), gbc, 4);
 
         // Loại sản phẩm
         gbc.gridx = 0;
@@ -130,7 +130,7 @@ public class GUI_AddFormProduct extends JDialog {
         String soluong = "0";
         String tskt = tsktField.getText().trim();
         String gianhap = priceIntoField.getText().trim();
-        String khuyenmai = saleField.getText().trim();
+        String khuyenmai = "0";
         String tenLoai = (String) TLField.getSelectedItem();
         String tenNCC = (String) NCCField.getSelectedItem();
         String anh = null;

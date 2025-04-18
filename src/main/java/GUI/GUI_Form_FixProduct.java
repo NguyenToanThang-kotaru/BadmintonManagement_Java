@@ -53,9 +53,11 @@ public class GUI_Form_FixProduct extends JDialog {
 //        addComponent("Số lượng:", soluongField = new JTextField(20), gbc, 4);
 //        soluongField.setText(String.valueOf(product.getSoluong()));
         addComponent("Thông số kỹ thuật:", tsktField = new JTextField(20), gbc, 3);
-        addComponent("Giá nhập:", priceIntoField = new JTextField(20), gbc, 4);
-        addComponent("Khuyến mãi:", saleField = new JTextField(20), gbc, 5);
         tsktField.setText(product.getTSKT());
+        addComponent("Giá nhập:", priceIntoField = new JTextField(20), gbc, 4);
+        priceIntoField.setText(product.getgiaGoc());
+        addComponent("Khuyến mãi:", saleField = new JTextField(20), gbc, 5);
+        saleField.setText(product.getkhuyenMai());
 
         gbc.gridx = 0;
         gbc.gridy = 6;
