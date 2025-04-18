@@ -29,7 +29,7 @@ public class GUI_Detail_Suppliers extends JDialog {
         suppliersBUS = new SuppliersBUS();
 
         setSize(900, 800);
-        setLocationRelativeTo(parent);
+        setLocationRelativeTo(null);
         setLayout(new BorderLayout(10, 10));
         setBackground(Color.WHITE);
 
@@ -138,26 +138,26 @@ public class GUI_Detail_Suppliers extends JDialog {
         quantityLabel = new JLabel("");
         rightPanel.add(quantityLabel, gbcInfo);
 
-        gbcInfo.gridx = 0;
-        gbcInfo.gridy = 4;
-        rightPanel.add(new JLabel("Tổng giá bán: "), gbcInfo);
-        gbcInfo.gridx = 1;
-        totalLabel = new JLabel("");
-        rightPanel.add(totalLabel, gbcInfo);
-
+//        gbcInfo.gridx = 0;
+//        gbcInfo.gridy = 4;
+//        rightPanel.add(new JLabel("Tổng giá bán: "), gbcInfo);
+//        gbcInfo.gridx = 1;
+//        totalLabel = new JLabel("");
+//        rightPanel.add(totalLabel, gbcInfo);
+//
         gbcInfo.gridx = 0;
         gbcInfo.gridy = 5;
-        rightPanel.add(new JLabel("Tổng giá nhập: "), gbcInfo);
+        rightPanel.add(new JLabel("Giá nhập: "), gbcInfo);
         gbcInfo.gridx = 1;
         totalImportLabel = new JLabel("");
         rightPanel.add(totalImportLabel, gbcInfo);
 
-        gbcInfo.gridx = 0;
-        gbcInfo.gridy = 6;
-        rightPanel.add(new JLabel("Tiền lời: "), gbcInfo);
-        gbcInfo.gridx = 1;
-        profitLabel = new JLabel("");
-        rightPanel.add(profitLabel, gbcInfo);
+//        gbcInfo.gridx = 0;
+//        gbcInfo.gridy = 6;
+//        rightPanel.add(new JLabel("Tiền lời: "), gbcInfo);
+//        gbcInfo.gridx = 1;
+//        profitLabel = new JLabel("");
+//        rightPanel.add(profitLabel, gbcInfo);
 
         gbcInfo.gridx = 0;
         gbcInfo.gridy = 7;
@@ -196,23 +196,23 @@ public class GUI_Detail_Suppliers extends JDialog {
                         priceLabel.setText(Utils.formatCurrency(Integer.parseInt(product.getGia())) + " VND");
                         quantityLabel.setText(product.getSoluong());
 
-                        try {
-                            int gia = Integer.parseInt(product.getGia());
+//                        try {
+//                            int gia = Integer.parseInt(product.getGia());
                             int giaGoc = Integer.parseInt(product.getGiaGoc());
-                            int soLuong = Integer.parseInt(product.getSoluong());
-                            long totalSellPrice = (long) gia * soLuong;
-                            long totalImportPrice = (long) giaGoc * soLuong;
-                            totalLabel.setText(Utils.formatCurrencyLong(totalSellPrice) + " VND");
-                            totalImportLabel.setText(Utils.formatCurrencyLong(totalImportPrice) + " VND");
-
-                            long profit = totalSellPrice - totalImportPrice;
-                            double profitPercentage = totalImportPrice > 0 ? (double) profit / totalImportPrice * 100 : 0;
-                            profitLabel.setText(Utils.formatCurrencyLong(profit) + " VND (" + String.format("%.2f", profitPercentage) + "%)");
-                        } catch (NumberFormatException ex) {
-                            totalLabel.setText("Lỗi dữ liệu");
-                            totalImportLabel.setText("Lỗi dữ liệu");
-                            profitLabel.setText("Lỗi dữ liệu");
-                        }
+//                            int soLuong = Integer.parseInt(product.getSoluong());
+//                            long totalSellPrice = (long) gia * soLuong;
+//                            long totalImportPrice = (long) giaGoc * soLuong;
+//                            totalLabel.setText(Utils.formatCurrencyLong(totalSellPrice) + " VND");
+                            totalImportLabel.setText(Utils.formatCurrencyLong(giaGoc) + " VND");
+//
+//                            long profit = totalSellPrice - totalImportPrice;
+//                            double profitPercentage = totalImportPrice > 0 ? (double) profit / totalImportPrice * 100 : 0;
+//                            profitLabel.setText(Utils.formatCurrencyLong(profit) + " VND (" + String.format("%.2f", profitPercentage) + "%)");
+//                        } catch (NumberFormatException ex) {
+//                            totalLabel.setText("Lỗi dữ liệu");
+//                            totalImportLabel.setText("Lỗi dữ liệu");
+//                            profitLabel.setText("Lỗi dữ liệu");
+//                        }
 
                         supplierNameLabel.setText(product.gettenNCC());
                         tsktLabel.setText(product.getTSKT());
