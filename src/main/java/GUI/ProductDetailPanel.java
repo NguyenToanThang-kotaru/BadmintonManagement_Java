@@ -1,13 +1,12 @@
 package GUI;
 
+import BUS.Form_ImportBUS;
+
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
-
-import BUS.Form_ImportBUS;
-
 import java.awt.*;
 import java.awt.event.*;
 

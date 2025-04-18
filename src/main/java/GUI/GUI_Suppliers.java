@@ -3,6 +3,7 @@ package GUI;
 import BUS.SuppliersBUS;
 import Connection.DatabaseConnection;
 import DTO.SuppliersDTO;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
@@ -105,7 +106,7 @@ public class GUI_Suppliers extends JPanel {
         addButton = new CustomButton("+ Thêm Nhà Cung Cấp");
         topPanel.add(addButton, BorderLayout.EAST);
 
-        addButton.addActionListener(e -> new GUI_Form_Suppliers(this).setVisible(true));
+        addButton.addActionListener(e -> new Form_Suppliers(this).setVisible(true));
 
         editButton.addActionListener(e -> {
             int selectedRow = supplierTable.getSelectedRow();

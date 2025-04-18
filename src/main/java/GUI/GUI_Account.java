@@ -1,15 +1,16 @@
 package GUI;
 
 import DTO.AccountDTO;
+import BUS.AccountBUS;
+import DAO.AccountDAO;
+import DAO.PermissionDAO;
+import DTO.PermissionDTO;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
-import BUS.AccountBUS;
-import DAO.AccountDAO;
-import DAO.PermissionDAO;
-import DTO.PermissionDTO;
 import java.util.ArrayList;
 
 public class GUI_Account extends JPanel {
@@ -165,12 +166,12 @@ public class GUI_Account extends JPanel {
 
         addButton.addActionListener(e -> {
 //            JOptionPane.showMessageDialog(this, "Chức năng thêm nhân viên chưa được triển khai!");
-            GUI_Form_Account GFA = new GUI_Form_Account(this, null);
+            Form_Account GFA = new Form_Account(this, null);
             GFA.setVisible(true);
         });
 
         editButton.addActionListener(e -> {
-            GUI_Form_Account GFA = new GUI_Form_Account(this, accountChoosing);
+            Form_Account GFA = new Form_Account(this, accountChoosing);
             GFA.setVisible(true);
         });
 

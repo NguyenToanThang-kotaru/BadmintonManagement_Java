@@ -6,10 +6,6 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import javax.swing.border.MatteBorder;
 
-/**
- *
- * @author Thang Nguyen
- */
 public class Sidebar extends JPanel {
 
     private ArrayList<String> menuItems;

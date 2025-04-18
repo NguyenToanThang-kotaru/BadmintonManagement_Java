@@ -2,12 +2,11 @@ package GUI;
 
 import DAO.GuaranteeDAO;
 import DTO.GuaranteeDTO;
+
 import BUS.GuaranteeBUS;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumnModel;
 import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
 import java.util.List;
@@ -143,7 +142,7 @@ public class GUI_Guarantee extends JPanel {
             // Lấy dữ liệu bảo hành từ database
             GuaranteeDTO guarantee = GuaranteeBUS.getGuarantee(guaranteeID);
 
-            GUI_Form_Guarantee fixForm = new GUI_Form_Guarantee((JFrame) SwingUtilities.getWindowAncestor(this), this, guarantee);
+            Form_Guarantee fixForm = new Form_Guarantee((JFrame) SwingUtilities.getWindowAncestor(this), this, guarantee);
             fixForm.setVisible(true);
         });
 

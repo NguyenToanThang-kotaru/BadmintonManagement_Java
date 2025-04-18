@@ -1,7 +1,8 @@
 package DAO;
 
-import Connection.DatabaseConnection;
 import DTO.SuppliersDTO;
+
+import Connection.DatabaseConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

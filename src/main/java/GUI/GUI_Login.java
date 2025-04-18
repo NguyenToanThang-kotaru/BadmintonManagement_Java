@@ -1,9 +1,10 @@
 package GUI;
 
+import BUS.AccountBUS;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import BUS.AccountBUS;
 
 public class GUI_Login extends JFrame {
     private static String currentUsername; 

@@ -3,16 +3,15 @@ package GUI;
 import DAO.ProductDAO;
 import DTO.ProductDTO;
 import BUS.ProductBUS;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import javax.swing.table.TableColumnModel;
 import java.util.List;
 import java.util.ArrayList;
 import java.io.File;
-import java.nio.file.Files;
 
 public class GUI_Product extends JPanel {
 
@@ -256,7 +255,7 @@ public class GUI_Product extends JPanel {
                 ProductDTO product = ProductBUS.getProduct(productID);
 
                 // Hiển thị form sửa sản phẩm
-                GUI_Form_FixProduct fixForm = new GUI_Form_FixProduct((JFrame) SwingUtilities.getWindowAncestor(this), this, product);
+                Form_FixProduct fixForm = new Form_FixProduct((JFrame) SwingUtilities.getWindowAncestor(this), this, product);
                 fixForm.setVisible(true);
 
             }
@@ -269,7 +268,7 @@ public class GUI_Product extends JPanel {
                 ProductDTO product = ProductBUS.getProduct(productID);
 
                 // Hiển thị form danh sách SE
-                GUI_Form_SerialShower SEForm = new GUI_Form_SerialShower((JFrame) SwingUtilities.getWindowAncestor(this), product);
+                Form_SerialShower SEForm = new Form_SerialShower((JFrame) SwingUtilities.getWindowAncestor(this), product);
                 SEForm.setVisible(true);
 
             }
