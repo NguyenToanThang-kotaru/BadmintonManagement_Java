@@ -8,6 +8,7 @@ public class DetailOrderDTO {
     private String serialID;
     private String amount;
     private String price;
+    private String profit;
     
     public DetailOrderDTO() {
         this.detailorderID = "";
@@ -16,15 +17,17 @@ public class DetailOrderDTO {
         this.serialID = "";
         this.amount = "";
         this.price = "";
+        this.profit = "";
     }
     
-    public DetailOrderDTO(String detailorderID, String productID, String orderID, String serialID, String amount, String price) {
+    public DetailOrderDTO(String detailorderID, String productID, String orderID, String serialID, String amount, String price, String progit) {
         this.detailorderID = detailorderID;
         this.productID = productID;
         this.orderID = orderID;
         this.serialID = serialID;
         this.amount = amount;
         this.price = price;
+        this.profit = profit;
     }
     
     public String getdetailorderID() {
@@ -73,5 +76,13 @@ public class DetailOrderDTO {
     
     public void setprice(String price) {
         this.price = price;
+    }
+    
+    public String getprofit() {
+        return profit;
+    }
+    
+    public void setprogit(String profit) {
+        this.profit = profit;
     }
 }
