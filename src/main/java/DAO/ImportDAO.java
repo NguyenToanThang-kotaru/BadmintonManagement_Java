@@ -1,7 +1,6 @@
 package DAO;
 
 import DTO.ImportDTO;
-
 import Connection.DatabaseConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,10 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ImportDAO {
-    private final ProductDAO productDAO; // Thêm instance của ProductDAO
+    private final ProductDAO productDAO;
 
     public ImportDAO() {
-        this.productDAO = new ProductDAO(); // Khởi tạo trong constructor
+        this.productDAO = new ProductDAO();
     }
 
     // Lấy một phiếu nhập theo mã
@@ -28,7 +27,6 @@ public class ImportDAO {
                     return new ImportDTO(
                             rs.getString("ma_nhap_hang"),
                             rs.getString("ma_nhan_vien"),
-                            rs.getString("ma_nha_cung_cap"),
                             rs.getString("tong_tien"),
                             rs.getString("ngay_nhap")
                     );
@@ -51,7 +49,6 @@ public class ImportDAO {
                 imports.add(new ImportDTO(
                         rs.getString("ma_nhap_hang"),
                         rs.getString("ma_nhan_vien"),
-                        rs.getString("ma_nha_cung_cap"),
                         rs.getString("tong_tien"),
                         rs.getString("ngay_nhap")
                 ));
@@ -76,7 +73,7 @@ public class ImportDAO {
                     while (rs.next()) {
                         String productID = rs.getString("ma_san_pham");
                         int quantity = rs.getInt("so_luong");
-                        productDAO.updateProductQuantity(productID, -quantity); // Sử dụng instance
+                        productDAO.updateProductQuantity(productID, -quantity);
                     }
                 }
             }
@@ -109,14 +106,13 @@ public class ImportDAO {
 
     // Cập nhật thông tin phiếu nhập
     public void updateImport(ImportDTO importDTO) {
-        String query = "UPDATE nhap_hang SET ma_nhan_vien = ?, ma_nha_cung_cap = ?, tong_tien = ?, ngay_nhap = ? WHERE ma_nhap_hang = ? AND is_deleted = 0";
+        String query = "UPDATE nhap_hang SET ma_nhan_vien = ?, tong_tien = ?, ngay_nhap = ? WHERE ma_nhap_hang = ? AND is_deleted = 0";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, importDTO.getemployeeID());
-            stmt.setString(2, importDTO.getsupplierID());
-            stmt.setString(3, importDTO.gettotalmoney());
-            stmt.setString(4, importDTO.getreceiptdate());
-            stmt.setString(5, importDTO.getimportID());
+            stmt.setString(2, importDTO.gettotalmoney());
+            stmt.setString(3, importDTO.getreceiptdate());
+            stmt.setString(4, importDTO.getimportID());
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

@@ -12,15 +12,13 @@ public class ImportDTO {
     public ImportDTO() {
         this.importID = "";
         this.employeeID = "";
-        this.supplierID = "";
         this.totalmoney = "";
         this.receiptdate = "";
     }
     
-    public ImportDTO(String importID, String employeeID, String supplierID, String totalmoney, String receiptdate) {
+    public ImportDTO(String importID, String employeeID, String totalmoney, String receiptdate) {
         this.importID = importID;
         this.employeeID = employeeID;
-        this.supplierID = supplierID;
         this.totalmoney = totalmoney;
         this.receiptdate = receiptdate;
     }
@@ -39,16 +37,7 @@ public class ImportDTO {
     
     public void setemployeeID(String employeeID) {
         this.employeeID = employeeID;
-    }
-    
-    public String getsupplierID() {
-        return supplierID;
-    }
-    
-    public void setsupplierID(String supplierID) {
-        this.supplierID = supplierID;
-    }
-    
+    }  
     public String gettotalmoney() {
         return totalmoney;
     }

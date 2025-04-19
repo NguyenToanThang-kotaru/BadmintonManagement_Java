@@ -61,17 +61,7 @@ public class Form_ImportBUS {
     }
 
     // Kiểm tra dữ liệu nhập hàng
-    public boolean validateImportData(String supplierID, List<Object[]> productData) {
-        if (supplierID == null || supplierID.trim().isEmpty()) {
-            return false;
-        }
-        
-        // Kiểm tra nhà cung cấp có bị xóa không
-        SuppliersDTO supplier = suppliersDAO.getSupplierByID(supplierID);
-        if (supplier == null || supplier.getIsDeleted() == 1) {
-            return false;
-        }
-        
+    public boolean validateImportData(List<Object[]> productData) {
         if (productData == null || productData.isEmpty()) {
             return false;
         }
@@ -86,14 +76,13 @@ public class Form_ImportBUS {
                 if (quantity <= 0) {
                     return false;
                 }
-                // Kiểm tra sản phẩm thuộc nhà cung cấp còn hoạt động
+                // Kiểm tra sản phẩm và nhà cung cấp
                 String productID = (String) product[0];
                 ProductDTO productDTO = productDAO.getProduct(productID);
                 if (productDTO == null) {
                     return false;
                 }
-                // Kiểm tra nhà cung cấp của sản phẩm
-                SuppliersDTO productSupplier = suppliersDAO.getSupplierByID(productDTO.getMaNCC());
+                SuppliersDTO productSupplier = suppliersDAO.getSuppliers(productDTO.getMaNCC());
                 if (productSupplier == null || productSupplier.getIsDeleted() == 1) {
                     return false;
                 }
@@ -106,16 +95,19 @@ public class Form_ImportBUS {
     }
 
     // Gọi từ Form_ImportDAO để lưu và từ ProductDAO để cập nhật số lượng
-    public boolean saveImport(String importID, String employeeID, String supplierID,
-                              int totalAmount, String receiptDate, List<Object[]> productData) {
+    public boolean saveImport(String importID, String employeeID, int totalAmount,
+                              String receiptDate, List<Object[]> productData) {
+        if (!validateImportData(productData)) {
+            throw new IllegalArgumentException("Dữ liệu nhập hàng không hợp lệ!");
+        }
+        
         Object[][] productArray = productData.toArray(new Object[0][]);
-        boolean saved = formImportDAO.saveImport(importID, employeeID, supplierID, totalAmount, receiptDate, productArray);
+        boolean saved = formImportDAO.saveImport(importID, employeeID, totalAmount, receiptDate, productArray);
         if (saved) {
             // Cập nhật số lượng sản phẩm sau khi lưu thành công
             for (Object[] product : productData) {
                 String productID = (String) product[0];
                 int quantity = (Integer) product[2];
-//                System.out.println(quantity+productID);
                 productDAO.updateProductQuantity(productID, quantity);
             }
         }
@@ -129,7 +121,7 @@ public class Form_ImportBUS {
         for (ProductDTO product : productList) {
             // Kiểm tra xem nhà cung cấp của sản phẩm có bị xóa không
             String supplierID = product.getMaNCC();
-            SuppliersDTO supplier = suppliersDAO.getSupplierByID(supplierID);
+            SuppliersDTO supplier = suppliersDAO.getSuppliers(supplierID);
             if (supplier != null && supplier.getIsDeleted() == 0) {
                 products.add(new Object[]{
                     product.getProductID(),
@@ -140,25 +132,27 @@ public class Form_ImportBUS {
         }
         return products;
     }
+
     // Gọi từ ProductDAO
     public Object[] getProductDetails(String productId) {
         ProductDTO product = productDAO.getProduct(productId);
         if (product != null) {
-            // Kiểm tra nhà cung cấp của sản phẩm
             String supplierID = product.getMaNCC();
-            SuppliersDTO supplier = suppliersDAO.getSupplierByID(supplierID);
+            SuppliersDTO supplier = suppliersDAO.getSuppliers(supplierID);
             if (supplier != null && supplier.getIsDeleted() == 0) {
                 return new Object[]{
                     product.getProductID(),
                     product.getProductName(),
                     Utils.formatCurrency(Integer.parseInt(product.getGia())),
                     product.gettenNCC(),
-                    product.getAnh()
+                    product.getAnh(),
+                    Utils.formatCurrency(Integer.parseInt(product.getGiaGoc())) // Thêm giá gốc
                 };
             }
         }
         return null;
     }
+
     // Gọi từ ProductDAO
     public boolean updateProductQuantity(String productId, int quantity) {
         return productDAO.updateProductQuantity(productId, quantity);

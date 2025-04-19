@@ -1,10 +1,12 @@
 package GUI;
 
 import BUS.Form_ImportBUS;
-
+import DTO.SuppliersDTO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -115,7 +117,8 @@ public class Form_Import extends JDialog {
         if (details != null) {
             productDetailPanel.getLblProductId().setText((String) details[0]);
             productDetailPanel.getLblProductName().setText((String) details[1]);
-            productDetailPanel.getLblPrice().setText((String) details[2]);
+            productDetailPanel.getLblPrice().setText((String) details[2]); // Giá bán
+            productDetailPanel.getLblOriginalPrice().setText((String) details[5]); // Giá gốc
             productDetailPanel.getLblSupplier().setText((String) details[3]);
             loadProductImage((String) details[4]);
             productDetailPanel.getTxtQuantity().setText("");
@@ -124,13 +127,18 @@ public class Form_Import extends JDialog {
     }
 
     private void loadProductImage(String imageFileName) {
-        String imagePath = "/images/" + (imageFileName != null ? imageFileName : "default_product.png");
-        java.net.URL imageUrl = getClass().getResource(imagePath);
-        ImageIcon icon = (imageUrl != null) ? new ImageIcon(imageUrl) : null;
-        productDetailPanel.getLblProductImage().setIcon(
-            icon != null ? new ImageIcon(icon.getImage().getScaledInstance(140, 140, Image.SCALE_SMOOTH)) : null
-        );
-        productDetailPanel.getLblProductImage().setText(icon == null ? "Không có ảnh" : "");
+        String imagePath = "images/" + (imageFileName != null && !imageFileName.isEmpty() ? imageFileName : "default_product.png");
+        File imageFile = new File(imagePath);
+        
+        if (imageFile.exists()) {
+            ImageIcon productIcon = new ImageIcon(imagePath);
+            Image img = productIcon.getImage().getScaledInstance(140, 140, Image.SCALE_SMOOTH);
+            productDetailPanel.getLblProductImage().setIcon(new ImageIcon(img));
+            productDetailPanel.getLblProductImage().setText("");
+        } else {
+            productDetailPanel.getLblProductImage().setIcon(null);
+            productDetailPanel.getLblProductImage().setText("Không có ảnh");
+        }
     }
 
     private void addProductToImport() {
@@ -142,21 +150,19 @@ public class Form_Import extends JDialog {
                 JOptionPane.showMessageDialog(this, validationError, "Lỗi", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-
+    
             String productName = productDetailPanel.getLblProductName().getText();
-            int price = Integer.parseInt(productDetailPanel.getLblPrice().getText().replaceAll("[^0-9]", ""));
+            String supplierName = productDetailPanel.getLblSupplier().getText();
+            int price = Integer.parseInt(productDetailPanel.getLblOriginalPrice().getText().replaceAll("[^0-9]", "")); // Dùng giá gốc
             int quantity = Integer.parseInt(quantityText);
             int total = price * quantity;
-
+    
             importProductsPanel.getImportTableModel().addRow(new Object[]{
-                productId, productName, quantity, Utils.formatCurrency(price), Utils.formatCurrency(total)
+                productId, productName, quantity, Utils.formatCurrency(price), Utils.formatCurrency(total), supplierName
             });
             totalAmount += total;
             infoPanel.getLblTongTien().setText(Utils.formatCurrency(totalAmount));
-
-//            if (bus.updateProductQuantity(productId, quantity)) loadAllProducts();
-//            else JOptionPane.showMessageDialog(this, "Lỗi khi cập nhật số lượng sản phẩm", "Lỗi", JOptionPane.ERROR_MESSAGE);
-
+    
             resetProductDetail();
         } catch (Exception e) {
             e.printStackTrace();
@@ -170,28 +176,33 @@ public class Form_Import extends JDialog {
             return;
         }
     
-        String importID = infoPanel.getLblMaNhapHang().getText();
-        String receiptDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        List<Object[]> productData = new ArrayList<>();
-        for (int i = 0; i < importProductsPanel.getImportTableModel().getRowCount(); i++) {
-            String priceStr = importProductsPanel.getImportTableModel().getValueAt(i, 3).toString().replaceAll("[^0-9]", "");
-            productData.add(new Object[]{
-                importProductsPanel.getImportTableModel().getValueAt(i, 0),
-                importProductsPanel.getImportTableModel().getValueAt(i, 1),
-                importProductsPanel.getImportTableModel().getValueAt(i, 2),
-                Integer.parseInt(priceStr)
-            });
-        }
+        try {
+            String importID = infoPanel.getLblMaNhapHang().getText();
+            String receiptDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            List<Object[]> productData = new ArrayList<>();
+            for (int i = 0; i < importProductsPanel.getImportTableModel().getRowCount(); i++) {
+                String priceStr = importProductsPanel.getImportTableModel().getValueAt(i, 3).toString().replaceAll("[^0-9]", "");
+                productData.add(new Object[]{
+                    importProductsPanel.getImportTableModel().getValueAt(i, 0), // productId
+                    importProductsPanel.getImportTableModel().getValueAt(i, 1), // productName
+                    importProductsPanel.getImportTableModel().getValueAt(i, 2), // quantity
+                    Integer.parseInt(priceStr)                           // price
+                });
+            }
     
-        String supplierID = bus.getSupplierIDByProduct((String) importProductsPanel.getImportTableModel().getValueAt(0, 0));
-//        System.out.println("Saving import: importID=" + importID + ", supplierID=" + supplierID + ", totalAmount=" + totalAmount);
-        if (bus.saveImport(importID, currentUser, supplierID, totalAmount, receiptDate, productData)) {
-            JOptionPane.showMessageDialog(this, "Lưu phiếu nhập thành công", "Thành công", JOptionPane.INFORMATION_MESSAGE);
-            parentImportPanel.loadImport();
-            loadAllProducts();
-            resetForm();
-        } else {
-            JOptionPane.showMessageDialog(this, "Lỗi khi lưu phiếu nhập", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            if (bus.saveImport(importID, currentUser, totalAmount, receiptDate, productData)) {
+                JOptionPane.showMessageDialog(this, "Lưu phiếu nhập thành công", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+                parentImportPanel.loadImport();
+                loadAllProducts();
+                resetForm();
+            } else {
+                JOptionPane.showMessageDialog(this, "Lỗi khi lưu phiếu nhập", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Lỗi khi lưu phiếu nhập: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
 

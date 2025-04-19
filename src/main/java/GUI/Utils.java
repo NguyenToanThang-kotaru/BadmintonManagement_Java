@@ -10,7 +10,11 @@ public class Utils {
         formatter.applyPattern("#,###");
         return formatter.format(amount);
     }
-    
+    public static String formatCurrencyLong(long amount) {
+        DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
+        formatter.applyPattern("#,###");
+        return formatter.format(amount);
+    }
     public static String formatCurrency(String amountStr) {
         try {
             String cleanString = amountStr.replaceAll("[^0-9]", "");
@@ -31,4 +35,5 @@ public class Utils {
             return 0;
         }
     }
+
 }

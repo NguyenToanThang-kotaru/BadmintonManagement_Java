@@ -1,5 +1,7 @@
 package DTO;
 
+
+
 public class ProductDTO {
 
     private String productID;
@@ -45,18 +47,7 @@ public class ProductDTO {
         this.khuyenMai = khuyenMai;
     }
 
-    public ProductDTO(String productID, String productName, String gia, String soluong, String maNCC, String TSKT, String ML, String anh, String giaGocString, String khuyenMai) {
-        this.productID = productID;
-        this.productName = productName;
-        this.gia = gia;
-        this.soluong = soluong;
-        this.maNCC = maNCC;
-        this.TSKT = TSKT;
-        this.ML = ML;
-        this.anh = anh;
-        this.giaGoc = "";
-        this.khuyenMai = "";
-    }
+
 
     public String getProductID() {
         return productID;
@@ -81,7 +72,13 @@ public class ProductDTO {
     public void setGia(String gia) {
         this.gia = gia;
     }
+    public String getGiaGoc() {
+        return giaGoc;
+    }
 
+    public void setGiaGoc(String giaGoc) {
+        this.giaGoc = giaGoc;
+    }
     public String getSoluong() {
         return soluong;
     }

@@ -9,7 +9,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 import java.awt.*;
-import java.net.URL;
+import java.io.File;
 import java.util.List;
 
 public class GUI_Detail_Suppliers extends JDialog {
@@ -20,6 +20,7 @@ public class GUI_Detail_Suppliers extends JDialog {
     private DefaultTableModel productTableModel;
     private JLabel imageLabel;
     private JLabel productIDLabel, nameLabel, priceLabel, quantityLabel, tsktLabel, supplierNameLabel, categoryLabel, totalLabel;
+    private JLabel totalImportLabel, profitLabel;
     private JPanel detailPanel, placeholderPanel, mainPanel;
 
     public GUI_Detail_Suppliers(GUI_Suppliers parent, SuppliersDTO supplier) {
@@ -27,17 +28,14 @@ public class GUI_Detail_Suppliers extends JDialog {
         this.supplier = supplier;
         suppliersBUS = new SuppliersBUS();
 
-        // Tăng chiều cao cửa sổ để hiển thị nhiều sản phẩm hơn
         setSize(900, 800);
-        setLocationRelativeTo(parent);
+        setLocationRelativeTo(null);
         setLayout(new BorderLayout(10, 10));
         setBackground(Color.WHITE);
 
-        // Main panel để chứa các thành phần
         mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setBackground(Color.WHITE);
 
-        // Supplier Info Panel
         JPanel infoPanel = new JPanel(new GridBagLayout());
         infoPanel.setBackground(Color.WHITE);
         infoPanel.setBorder(BorderFactory.createCompoundBorder(
@@ -61,24 +59,21 @@ public class GUI_Detail_Suppliers extends JDialog {
         gbc.gridx = 1;
         infoPanel.add(new JLabel(supplier.getfullname()), gbc);
 
-        // Product Table
-        String[] columnNames = {"Mã SP", "Tên SP", "Giá", "Số Lượng", "Thông Số Kỹ Thuật"}; // Bỏ cột "Tổng Tiền"
+        String[] columnNames = {"Mã SP", "Tên SP", "Giá bán", "Giá nhập", "Thông Số Kỹ Thuật"};
         productTableModel = new DefaultTableModel(columnNames, 0);
         productTable = new JTable(productTableModel);
         
-        // Tăng kích thước font chữ của bảng
         productTable.setFont(new Font("Arial", Font.PLAIN, 14));
-        productTable.setRowHeight(25); // Tăng chiều cao hàng
+        productTable.setRowHeight(25);
 
-        // Điều chỉnh độ rộng cột
         TableColumnModel columnModel = productTable.getColumnModel();
-        columnModel.getColumn(0).setPreferredWidth(80);  // Mã SP
-        columnModel.getColumn(1).setPreferredWidth(250); // Tên SP
-        columnModel.getColumn(2).setPreferredWidth(100); // Giá
-        columnModel.getColumn(3).setPreferredWidth(80);  // Số Lượng
-        columnModel.getColumn(4).setPreferredWidth(300); // Thông Số Kỹ Thuật
+        columnModel.getColumn(0).setPreferredWidth(80);
+        columnModel.getColumn(1).setPreferredWidth(250);
+        columnModel.getColumn(2).setPreferredWidth(100);
+        columnModel.getColumn(3).setPreferredWidth(100);
+        columnModel.getColumn(4).setPreferredWidth(80);
 
-        JScrollPane scrollPane = new JScrollPane(productTable);
+        CustomScrollPane scrollPane = new CustomScrollPane(productTable);
         scrollPane.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createTitledBorder("Danh Sách Sản Phẩm"),
             BorderFactory.createEmptyBorder(10, 10, 10, 10)
@@ -86,12 +81,10 @@ public class GUI_Detail_Suppliers extends JDialog {
 
         loadProducts();
 
-        // Placeholder panel (khoảng trắng ban đầu)
         placeholderPanel = new JPanel();
         placeholderPanel.setBackground(Color.WHITE);
-        placeholderPanel.setPreferredSize(new Dimension(0, 200)); // Chừa sẵn khoảng trắng cao 200px
+        placeholderPanel.setPreferredSize(new Dimension(0, 200));
 
-        // Panel hiển thị chi tiết sản phẩm (sẽ hiển thị khi chọn sản phẩm)
         detailPanel = new JPanel(new BorderLayout(20, 0));
         detailPanel.setBackground(Color.WHITE);
         detailPanel.setBorder(BorderFactory.createCompoundBorder(
@@ -99,7 +92,6 @@ public class GUI_Detail_Suppliers extends JDialog {
             BorderFactory.createEmptyBorder(10, 10, 10, 10)
         ));
 
-        // Phần hiển thị hình ảnh
         JPanel leftPanel = new JPanel(null);
         leftPanel.setPreferredSize(new Dimension(310, 200));
         leftPanel.setBackground(Color.WHITE);
@@ -109,7 +101,6 @@ public class GUI_Detail_Suppliers extends JDialog {
         imageLabel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
         leftPanel.add(imageLabel);
 
-        // Phần hiển thị thông tin chi tiết
         JPanel rightPanel = new JPanel(new GridBagLayout());
         rightPanel.setBackground(Color.WHITE);
 
@@ -134,7 +125,7 @@ public class GUI_Detail_Suppliers extends JDialog {
 
         gbcInfo.gridx = 0;
         gbcInfo.gridy = 2;
-        rightPanel.add(new JLabel("Giá: "), gbcInfo);
+        rightPanel.add(new JLabel("Giá bán: "), gbcInfo);
         gbcInfo.gridx = 1;
         priceLabel = new JLabel("");
         rightPanel.add(priceLabel, gbcInfo);
@@ -146,29 +137,43 @@ public class GUI_Detail_Suppliers extends JDialog {
         quantityLabel = new JLabel("");
         rightPanel.add(quantityLabel, gbcInfo);
 
-        gbcInfo.gridx = 0;
-        gbcInfo.gridy = 4;
-        rightPanel.add(new JLabel("Tổng tiền: "), gbcInfo); // Thêm dòng Tổng tiền
-        gbcInfo.gridx = 1;
-        totalLabel = new JLabel("");
-        rightPanel.add(totalLabel, gbcInfo);
-
+//        gbcInfo.gridx = 0;
+//        gbcInfo.gridy = 4;
+//        rightPanel.add(new JLabel("Tổng giá bán: "), gbcInfo);
+//        gbcInfo.gridx = 1;
+//        totalLabel = new JLabel("");
+//        rightPanel.add(totalLabel, gbcInfo);
+//
         gbcInfo.gridx = 0;
         gbcInfo.gridy = 5;
+        rightPanel.add(new JLabel("Giá nhập: "), gbcInfo);
+        gbcInfo.gridx = 1;
+        totalImportLabel = new JLabel("");
+        rightPanel.add(totalImportLabel, gbcInfo);
+
+//        gbcInfo.gridx = 0;
+//        gbcInfo.gridy = 6;
+//        rightPanel.add(new JLabel("Tiền lời: "), gbcInfo);
+//        gbcInfo.gridx = 1;
+//        profitLabel = new JLabel("");
+//        rightPanel.add(profitLabel, gbcInfo);
+
+        gbcInfo.gridx = 0;
+        gbcInfo.gridy = 7;
         rightPanel.add(new JLabel("Tên NCC: "), gbcInfo);
         gbcInfo.gridx = 1;
         supplierNameLabel = new JLabel("");
         rightPanel.add(supplierNameLabel, gbcInfo);
 
         gbcInfo.gridx = 0;
-        gbcInfo.gridy = 6;
+        gbcInfo.gridy = 8;
         rightPanel.add(new JLabel("Thông số kỹ thuật: "), gbcInfo);
         gbcInfo.gridx = 1;
         tsktLabel = new JLabel("");
         rightPanel.add(tsktLabel, gbcInfo);
 
         gbcInfo.gridx = 0;
-        gbcInfo.gridy = 7;
+        gbcInfo.gridy = 9;
         rightPanel.add(new JLabel("Tên loại: "), gbcInfo);
         gbcInfo.gridx = 1;
         categoryLabel = new JLabel("");
@@ -177,52 +182,67 @@ public class GUI_Detail_Suppliers extends JDialog {
         detailPanel.add(leftPanel, BorderLayout.WEST);
         detailPanel.add(rightPanel, BorderLayout.CENTER);
 
-        // Thêm sự kiện khi chọn hàng trong bảng
         productTable.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) { // Tránh sự kiện được gọi nhiều lần
+            if (!e.getValueIsAdjusting()) {
                 int selectedRow = productTable.getSelectedRow();
                 if (selectedRow != -1) {
                     String productID = (String) productTable.getValueAt(selectedRow, 0);
-
                     ProductDTO product = ProductDAO.getProduct(productID);
-
+        
                     if (product != null) {
-                        // Cập nhật thông tin chi tiết
                         productIDLabel.setText(product.getProductID());
                         nameLabel.setText(product.getProductName());
-                        priceLabel.setText(Utils.formatCurrency(product.getGia()) + " VND"); // Thêm VND
-                        quantityLabel.setText(String.valueOf(product.getSoluong()));
-                        totalLabel.setText(Utils.formatCurrency(Utils.parseCurrency(product.getGia()) * Utils.parseCurrency(product.getSoluong())) + " VND");
+                        priceLabel.setText(Utils.formatCurrency(Integer.parseInt(product.getGia())) + " VND");
+                        quantityLabel.setText(product.getSoluong());
+
+//                        try {
+//                            int gia = Integer.parseInt(product.getGia());
+                            int giaGoc = Integer.parseInt(product.getGiaGoc());
+//                            int soLuong = Integer.parseInt(product.getSoluong());
+//                            long totalSellPrice = (long) gia * soLuong;
+//                            long totalImportPrice = (long) giaGoc * soLuong;
+//                            totalLabel.setText(Utils.formatCurrencyLong(totalSellPrice) + " VND");
+                            totalImportLabel.setText(Utils.formatCurrencyLong(giaGoc) + " VND");
+//
+//                            long profit = totalSellPrice - totalImportPrice;
+//                            double profitPercentage = totalImportPrice > 0 ? (double) profit / totalImportPrice * 100 : 0;
+//                            profitLabel.setText(Utils.formatCurrencyLong(profit) + " VND (" + String.format("%.2f", profitPercentage) + "%)");
+//                        } catch (NumberFormatException ex) {
+//                            totalLabel.setText("Lỗi dữ liệu");
+//                            totalImportLabel.setText("Lỗi dữ liệu");
+//                            profitLabel.setText("Lỗi dữ liệu");
+//                        }
+
                         supplierNameLabel.setText(product.gettenNCC());
                         tsktLabel.setText(product.getTSKT());
                         categoryLabel.setText(product.getTL());
-
-                        // Cập nhật hình ảnh
+        
                         String imageFileName = product.getAnh();
-                        String imagePath = "/images/" + (imageFileName != null ? imageFileName : "default_product.png");
-                        URL imageUrl = getClass().getResource(imagePath);
-                        ImageIcon icon = (imageUrl != null) ? new ImageIcon(imageUrl) : null;
-                        imageLabel.setIcon(
-                            icon != null ? new ImageIcon(icon.getImage().getScaledInstance(230, 180, Image.SCALE_SMOOTH)) : null
-                        );
-                        imageLabel.setText(icon == null ? "Không có ảnh" : "");
-
-                        // Thay thế placeholderPanel bằng detailPanel
+                        String imagePath = "images/" + (imageFileName != null && !imageFileName.isEmpty() ? imageFileName : "default_product.png");
+                        File imageFile = new File(imagePath);
+        
+                        if (imageFile.exists()) {
+                            ImageIcon productIcon = new ImageIcon(imagePath);
+                            Image img = productIcon.getImage().getScaledInstance(230, 180, Image.SCALE_SMOOTH);
+                            imageLabel.setIcon(new ImageIcon(img));
+                            imageLabel.setText("");
+                        } else {
+                            imageLabel.setIcon(null);
+                            imageLabel.setText("Không có ảnh");
+                        }
+        
                         mainPanel.remove(placeholderPanel);
                         mainPanel.add(detailPanel, BorderLayout.SOUTH);
                         mainPanel.revalidate();
                         mainPanel.repaint();
                     } else {
-                        // Thông báo lỗi nếu không tìm thấy sản phẩm
                         JOptionPane.showMessageDialog(this, "Không tìm thấy sản phẩm với ID: " + productID, "Lỗi", JOptionPane.ERROR_MESSAGE);
-                        // Hiển thị lại placeholderPanel
                         mainPanel.remove(detailPanel);
                         mainPanel.add(placeholderPanel, BorderLayout.SOUTH);
                         mainPanel.revalidate();
                         mainPanel.repaint();
                     }
                 } else {
-                    // Nếu không có hàng nào được chọn, hiển thị lại placeholderPanel
                     mainPanel.remove(detailPanel);
                     mainPanel.add(placeholderPanel, BorderLayout.SOUTH);
                     mainPanel.revalidate();
@@ -231,15 +251,12 @@ public class GUI_Detail_Suppliers extends JDialog {
             }
         });
 
-        // Thêm các thành phần vào mainPanel
         mainPanel.add(infoPanel, BorderLayout.NORTH);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
-        mainPanel.add(placeholderPanel, BorderLayout.SOUTH); // Ban đầu hiển thị khoảng trắng
+        mainPanel.add(placeholderPanel, BorderLayout.SOUTH);
 
-        // Thêm mainPanel vào cửa sổ
         add(mainPanel, BorderLayout.CENTER);
 
-        // Close Button
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         CustomButton btnClose = new CustomButton("Đóng");
         btnClose.addActionListener(e -> dispose());
@@ -254,8 +271,8 @@ public class GUI_Detail_Suppliers extends JDialog {
             productTableModel.addRow(new Object[]{
                 product.getProductID(),
                 product.getProductName(),
-                Utils.formatCurrency(product.getGia()) + " VND", // Thêm VND
-                product.getSoluong(),
+                Utils.formatCurrency(Integer.parseInt(product.getGia())) + " VND",
+                Utils.formatCurrency(Integer.parseInt(product.getGiaGoc())) + " VND",
                 product.getTSKT()
             });
         }
