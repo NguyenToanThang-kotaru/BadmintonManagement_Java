@@ -17,7 +17,7 @@ public class GUI_Guarantee extends JPanel {
     private JTable warrantyTable;
     private DefaultTableModel tableModel;
     private JComboBox<String> warrantyStatusComboBox;
-    private CustomButton saveButton, fixButton;
+    private CustomButton saveButton, fixButton, reloadButton;
     private CustomSearch searchField;
 
     public GUI_Guarantee(List<String> b) {
@@ -36,6 +36,8 @@ public class GUI_Guarantee extends JPanel {
         searchField.setFont(new Font("Arial", Font.PLAIN, 14));
         searchField.setBackground(Color.WHITE);
         topPanel.add(searchField, BorderLayout.CENTER);
+        reloadButton = new CustomButton("Tải Lại Trang");
+        topPanel.add(reloadButton, BorderLayout.WEST);
 
         // ========== BẢNG HIỂN THỊ ==========
         midPanel = new JPanel(new BorderLayout());
@@ -118,9 +120,9 @@ public class GUI_Guarantee extends JPanel {
                 if (b.contains("sua_bh")) {
                     botPanel.add(fixButton, gbc);
                     System.out.println("Co sua ");
-                }
-                else
+                } else {
                     System.out.println("Khong co sua ");
+                }
             }
         }
         );
@@ -144,6 +146,11 @@ public class GUI_Guarantee extends JPanel {
 
             Form_Guarantee fixForm = new Form_Guarantee((JFrame) SwingUtilities.getWindowAncestor(this), this, guarantee);
             fixForm.setVisible(true);
+        });
+
+        reloadButton.addActionListener(e -> {
+            loadGuaranteeData();
+            tableModel.fireTableDataChanged();
         });
 
         if (b.contains("xem_bh")) {

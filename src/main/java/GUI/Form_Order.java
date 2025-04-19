@@ -11,6 +11,7 @@ import DTO.CustomerDTO;
 import BUS.CustomerBUS;
 import DTO.DetailOrderDTO;
 import BUS.DetailOrderBUS;
+import BUS.GuaranteeBUS;
 import DAO.DetailOrderDAO;
 import DAO.ProductDAO;
 
@@ -565,6 +566,8 @@ public class Form_Order extends JDialog {
                 detail.setamount("1");
                 detail.setprice(priceStr);
                 detailOrderBUS.addDetailOrder(detail);
+                GuaranteeBUS.addGuarantee(detail.getserialID());
+                
                 productBUS.reduceStock(productID, 1);
             }
             productBUS.markSerialsAsUsed(serials);

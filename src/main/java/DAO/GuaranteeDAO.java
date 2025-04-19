@@ -14,7 +14,7 @@ public class GuaranteeDAO {
 
     // Lấy thông tin của một sản phẩm
     public static GuaranteeDTO getGuarantee(String BaohanhID) {
-        String query = "SELECT * FROM bao_hanh WHERE ma_bao_hanh = ? ";
+        String query = "SELECT * FROM bao_hanh WHERE ma_bao_hanh = ? AND thoi_gian_bao_hanh < 12 ";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, BaohanhID);
@@ -40,13 +40,13 @@ public class GuaranteeDAO {
     public static ArrayList<GuaranteeDTO> getAllGuarantee() {
         ArrayList<GuaranteeDTO> products = new ArrayList<>();
 
-        String query = "SELECT * FROM bao_hanh WHERE thoi_gian_bao_hanh < 12 AND is_deleted = 1";
+        String query = "SELECT * FROM bao_hanh WHERE thoi_gian_bao_hanh < 12 ";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 String trangThai = rs.getString("trang_thai");
                 if (trangThai == null || trangThai.trim().isEmpty()) {
-                    trangThai = "Chưa bảo hành";
+                    trangThai = "Không";
                 }
 
                 products.add(new GuaranteeDTO(
@@ -69,40 +69,68 @@ public class GuaranteeDAO {
     // Cập nhật thông tin sản phẩm
     public static void updateGuarantee(GuaranteeDTO guarantee) {
         String updateSql = "UPDATE bao_hanh SET ma_serial = ?, ly_do_bao_hanh = ?, thoi_gian_bao_hanh = ?, trang_thai = ? WHERE ma_bao_hanh = ?";
-        String deleteSql = "DELETE FROM bao_hanh WHERE ma_bao_hanh = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection()) {
-            if ("Đã bảo hành".equalsIgnoreCase(guarantee.gettrangthai())) {
-                // Nếu trạng thái là "Đã bảo hành", thực hiện DELETE
-                try (PreparedStatement stmt = conn.prepareStatement(deleteSql)) {
-                    stmt.setString(1, guarantee.getBaohanhID());
-                    int rowsDeleted = stmt.executeUpdate();
-                    if (rowsDeleted > 0) {
-                        System.out.println("Đã xóa bảo hành với mã: " + guarantee.getBaohanhID());
-                    } else {
-                        System.out.println("Không tìm thấy bảo hành để xóa.");
-                    }
-                }
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(updateSql)) {
+
+            stmt.setString(1, guarantee.getSerialID());
+            stmt.setString(2, guarantee.getLydo());
+            stmt.setString(3, guarantee.getTGBH());
+            stmt.setString(4, guarantee.gettrangthai());
+            stmt.setString(5, guarantee.getBaohanhID());
+
+            int rowsUpdated = stmt.executeUpdate();
+            if (rowsUpdated > 0) {
+                System.out.println("Cập nhật bảo hành thành công.");
             } else {
-                // Nếu không phải "Đã bảo hành", thực hiện UPDATE
-                try (PreparedStatement stmt = conn.prepareStatement(updateSql)) {
-                    stmt.setString(1, guarantee.getSerialID());
-                    stmt.setString(2, guarantee.getLydo());
-                    stmt.setString(3, guarantee.getTGBH());
-                    stmt.setString(4, guarantee.gettrangthai());
-                    stmt.setString(5, guarantee.getBaohanhID());
-
-                    int rowsUpdated = stmt.executeUpdate();
-                    if (rowsUpdated > 0) {
-                        System.out.println("Cập nhật bảo hành thành công.");
-                    } else {
-                        System.out.println("Không tìm thấy bảo hành để cập nhật.");
-                    }
-                }
+                System.out.println("Không tìm thấy bảo hành để cập nhật.");
             }
+
         } catch (SQLException e) {
-            System.out.println("Lỗi cập nhật/xóa bảo hành: " + e.getMessage());
+            System.out.println("Lỗi cập nhật bảo hành: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+    private static String generateNewGuaranteeID() {
+        String query = "SELECT ma_bao_hanh FROM bao_hanh ORDER BY ma_bao_hanh DESC LIMIT 1";
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
+
+            if (rs.next()) {
+                String lastID = rs.getString("ma_bao_hanh"); // Ví dụ: "NV005"
+
+                // Cắt bỏ "TK", chỉ lấy số
+                int number = Integer.parseInt(lastID.substring(2));
+
+                // Tạo ID mới với định dạng NVXXX
+                return String.format("BH%03d", number + 1);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Lỗi khi tạo mã nhân viên mới: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return "BH001"; // Nếu không có nhân viên nào, bắt đầu từ "NV001"
+    }
+
+    public static boolean addGuarantee(String ma_serial) {
+        String sql = "INSERT INTO `bao_hanh`(`ma_bao_hanh`, `ma_serial`, `ly_do_bao_hanh`, `trang_thai`, `is_deleted`) VALUES (?, ?, '', 'Không', 0) ";
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            String newID = generateNewGuaranteeID(); // Tạo ID mới
+
+            stmt.setString(1, newID);
+            stmt.setString(2, ma_serial);
+            stmt.executeUpdate();
+            System.out.println("Thêm sản phẩm thành công với ID: " + newID);
+            return true;
+
+        } catch (SQLException e) {
+            System.out.println("Lỗi thêm sản phẩm: " + e.getMessage());
+            e.printStackTrace();
+            return false;
         }
     }
 
