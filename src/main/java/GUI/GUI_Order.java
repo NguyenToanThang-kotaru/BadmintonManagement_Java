@@ -47,7 +47,7 @@ public class GUI_Order extends JPanel {
         midPanel.setBackground(Color.WHITE);
         
         // Định nghĩa tiêu đề cột
-        String[] columnNames = {"Mã HĐ", "Mã NV", "Mã KH", "Tổng Tiền", "Ngày Xuất"};
+        String[] columnNames = {"Mã HĐ", "Mã NV", "Mã KH", "Tổng Tiền", "Ngày Xuất", "Tổng Lợi Nhuận"};
         CustomTable customTable = new CustomTable(columnNames);
         orderTable = customTable.getOrderTable(); 
         tableModel = customTable.getTableModel(); 
@@ -232,7 +232,8 @@ public class GUI_Order extends JPanel {
                 odr.getemployeeID(),
                 odr.getcustomerID(),
                 odr.gettotalmoney(),
-                odr.getissuedate()
+                odr.getissuedate(),
+                odr.gettotalprofit()
             });
         }
     }
@@ -243,7 +244,7 @@ public class GUI_Order extends JPanel {
         //int index = 0;
         String no = "";
         for (OrderDTO odr : order ) {
-            tableModel.addRow(new Object[]{odr.getorderID(), odr.getemployeeID(), odr.getcustomerID(), odr.gettotalmoney(), odr.getissuedate()});
+            tableModel.addRow(new Object[]{odr.getorderID(), odr.getemployeeID(), odr.getcustomerID(), odr.gettotalmoney(), odr.getissuedate(), odr.gettotalprofit()});
         }
     }
 }

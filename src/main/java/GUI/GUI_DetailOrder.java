@@ -72,7 +72,7 @@ public class GUI_DetailOrder extends JFrame {
         centerPanel.add(infoPanel, BorderLayout.NORTH);
 
         // Bảng chi tiết hóa đơn
-        String[] columnNames = {"Mã CTHĐ", "Mã SP", "Mã Serial", "Số Lượng", "Giá"};
+        String[] columnNames = {"Mã CTHĐ", "Mã SP", "Mã Serial", "Số Lượng", "Giá", "Lợi Nhuận"};
         tableModel = new DefaultTableModel(columnNames, 0);
         detailTable = new JTable(tableModel);
         detailTable.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -114,7 +114,8 @@ public class GUI_DetailOrder extends JFrame {
                 detail.getproductID(),
                 detail.getserialID(),
                 detail.getamount(),
-                detail.getprice()
+                detail.getprice(),
+                detail.getprofit()
             });
         }
     }

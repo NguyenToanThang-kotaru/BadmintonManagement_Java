@@ -24,7 +24,8 @@ public class DetailOrderDAO {
                             rs.getString("ma_hoa_don"),
                             rs.getString("ma_serial"),
                             rs.getString("so_luong"),
-                            rs.getString("gia")
+                            rs.getString("gia"),
+                            rs.getString("loi_nhuan")
                     );
                 }
             }
@@ -46,7 +47,8 @@ public class DetailOrderDAO {
                         rs.getString("ma_hoa_don"),
                         rs.getString("ma_serial"),
                         rs.getString("so_luong"),
-                        rs.getString("gia")
+                        rs.getString("gia"),
+                        rs.getString("loi_nhuan")
                 ));
             }
         } catch (Exception e) {
@@ -56,7 +58,7 @@ public class DetailOrderDAO {
     }
 
     public void updateCustomer(DetailOrderDTO detailorder) {
-        String sql = "UPDATE detailorder SET ma_chi_tiet_hoa_don = ?, ma_san_pham = ?, ma_hoa_don = ?, ma_serial = ?, so_luong = ? WHERE gia = ?";
+        String sql = "UPDATE detailorder SET ma_chi_tiet_hoa_don = ?, ma_san_pham = ?, ma_hoa_don = ?, ma_serial = ?, so_luong = ?, gia = ? WHERE loi_nhuan = ?";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, detailorder.getdetailorderID());
@@ -65,10 +67,11 @@ public class DetailOrderDAO {
             stmt.setString(4, detailorder.getserialID());
             stmt.setString(5, detailorder.getamount());
             stmt.setString(6, detailorder.getprice());
+            stmt.setString(7, detailorder.getprofit());
 
             stmt.executeUpdate();
         } catch (SQLException e) {
-//            e.printStackTrace();
+            e.printStackTrace();
         }
     }
 
@@ -92,7 +95,8 @@ public class DetailOrderDAO {
                             rs.getString("ma_hoa_don"),
                             rs.getString("ma_serial"),
                             rs.getString("so_luong"),
-                            rs.getString("gia")
+                            rs.getString("gia"),
+                            rs.getString("loi_nhuan")
                     ));
                 }
             }
@@ -117,12 +121,12 @@ public class DetailOrderDAO {
     }
 
     public static void insertDetailOrder(DetailOrderDTO detail) {
-        String sql = "INSERT INTO chi_tiet_hoa_don (ma_chi_tiet_hoa_don, ma_san_pham, ma_hoa_don, ma_serial, so_luong, gia, is_deleted) VALUES (?, ?, ?, ?, ?, ?,0)";
+        String sql = "INSERT INTO chi_tiet_hoa_don (ma_chi_tiet_hoa_don, ma_san_pham, ma_hoa_don, ma_serial, so_luong, gia, is_deleted, loi_nhuan) VALUES (?, ?, ?, ?, ?, ?, 0, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            System.out.println("INSERTING DETAIL: " + detail.getdetailorderID() + ", " + detail.getproductID() + ", " + detail.getorderID() + ", " + detail.getserialID() + ", " + detail.getamount() + ", " + detail.getprice());
+            System.out.println("INSERTING DETAIL: " + detail.getdetailorderID() + ", " + detail.getproductID() + ", " + detail.getorderID() + ", " + detail.getserialID() + ", " + detail.getamount() + ", " + detail.getprice() + ", " + detail.getprofit());
 
             stmt.setString(1, detail.getdetailorderID());
             stmt.setString(2, detail.getproductID());
@@ -136,6 +140,7 @@ public class DetailOrderDAO {
 
             stmt.setString(5, detail.getamount());
             stmt.setString(6, detail.getprice());
+            stmt.setString(7, detail.getprofit());
             
             stmt.executeUpdate();
 
