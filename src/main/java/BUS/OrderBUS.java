@@ -14,6 +14,8 @@ public class OrderBUS {
 
     public void updateOrder(OrderDTO order) {
         OrderDAO dao = new OrderDAO();
+        dao.updateOrder(order);
+        OrderDAO.updateTotalProfit(order.getorderID());
     }
     
     private CustomerDAO customerDAO;
@@ -32,8 +34,11 @@ public class OrderBUS {
     }
     
     public void addOrder(OrderDTO order) {
+        if (order.gettotalprofit() == null || order.gettotalprofit().trim().isEmpty()) {
+            order.settotalprofit("0");
+        }
         OrderDAO dao = new OrderDAO();
-        dao.insertOrder(order); // bạn tự tạo insertOrder trong OrderDAO
+        dao.insertOrder(order);
     }
     
     public String getNextOrderID() {

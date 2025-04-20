@@ -20,7 +20,7 @@ public class DetailOrderDTO {
         this.profit = "";
     }
     
-    public DetailOrderDTO(String detailorderID, String productID, String orderID, String serialID, String amount, String price, String progit) {
+    public DetailOrderDTO(String detailorderID, String productID, String orderID, String serialID, String amount, String price, String profit) {
         this.detailorderID = detailorderID;
         this.productID = productID;
         this.orderID = orderID;
@@ -82,7 +82,7 @@ public class DetailOrderDTO {
         return profit;
     }
     
-    public void setprogit(String profit) {
+    public void setprofit(String profit) {
         this.profit = profit;
     }
 }
