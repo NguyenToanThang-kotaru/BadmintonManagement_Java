@@ -2,7 +2,6 @@ package GUI;
 
 import BUS.OrderBUS;
 import DTO.OrderDTO;
-import DAO.OrderDAO;
 import DTO.AccountDTO;
 import BUS.DetailOrderBUS;
 
@@ -19,8 +18,8 @@ public class GUI_Order extends JPanel {
     private DefaultTableModel tableModel;
     private CustomButton editButton, deleteButton, addButton, detailorderButton;
     private CustomSearch searchField;
-    private OrderBUS orderBUS;
-    private OrderDTO order;
+    private OrderBUS orderBUS = new OrderBUS();
+    private OrderDTO order =  new OrderDTO();
 
     public GUI_Order(AccountDTO cn, List<String> t) {
         orderBUS = new OrderBUS();
@@ -133,7 +132,7 @@ public class GUI_Order extends JPanel {
                 String tongtien = (String) orderTable.getValueAt(selectedRow, 3);
                 String ngayxuat = (String) orderTable.getValueAt(selectedRow, 4);
                 
-                order = OrderDAO.getOrder(mahd); //; Lấy mã hóa đơn để tham chiếu 
+                orderBUS.getOrder(mahd); //; Lấy mã hóa đơn để tham chiếu 
                 
                 // Hiển thị dữ liệu trên giao diện
                 orderidLabel.setText(mahd);

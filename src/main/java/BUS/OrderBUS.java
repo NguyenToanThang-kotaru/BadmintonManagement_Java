@@ -8,28 +8,23 @@ import java.util.List;
 
 public class OrderBUS {
 
+    private OrderDAO dao = new OrderDAO();
+    private CustomerDAO customer = new CustomerDAO();
+    
     public List<OrderDTO> getAllOrder() {
-        return OrderDAO.getAllOrder();
+        return dao.getAllOrder();
     }
 
     public void updateOrder(OrderDTO order) {
-        OrderDAO dao = new OrderDAO();
         dao.updateOrder(order);
-        OrderDAO.updateTotalProfit(order.getorderID());
-    }
-    
-    private CustomerDAO customerDAO;
-
-    public OrderBUS() {
-        customerDAO = new CustomerDAO();
+        dao.updateTotalProfit(order.getorderID());
     }
 
     public String getCustomerNameByID(String customerID) {
-        return customerDAO.getCustomerNameByID(customerID);
+        return customer.getCustomerNameByID(customerID);
     }
     
     public boolean deleteOrder(String orderID) {
-        OrderDAO dao = new OrderDAO();
         return dao.deleteOrder(orderID);
     }
     
@@ -37,7 +32,6 @@ public class OrderBUS {
         if (order.gettotalprofit() == null || order.gettotalprofit().trim().isEmpty()) {
             order.settotalprofit("0");
         }
-        OrderDAO dao = new OrderDAO();
         dao.insertOrder(order);
     }
     
@@ -47,5 +41,9 @@ public class OrderBUS {
     
     public List<OrderDTO> searchOrder(String keyword) {
         return OrderDAO.searchOrder(keyword);
+    }
+    
+    public void getOrder(String mahd) {
+        dao.getOrder(mahd);
     }
 }
