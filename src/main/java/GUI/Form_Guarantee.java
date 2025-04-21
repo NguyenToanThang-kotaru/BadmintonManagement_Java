@@ -65,7 +65,7 @@ public class Form_Guarantee extends JDialog {
         gbc.gridx = 1;
         CustomCombobox statusBaohanh = new CustomCombobox(new String[]{"Không", "Có"});
         statusBaohanh.setSelectedItem(guarantee.gettrangthai());
-        
+
         gbc.fill = GridBagConstraints.NONE;
         gbc.anchor = GridBagConstraints.WEST;
 
@@ -111,6 +111,8 @@ public class Form_Guarantee extends JDialog {
                 String selected = (String) statusBaohanh.getSelectedItem();
                 reasonPanel.setVisible("Có".equals(selected));
                 reasonField.setVisible("Có".equals(selected));
+                if("Không".equals(selected))
+                    reasonField.setText("");
                 revalidate();
                 repaint();
             }
