@@ -30,7 +30,7 @@ public class Form_Guarantee extends JDialog {
         setLayout(new GridBagLayout());
         setLocationRelativeTo(parent);
 
-        getContentPane().setBackground(Color.PINK);
+        getContentPane().setBackground(Color.WHITE);
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
@@ -80,7 +80,7 @@ public class Form_Guarantee extends JDialog {
 ////        add(reasonField, gbc);
         reasonPanel = new JPanel(new GridBagLayout());
 
-        reasonPanel.setBackground(Color.GREEN);
+        reasonPanel.setBackground(Color.WHITE);
         GridBagConstraints reasonGbc = new GridBagConstraints();
         reasonGbc.insets = new Insets(5, 5, 5, 5);
         reasonGbc.anchor = GridBagConstraints.WEST;

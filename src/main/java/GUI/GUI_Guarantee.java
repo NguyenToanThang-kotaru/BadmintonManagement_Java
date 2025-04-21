@@ -69,16 +69,16 @@ public class GUI_Guarantee extends JPanel {
         botPanel.add(serialLabel, gbc);
 
         // Ngày mua
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        botPanel.add(new JLabel("Ngày mua: "), gbc);
-        gbc.gridx = 1;
-        JLabel purchaseDateLabel = new JLabel("Chưa chọn");
-        botPanel.add(purchaseDateLabel, gbc);
+//        gbc.gridx = 0;
+//        gbc.gridy = 1;
+//        botPanel.add(new JLabel("Ngày mua: "), gbc);
+//        gbc.gridx = 1;
+//        JLabel purchaseDateLabel = new JLabel("Chưa chọn");
+//        botPanel.add(purchaseDateLabel, gbc);
 
         // Trạng thái bảo hành
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy = 1;
         botPanel.add(new JLabel("Trạng thái bảo hành: "), gbc);
         gbc.gridx = 1;
         JLabel StatusLabel = new JLabel("");
@@ -86,14 +86,14 @@ public class GUI_Guarantee extends JPanel {
 
         // Lý do bảo hành
         gbc.gridx = 0;
-        gbc.gridy = 3;
+        gbc.gridy = 2;
         botPanel.add(new JLabel("Lý do bảo hành: "), gbc);
         gbc.gridx = 1;
         JLabel textReasonLabel = new JLabel("");
         botPanel.add(textReasonLabel, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 4;
+        gbc.gridy = 3;
         botPanel.add(new JLabel("Thời gian bảo hành: "), gbc);
         gbc.gridx = 1;
         JLabel StatusTime = new JLabel("");
@@ -101,8 +101,9 @@ public class GUI_Guarantee extends JPanel {
 
         // Nút sửa
         gbc.gridx = 0;
-        gbc.gridy = 5;
+        gbc.gridy = 4;
         gbc.gridwidth = 2;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         fixButton = new CustomButton("Sửa");
         fixButton.setCustomColor(Color.RED);
 
