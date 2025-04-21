@@ -7,6 +7,7 @@ public class OrderDTO {
     private String customerID;
     private String totalmoney;
     private String issuedate;
+    private String totalprofit;
     
     public OrderDTO() {
         this.orderID = "";
@@ -14,14 +15,16 @@ public class OrderDTO {
         this.customerID = "";
         this.totalmoney = "";
         this.issuedate = "";
+        this.totalprofit = "";
     }
     
-    public OrderDTO(String orderID, String employeeID, String customerID, String totalmoney, String issuedate) {
+    public OrderDTO(String orderID, String employeeID, String customerID, String totalmoney, String issuedate, String totalprofit) {
         this.orderID = orderID;
         this.employeeID = employeeID;
         this.customerID = customerID;
         this.totalmoney = totalmoney;
         this.issuedate = issuedate;
+        this.totalprofit = totalprofit;
     }
     
     public String getorderID() {
@@ -62,5 +65,13 @@ public class OrderDTO {
     
     public void setissuedate(String issuedate) {
         this.issuedate = issuedate;
+    }
+    
+    public String gettotalprofit() {
+        return totalprofit;
+    }
+    
+    public void settotalprofit(String totalprofit) {
+        this.totalprofit = totalprofit;
     }
 }

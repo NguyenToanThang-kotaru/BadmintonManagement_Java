@@ -473,5 +473,30 @@ public class ProductDAO {
         }
         return serials;
     }
+    
+    public boolean increaseStock(String productId, int quantity) {
+        String query = "UPDATE san_pham SET so_luong = so_luong + ? WHERE ma_san_pham = ? AND is_deleted = 0";
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, quantity);
+            stmt.setString(2, productId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Lỗi tăng số lượng: " + e.getMessage());
+            return false;
+        }
+    }
 
+    // Đánh dấu serial là chưa sử dụng
+    public void unmarkSerialsAsUsed(List<String> serials) {
+        String query = "UPDATE danh_sach_san_pham SET is_deleted = 0 WHERE ma_serial = ?";
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+            for (String serial : serials) {
+                stmt.setString(1, serial);
+                stmt.addBatch();
+            }
+            stmt.executeBatch();
+        } catch (SQLException e) {
+            System.err.println("Lỗi mở lại serial: " + e.getMessage());
+        }
+    }
 }

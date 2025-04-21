@@ -150,4 +150,38 @@ public class ProductBUS {
         ProductDAO dao = new ProductDAO();
         return dao.updateStockAfterSale(productId, quantity);
     }
+    
+    public double getProductDiscount(String productID) {
+        ProductDTO product = getProductByID(productID);
+        if (product != null) {
+            try {
+                return Double.parseDouble(product.getkhuyenMai());
+            } catch (NumberFormatException e) {
+                return 0;
+            }
+        }
+        return 0;
+    }
+
+    public double getProductOriginalPrice(String productID) {
+        ProductDTO product = getProductByID(productID);
+        if (product != null) {
+            try {
+                return Double.parseDouble(product.getgiaGoc());
+            } catch (NumberFormatException e) {
+                return 0;
+            }
+        }
+        return 0;
+    }
+    
+    public boolean increaseStock(String productId, int quantity) {
+        ProductDAO dao = new ProductDAO();
+        return dao.increaseStock(productId, quantity);
+    }
+
+    public void unmarkSerialsAsUsed(List<String> serials) {
+        ProductDAO dao = new ProductDAO();
+        dao.unmarkSerialsAsUsed(serials);
+    }
 }

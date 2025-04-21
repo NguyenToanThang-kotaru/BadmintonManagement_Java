@@ -2,7 +2,6 @@ package GUI;
 
 import BUS.OrderBUS;
 import DTO.OrderDTO;
-import DAO.OrderDAO;
 import DTO.AccountDTO;
 import BUS.DetailOrderBUS;
 
@@ -19,8 +18,8 @@ public class GUI_Order extends JPanel {
     private DefaultTableModel tableModel;
     private CustomButton editButton, deleteButton, addButton, detailorderButton;
     private CustomSearch searchField;
-    private OrderBUS orderBUS;
-    private OrderDTO order;
+    private OrderBUS orderBUS = new OrderBUS();
+    private OrderDTO order =  new OrderDTO();
 
     public GUI_Order(AccountDTO cn, List<String> t) {
         orderBUS = new OrderBUS();
@@ -47,7 +46,7 @@ public class GUI_Order extends JPanel {
         midPanel.setBackground(Color.WHITE);
         
         // Định nghĩa tiêu đề cột
-        String[] columnNames = {"Mã HĐ", "Mã NV", "Mã KH", "Tổng Tiền", "Ngày Xuất"};
+        String[] columnNames = {"Mã HĐ", "Mã NV", "Mã KH", "Tổng Tiền", "Ngày Xuất", "Tổng Lợi Nhuận"};
         CustomTable customTable = new CustomTable(columnNames);
         orderTable = customTable.getOrderTable(); 
         tableModel = customTable.getTableModel(); 
@@ -133,7 +132,7 @@ public class GUI_Order extends JPanel {
                 String tongtien = (String) orderTable.getValueAt(selectedRow, 3);
                 String ngayxuat = (String) orderTable.getValueAt(selectedRow, 4);
                 
-                order = OrderDAO.getOrder(mahd); //; Lấy mã hóa đơn để tham chiếu 
+                orderBUS.getOrder(mahd); //; Lấy mã hóa đơn để tham chiếu 
                 
                 // Hiển thị dữ liệu trên giao diện
                 orderidLabel.setText(mahd);
@@ -173,13 +172,11 @@ public class GUI_Order extends JPanel {
         });
         
         addButton.addActionListener(e -> {
-//            JOptionPane.showMessageDialog(this, "Chức năng thêm nhân viên chưa được triển khai!");
-            Form_Order GFO = new Form_Order(this, null, cn);
-            GFO.setVisible(true);
+                Form_Order GFO = new Form_Order(this, null, cn);
+                GFO.setVisible(true);
         });
         
         editButton.addActionListener(e -> {
-//            JOptionPane.showMessageDialog(this, "Chức năng thêm nhân viên chưa được triển khai!");
             Form_Order GFO = new Form_Order(this, order, cn);
             GFO.setVisible(true);
         });
@@ -232,7 +229,8 @@ public class GUI_Order extends JPanel {
                 odr.getemployeeID(),
                 odr.getcustomerID(),
                 odr.gettotalmoney(),
-                odr.getissuedate()
+                odr.getissuedate(),
+                odr.gettotalprofit()
             });
         }
     }
@@ -243,7 +241,7 @@ public class GUI_Order extends JPanel {
         //int index = 0;
         String no = "";
         for (OrderDTO odr : order ) {
-            tableModel.addRow(new Object[]{odr.getorderID(), odr.getemployeeID(), odr.getcustomerID(), odr.gettotalmoney(), odr.getissuedate()});
+            tableModel.addRow(new Object[]{odr.getorderID(), odr.getemployeeID(), odr.getcustomerID(), odr.gettotalmoney(), odr.getissuedate(), odr.gettotalprofit()});
         }
     }
 }

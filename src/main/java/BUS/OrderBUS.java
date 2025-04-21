@@ -8,32 +8,31 @@ import java.util.List;
 
 public class OrderBUS {
 
+    private OrderDAO dao = new OrderDAO();
+    private CustomerDAO customer = new CustomerDAO();
+    
     public List<OrderDTO> getAllOrder() {
-        return OrderDAO.getAllOrder();
+        return dao.getAllOrder();
     }
 
     public void updateOrder(OrderDTO order) {
-        OrderDAO dao = new OrderDAO();
-    }
-    
-    private CustomerDAO customerDAO;
-
-    public OrderBUS() {
-        customerDAO = new CustomerDAO();
+        dao.updateOrder(order);
+        dao.updateTotalProfit(order.getorderID());
     }
 
     public String getCustomerNameByID(String customerID) {
-        return customerDAO.getCustomerNameByID(customerID);
+        return customer.getCustomerNameByID(customerID);
     }
     
     public boolean deleteOrder(String orderID) {
-        OrderDAO dao = new OrderDAO();
         return dao.deleteOrder(orderID);
     }
     
     public void addOrder(OrderDTO order) {
-        OrderDAO dao = new OrderDAO();
-        dao.insertOrder(order); // bạn tự tạo insertOrder trong OrderDAO
+        if (order.gettotalprofit() == null || order.gettotalprofit().trim().isEmpty()) {
+            order.settotalprofit("0");
+        }
+        dao.insertOrder(order);
     }
     
     public String getNextOrderID() {
@@ -42,5 +41,9 @@ public class OrderBUS {
     
     public List<OrderDTO> searchOrder(String keyword) {
         return OrderDAO.searchOrder(keyword);
+    }
+    
+    public void getOrder(String mahd) {
+        dao.getOrder(mahd);
     }
 }
