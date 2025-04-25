@@ -16,7 +16,7 @@ public class GUI_Order extends JPanel {
     private JPanel topPanel, midPanel, botPanel;
     private JTable orderTable;
     private DefaultTableModel tableModel;
-    private CustomButton editButton, deleteButton, addButton, detailorderButton;
+    private CustomButton editButton, deleteButton, addButton, detailorderButton, excelButton;
     private CustomSearch searchField;
     private OrderBUS orderBUS = new OrderBUS();
     private OrderDTO order =  new OrderDTO();
@@ -37,7 +37,10 @@ public class GUI_Order extends JPanel {
         searchField = new CustomSearch(275,20); // Ô nhập tìm kiếm
         searchField.setBackground(Color.WHITE);
         topPanel.add(searchField, BorderLayout.CENTER);
-
+        
+        excelButton = new CustomButton("Xuất Excel");
+        topPanel.add(excelButton, BorderLayout.WEST);
+        
         addButton = new CustomButton("+ Thêm Hóa Đơn"); // Nút thêm hóa đơn
         topPanel.add(addButton, BorderLayout.EAST);
 
@@ -207,6 +210,10 @@ public class GUI_Order extends JPanel {
             } else {
                 JOptionPane.showMessageDialog(this, "Vui lòng chọn hóa đơn trước!", "Thông báo", JOptionPane.WARNING_MESSAGE);
             }
+        });
+        
+        excelButton.addActionListener(e -> {
+            
         });
         
         searchField.setSearchListener(e -> {
