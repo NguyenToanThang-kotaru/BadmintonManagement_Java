@@ -10,7 +10,6 @@ public class Form_Customer extends JDialog {
 
     private JTextField txtCustomerID, txtFullName, txtSDT, txtEmail;
     private JLabel title;
-    private CustomCombobox<String> cbRole;
     private CustomButton btnSave, btnCancel;
     private CustomerBUS customerBUS = new CustomerBUS();
 
