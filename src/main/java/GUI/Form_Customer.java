@@ -8,7 +8,7 @@ import java.awt.*;
 
 public class Form_Customer extends JDialog {
 
-    private JTextField txtCustomerID, txtFullName, txtSDT, txtEmail;
+    private JTextField txtCustomerID, txtFullName, txtSDT;
     private JLabel title;
     private CustomButton btnSave, btnCancel;
     private CustomerBUS customerBUS = new CustomerBUS();
@@ -38,7 +38,6 @@ public class Form_Customer extends JDialog {
         txtCustomerID = new JTextField(20);
         txtFullName = new JTextField(20);
         txtSDT = new JTextField(20);
-        txtEmail = new JTextField(20);
 
         if (customer != null) {
             txtCustomerID.setText(customer.getcustomerID());
@@ -47,7 +46,6 @@ public class Form_Customer extends JDialog {
             txtCustomerID.setBackground(Color.WHITE); 
             txtFullName.setText(customer.getFullName());
             txtSDT.setText(customer.getPhone());
-            txtEmail.setText(customer.getEmail());
         } else {
             txtCustomerID.setText(customerBUS.getNextCustomerID());
             txtCustomerID.setEditable(false); // Không cho sửa
@@ -59,7 +57,6 @@ public class Form_Customer extends JDialog {
         addComponent("Mã Khách Hàng:", txtCustomerID, gbc);
         addComponent("Tên Khách Hàng:", txtFullName, gbc);
         addComponent("Số Điện Thoại:", txtSDT, gbc);
-        addComponent("Email:", txtEmail, gbc);
 
         JPanel buttonPanel = new JPanel(new FlowLayout());
         btnSave = new CustomButton(customer == null ? "Thêm" : "Cập Nhật");
@@ -79,14 +76,13 @@ public class Form_Customer extends JDialog {
             String customerID = txtCustomerID.getText().trim();
             String fullName = txtFullName.getText().trim();
             String phone = txtSDT.getText().trim();
-            String email = txtEmail.getText().trim();
 
             if (fullName.isEmpty() || phone.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Tên và số điện thoại không được để trống.", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            CustomerDTO newCustomer = new CustomerDTO(customerID, fullName, phone, email);
+            CustomerDTO newCustomer = new CustomerDTO(customerID, fullName, phone);
 
             if (customer == null) {
                 customerBUS.addCustomer(newCustomer);

@@ -41,6 +41,8 @@ public class Form_Order extends JDialog {
     private DetailOrderBUS detailOrderBUS = new DetailOrderBUS();
     private OrderDTO orderdto = new OrderDTO();
     private final Map<String, List<String>> usedSerialsMap = new HashMap<>();
+    private final Map<String, String> productIdToUniqueKeyMap = new HashMap<>();
+
 
 
     public Form_Order(GUI_Order parent, OrderDTO order, AccountDTO account) {
@@ -386,28 +388,67 @@ public class Form_Order extends JDialog {
                 }
 
                 int oldQuantity = Integer.parseInt(orderTableModel.getValueAt(selectedRow, 3).toString());
+                int newQuantity = Integer.parseInt(txtQuantity.getText().trim());
+
+                if (newQuantity <= 0) {
+                    JOptionPane.showMessageDialog(this, "Số lượng phải lớn hơn 0.");
+                    return;
+                }
+
+                // Lấy lại uniqueKey
+                String lookupKey = productId + "_" + selectedRow;
+                String uniqueKey = productIdToUniqueKeyMap.get(lookupKey);
+                List<String> serials = usedSerialsMap.get(uniqueKey);
+
+                if (serials == null) {
+                    JOptionPane.showMessageDialog(this, "Không tìm thấy serials của sản phẩm này!");
+                    return;
+                }
+
+                if (newQuantity < oldQuantity) {
+                    // Nếu giảm số lượng
+                    int reduce = oldQuantity - newQuantity;
+                    List<String> removedSerials = new ArrayList<>(serials.subList(serials.size() - reduce, serials.size()));
+                    serials.removeAll(removedSerials);
+                    productBUS.increaseStock(productId, reduce);
+                    productBUS.unmarkSerialsAsUsed(removedSerials);
+                } else if (newQuantity > oldQuantity) {
+                    // Nếu tăng số lượng
+                    int add = newQuantity - oldQuantity;
+                    List<String> newSerials = productBUS.getAvailableSerials(productId, add);
+                    if (newSerials.size() < add) {
+                        JOptionPane.showMessageDialog(this, "Không đủ tồn kho để tăng thêm số lượng!");
+                        return;
+                    }
+                    serials.addAll(newSerials);
+                    productBUS.reduceStock(productId, add);
+                    productBUS.markSerialsAsUsed(newSerials);
+                }
+                // Update lại usedSerialsMap
+                usedSerialsMap.put(uniqueKey, serials);
+
+                // Update số lượng + thành tiền
                 double price = Double.parseDouble(orderTableModel.getValueAt(selectedRow, 4).toString().replaceAll("[^0-9]", ""));
                 double khuyenMai = Double.parseDouble(product.getkhuyenMai());
                 double giaSauKM = price - (price * (khuyenMai / 100));
-                double oldTotal = giaSauKM * oldQuantity;
 
-                int newQuantity = Integer.parseInt(txtQuantity.getText().trim());
+                double oldTotal = giaSauKM * oldQuantity;
                 double newTotal = giaSauKM * newQuantity;
 
-                // Cập nhật lại dòng
                 orderTableModel.setValueAt(newQuantity, selectedRow, 3);
                 orderTableModel.setValueAt(formatCurrency((int) newTotal), selectedRow, 5);
 
-                // Cập nhật tổng tiền
+                // Update lại tổng tiền
                 totalAmount = (int) (totalAmount - oldTotal + newTotal);
                 lblTongTien.setText(formatCurrency(totalAmount));
-
+                
+                loadAllProducts();
             } else {
                 JOptionPane.showMessageDialog(this, "Vui lòng chọn sản phẩm trong giỏ hàng để sửa.");
             }
-        } catch (Exception ex) {
+        } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Lỗi khi sửa số lượng.");
-            ex.printStackTrace();
+            e.printStackTrace();
         }
     }
 
@@ -476,13 +517,17 @@ public class Form_Order extends JDialog {
             double total = giaSauKM * quantity;
 
             orderTableModel.addRow(new Object[]{
-                uniqueKey, 
+                productId, 
                 productName,
                 category,
                 quantity,
                 formatCurrency((int) giaSauKM),
                 formatCurrency((int) total)
             });
+
+            // Map (productId_rowIndex) => uniqueKey
+            int rowIndex = orderTableModel.getRowCount() - 1;
+            productIdToUniqueKeyMap.put(productId + "_" + rowIndex, uniqueKey);
 
             totalAmount += total;
             lblTongTien.setText(formatCurrency(totalAmount));
@@ -603,11 +648,11 @@ public class Form_Order extends JDialog {
         String maKH = txtMaKhachHang.getText().trim();
         String tenKH = txtTenKhachHang.getText().trim();
         String sdt = txtSoDienThoai.getText().trim();
-
+        
         // Kiểm tra thông tin khách hàng
         CustomerDTO existingCustomer = customerBUS.getCustomerByPhone(sdt);
         if (existingCustomer == null) {
-            CustomerDTO newCustomer = new CustomerDTO(maKH, tenKH, sdt, "");
+            CustomerDTO newCustomer = new CustomerDTO(maKH, tenKH, sdt);
             customerBUS.addCustomer(newCustomer);
         }
 
@@ -646,12 +691,15 @@ public class Form_Order extends JDialog {
             int quantity = Integer.parseInt(orderTableModel.getValueAt(i, 3).toString());
             String priceStr = orderTableModel.getValueAt(i, 4).toString().replaceAll("[^0-9]", "");
 
-            List<String> serials = usedSerialsMap.get(key);
+             // Truy lookup uniqueKey
+            String lookupKey = productID + "_" + i;
+            String uniqueKey = productIdToUniqueKeyMap.get(lookupKey);
+            List<String> serials = usedSerialsMap.get(uniqueKey);
             if (serials == null || serials.size() < quantity) {
                 JOptionPane.showMessageDialog(this, "Thiếu serial cho sản phẩm " + productID);
                 return;
             }
-
+ 
             for (int j = 0; j < quantity; j++) {
                 String detailID = String.format("CTHD%03d%03d", baseNumber, detailIndex++);
                 detail.setdetailorderID(detailID);
@@ -662,9 +710,6 @@ public class Form_Order extends JDialog {
                 detail.setprice(priceStr);
                 detailOrderBUS.addDetailOrder(detail);
                 GuaranteeBUS.addGuarantee(detail.getserialID());
-                
-                productBUS.reduceStock(productID, 1);
-
             }
         }
 
