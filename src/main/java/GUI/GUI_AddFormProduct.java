@@ -15,7 +15,7 @@ import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 
 public class GUI_AddFormProduct extends JDialog {
 
-    private JTextField nameField, priceField, maNCCField, soluongField, tsktField, priceIntoField, saleField ;
+    private JTextField nameField, priceField, maNCCField, soluongField, tsktField, priceIntoField, saleField, HLBHField;
     private CustomCombobox TLField, NCCField;
     private CustomButton saveButton, cancelButton, btnChooseImage;
     private JLabel imageLabel;
@@ -41,7 +41,8 @@ public class GUI_AddFormProduct extends JDialog {
 //        addComponent("Mã NCC:", maNCCField = new JTextField(20), gbc, 2);
 //        addComponent("Số lượng:", soluongField = new JTextField(20), gbc, 3);
         addComponent("Thông số kỹ thuật:", tsktField = new JTextField(20), gbc, 2);
-        addComponent("Giá nhập:", priceIntoField = new JTextField(20), gbc, 3);
+        addComponent("Hiệu lực bảo hành:", HLBHField = new JTextField(20), gbc, 3);
+        addComponent("Giá nhập:", priceIntoField = new JTextField(20), gbc, 4);
 //        addComponent("Khuyến mãi:", saleField = new JTextField(20), gbc, 4);
 
         // Loại sản phẩm
@@ -130,6 +131,7 @@ public class GUI_AddFormProduct extends JDialog {
         String price = priceField.getText().trim();
         String soluong = "0";
         String tskt = tsktField.getText().trim();
+        String HLBH = HLBHField.getText().trim();
         String gianhap = priceIntoField.getText().trim();
         String khuyenmai = "0";
         String tenLoai = (String) TLField.getSelectedItem();
@@ -147,7 +149,7 @@ public class GUI_AddFormProduct extends JDialog {
         }
 
         // Tạo sản phẩm mới, truyền vào productID là null vì đây là sản phẩm mới (sẽ tự động sinh ID khi thêm vào DB)
-        ProductDTO newProduct = new ProductDTO(null, name, price, soluong, null, tskt, null, tenLoai, anh, tenNCC, gianhap, khuyenmai);
+        ProductDTO newProduct = new ProductDTO(null, name, price, soluong, null, tskt, null, tenLoai, anh, tenNCC, gianhap, khuyenmai, HLBH);
 
         ProductBUS bus = new ProductBUS();
         if (!bus.validateProduct(newProduct)) {

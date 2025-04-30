@@ -155,6 +155,13 @@ public class GUI_Product extends JPanel {
         JLabel sale = new JLabel("");
         infoPanel.add(sale, gbcInfo);
 
+        gbcInfo.gridx = 0;
+        gbcInfo.gridy = 9;
+        infoPanel.add(new JLabel("Hiệu lực bảo hành: "), gbcInfo);
+        gbcInfo.gridx = 1;
+        JLabel HLBH = new JLabel("");
+        infoPanel.add(HLBH, gbcInfo);
+
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
         buttonPanel.setOpaque(false);
 
@@ -171,7 +178,7 @@ public class GUI_Product extends JPanel {
         buttonPanel.add(fixButton);
 
         gbcInfo.gridx = 0;
-        gbcInfo.gridy = 9;
+        gbcInfo.gridy = 10;
         gbcInfo.gridwidth = 2;
         gbcInfo.fill = GridBagConstraints.HORIZONTAL;
 
@@ -197,6 +204,7 @@ public class GUI_Product extends JPanel {
                     TypeName.setText(product.getTL());
                     priceInto.setText(product.getgiaGoc());
                     sale.setText(product.getkhuyenMai());
+                    HLBH.setText(product.getTGBH());
 
                     infoPanel.add(buttonPanel, gbcInfo);
 
@@ -240,6 +248,7 @@ public class GUI_Product extends JPanel {
                     TypeName.setText("");
                     priceInto.setText("");
                     sale.setText("");
+                    HLBH.setText("");
                     imageLabel.setIcon(null);
                     infoPanel.remove(buttonPanel); // Ẩn nút nếu không có sản phẩm
                     infoPanel.revalidate();
@@ -312,6 +321,7 @@ public class GUI_Product extends JPanel {
                 TypeName.setText("");
                 priceInto.setText("");
                 sale.setText("");
+                HLBH.setText("");
 
                 String productImg = productChoosing.getAnh();
                 String imagePath = "images/noimage.png"; // Đường dẫn mặc định nếu không có ảnh sản phẩm
