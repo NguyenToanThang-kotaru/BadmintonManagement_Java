@@ -11,6 +11,14 @@ import java.awt.*;
 import java.io.File;
 import java.util.List;
 
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.awt.Color;
+
 public class GUI_Employee extends JPanel {
 
     private JPanel topPanel, midPanel, botPanel;
@@ -81,6 +89,9 @@ public class GUI_Employee extends JPanel {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
+
+        CustomButton exportExcelButton = new CustomButton("Xuất Excel");
+        topPanel.add(exportExcelButton, BorderLayout.SOUTH);
 
         // Nhãn hiển thị thông tin nhân viên
         gbc.gridx = 0;
@@ -219,7 +230,11 @@ public class GUI_Employee extends JPanel {
                 loadEmployees(); // Nếu ô tìm kiếm trống, load lại toàn bộ khách hàng
             }
         });
-        
+
+        exportExcelButton.addActionListener(e -> {
+            exportToExcel();
+        });
+
         // Thêm các panel vào giao diện chính
         add(topPanel);
         add(Box.createVerticalStrut(5));
@@ -275,4 +290,62 @@ public class GUI_Employee extends JPanel {
             tableModel.addRow(new Object[]{emp.getEmployeeID(), emp.getFullName(), emp.getAddress(), emp.getPhone(), emp.getImage()});
         }
     }
+    private void exportToExcel() {
+    // Tạo workbook và sheet
+    Workbook workbook = new XSSFWorkbook();
+    Sheet sheet = workbook.createSheet("Danh sách nhân viên");
+
+    // Tạo dòng tiêu đề
+    Row headerRow = sheet.createRow(0);
+    String[] columns = {"STT", "Họ Tên", "Địa Chỉ", "SĐT"};
+    for (int i = 0; i < columns.length; i++) {
+        Cell cell = headerRow.createCell(i);
+        cell.setCellValue(columns[i]);
+        // Tùy chỉnh style cho tiêu đề (tuỳ chọn)
+        CellStyle headerStyle = workbook.createCellStyle();
+        Font font = workbook.createFont();
+        font.setBold(true);
+        headerStyle.setFont(font);
+        cell.setCellStyle(headerStyle);
+    }
+
+    // Lấy dữ liệu từ EmployeeDAO
+    List<EmployeeDTO> employees = EmployeeDAO.getAllEmployees();
+    int rowNum = 1;
+    for (EmployeeDTO emp : employees) {
+        Row row = sheet.createRow(rowNum++);
+        row.createCell(0).setCellValue(rowNum - 1);
+        row.createCell(1).setCellValue(emp.getFullName());
+        row.createCell(2).setCellValue(emp.getAddress());
+        row.createCell(3).setCellValue(emp.getPhone());
+    }
+
+    // Tự động điều chỉnh kích thước cột
+    for (int i = 0; i < columns.length; i++) {
+        sheet.autoSizeColumn(i);
+    }
+
+    // Mở dialog để người dùng chọn nơi lưu file
+    JFileChooser fileChooser = new JFileChooser();
+    fileChooser.setDialogTitle("Chọn nơi lưu file Excel");
+    fileChooser.setSelectedFile(new File("DanhSachNhanVien.xlsx"));
+    int userSelection = fileChooser.showSaveDialog(this);
+
+    if (userSelection == JFileChooser.APPROVE_OPTION) {
+        File fileToSave = fileChooser.getSelectedFile();
+        try (FileOutputStream fileOut = new FileOutputStream(fileToSave)) {
+            workbook.write(fileOut);
+            JOptionPane.showMessageDialog(this, "Xuất file Excel thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi khi xuất file Excel: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
+        } finally {
+            try {
+                workbook.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+}
 }
