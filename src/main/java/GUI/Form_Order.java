@@ -541,27 +541,47 @@ public class Form_Order extends JDialog {
         int selectedRow = productsTable.getSelectedRow();
         if (selectedRow >= 0) {
             try {
-                String uniqueKey = orderTableModel.getValueAt(selectedRow, 0).toString();
-                String productId = uniqueKey.split("_")[0];
+                String productId = orderTableModel.getValueAt(selectedRow, 0).toString();
+                String lookupKey = productId + "_" + selectedRow;
+                String uniqueKey = productIdToUniqueKeyMap.get(lookupKey);
+                
                 int quantity = Integer.parseInt(orderTableModel.getValueAt(selectedRow, 3).toString());
                 int thanhTien = Integer.parseInt(orderTableModel.getValueAt(selectedRow, 5).toString().replaceAll("[^0-9]", ""));
 
-                    // Nếu đang tạo hóa đơn mới → lấy từ map tạm
+                // Nếu đang tạo hóa đơn mới
                 List<String> serialsToUnmark = usedSerialsMap.get(uniqueKey);
-                    if (serialsToUnmark != null && !serialsToUnmark.isEmpty()) {
-                        productBUS.increaseStock(productId, quantity);
-                        productBUS.unmarkSerialsAsUsed(serialsToUnmark);
-                        usedSerialsMap.remove(uniqueKey);
-                    }
+                if (serialsToUnmark != null && !serialsToUnmark.isEmpty()) {
+                    productBUS.increaseStock(productId, quantity);
+                    productBUS.unmarkSerialsAsUsed(serialsToUnmark);
+                    usedSerialsMap.remove(uniqueKey);
+                }
 
                 totalAmount -= thanhTien;
                 lblTongTien.setText(formatCurrency(totalAmount));
                 orderTableModel.removeRow(selectedRow);
+                productIdToUniqueKeyMap.remove(lookupKey);
 
+                // Nếu giỏ hàng trống, cho chỉnh lại thông tin khách
                 if (orderTableModel.getRowCount() == 0) {
                     txtSoDienThoai.setEditable(true);
                     txtTenKhachHang.setEditable(true);
                 }
+
+                //Cập nhật lại product sau khi xóa ===
+                Map<String, String> newMap = new HashMap<>();
+                for (int i = 0; i < orderTableModel.getRowCount(); i++) {
+                    String pid = orderTableModel.getValueAt(i, 0).toString();
+
+                    // Duyệt map cũ, nếu key cũ bắt đầu để giữ lại uniqueKey
+                    for (Map.Entry<String, String> entry : productIdToUniqueKeyMap.entrySet()) {
+                        if (entry.getKey().startsWith(pid + "_")) {
+                            newMap.put(pid + "_" + i, entry.getValue());
+                            break;
+                        }
+                    }
+                }
+                productIdToUniqueKeyMap.clear();
+                productIdToUniqueKeyMap.putAll(newMap);
 
                 loadAllProducts();
 
