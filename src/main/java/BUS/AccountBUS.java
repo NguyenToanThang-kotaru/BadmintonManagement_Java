@@ -53,18 +53,41 @@ public class AccountBUS {
 
     public static Boolean addAccount(String username, String password, String tenquyen) {
         System.out.println(tenquyen);
-        PermissionDTO a= new PermissionDTO(PermissionDAO.getPermissionByName(tenquyen));
+        PermissionDTO a = new PermissionDTO(PermissionDAO.getPermissionByName(tenquyen));
         EmployeeDTO e = new EmployeeDTO(EmployeeDAO.getEmployeeByName(username));
-        if (AccountDAO.addAccount(e.getEmployeeID(), password, a.getID())==true)
+        if (AccountDAO.addAccount(e.getEmployeeID(), password, a.getID()) == true) {
             return true;
-        else
+        } else {
             System.out.println("Khong co cc j het");
+        }
         return false;
     }
 
-    public static Boolean updateAccount(String username,String password, String maquyen) {
+    public static Boolean updateAccount(String username, String password, String maquyen) {
         PermissionDTO a = new PermissionDTO(PermissionDAO.getPermissionByName(maquyen));
-        return AccountDAO.updateAccount(username, password, a.getID())==true;
+        return AccountDAO.updateAccount(username, password, a.getID()) == true;
+    }
+
+    public static boolean validateAccount(AccountDTO account) {
+        String password = account.getPassword();
+
+        if (password == null || password.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(null,
+                    "Mật khẩu không được để trống.",
+                    "Lỗi nhập liệu",
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        if (password.trim().length() < 6) {
+            JOptionPane.showMessageDialog(null,
+                    "Mật khẩu phải có ít nhất 6 ký tự.",
+                    "Lỗi nhập liệu",
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        return true;
     }
 
 }

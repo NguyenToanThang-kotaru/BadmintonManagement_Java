@@ -138,7 +138,7 @@ public class GUI_AddFormProduct extends JDialog {
         String tenNCC = (String) NCCField.getSelectedItem();
         String anh = null;
 
-        if (name.isEmpty() || price.isEmpty() || tskt.isEmpty()) {
+        if (name.isEmpty() || price.isEmpty() || tskt.isEmpty() || HLBH.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }

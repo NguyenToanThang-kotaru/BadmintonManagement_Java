@@ -96,22 +96,28 @@ public class Form_Permission extends JDialog {
         btnCancel.addActionListener(e -> dispose());
         btnSave.addActionListener(e -> {
             PermissionDTO NewPermission = new PermissionDTO("1", txtPermissionName.getText(), getSelectedFunctions(), "0");
+            PermissionBUS bus = new PermissionBUS();
+            if (!bus.validatePermission(NewPermission)) {
+                return;
+            }
+            
             if (permission == null) {
                 if (PermissionDAO.addPermission(NewPermission) == true) {
                     System.out.println(txtPermissionName.getText());
                     System.out.println(NewPermission.getName());
-                    System.out.println("Them thanh cong");
+
+                    JOptionPane.showMessageDialog(null, "Thêm quyền thành công.");
                     dispose();
                 } else {
-                    System.out.println("Them that bai...");
+                    JOptionPane.showMessageDialog(null, "Thêm quyền thất bại.");
                 }
-            } else if (PermissionDAO.editPermission(permission,txtPermissionName.getText(),getSelectedFunctions()) == true) {
+            } else if (PermissionDAO.editPermission(permission, txtPermissionName.getText(), getSelectedFunctions()) == true) {
                 System.out.println(txtPermissionName.getText());
 
-                System.out.println("Sua thanh cong");
+                JOptionPane.showMessageDialog(null, "Sửa quyền thành công.");
                 dispose();
             } else {
-                System.out.println("Sua that bai...");
+                JOptionPane.showMessageDialog(null, "Sửa quyền thất bại.");
             }
         });
     }

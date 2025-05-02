@@ -12,7 +12,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-
 public class Form_Account extends JDialog {
 
     private JTextField txtEditPassword;
@@ -120,24 +119,49 @@ public class Form_Account extends JDialog {
                     System.out.println(cbEmployeeName.getSelectedItem().toString());
                     char[] passwordChars = txtPassword.getPassword();
                     String password = new String(passwordChars);
+                    char[] rePasswordChars = txtRePassword.getPassword();
+                    String rePassword = new String(rePasswordChars);
                     System.out.println(password);
-                    if (AccountBUS.addAccount(cbEmployeeName.getSelectedItem().toString(), password, cbRole.getSelectedItem().toString())) {
-                        System.out.println("Thanh cong");
-                    } else {
-                        System.out.println("That bai");
+
+                    if (!password.equals(rePassword)) {
+                        JOptionPane.showMessageDialog(null,
+                                "Mật khẩu nhập lại không khớp.",
+                                "Lỗi nhập liệu",
+                                JOptionPane.ERROR_MESSAGE);
+                        return;
                     }
-                } else { 
+
+                    AccountDTO act = new AccountDTO();
+                    act.setPassword(password);
+
+                    if (!AccountBUS.validateAccount(act)) {
+                        return; // Dừng nếu không hợp lệ
+                    }
+
+                    if (AccountBUS.addAccount(cbEmployeeName.getSelectedItem().toString(), password, cbRole.getSelectedItem().toString())) {
+                        JOptionPane.showMessageDialog(null, "Thêm tài khoản thành công.");
+                        dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Thêm tài khoản thất bại.");
+                    }
+                } else {
                     String username = txtAccount.getText();
                     String password = txtEditPassword.getText();
                     String role = cbRole.getSelectedItem().toString();
-                    System.out.println(username+password+role);
-                    if (AccountBUS.updateAccount(username, password, role) == true) {
-                        System.out.println("Thanh cong");
-                        dispose();
-                        
+
+                    AccountDTO act = new AccountDTO();
+                    act.setPassword(password);
+
+                    if (!AccountBUS.validateAccount(act)) {
+                        return; // Dừng nếu không hợp lệ
                     }
-                    else {
-                        System.out.println("That bai");
+
+                    System.out.println(username + password + role);
+                    if (AccountBUS.updateAccount(username, password, role) == true) {
+                        JOptionPane.showMessageDialog(null, "Sửa tài khoản thành công.");
+                        dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Sửa tài khoản thất bại.");
                     }
                 }
             }

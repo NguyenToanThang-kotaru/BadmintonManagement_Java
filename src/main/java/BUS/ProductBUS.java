@@ -50,6 +50,8 @@ public class ProductBUS {
         String gianhap = product.getgiaGoc().trim();
         String khuyenmai = product.getkhuyenMai().trim();
         String soluong = product.getSoluong().trim();
+        String HLBH = product.getTGBH().trim();
+        String Anh = product.getAnh();
 
         // Không cho tên chỉ toàn số
         if (productName.matches("\\d+")) {
@@ -88,6 +90,22 @@ public class ProductBUS {
         if (!khuyenmai.matches("^\\d+$")) {
             JOptionPane.showMessageDialog(null,
                     "Khuyến mãi chỉ được chứa số.",
+                    "Lỗi nhập liệu",
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        if (!HLBH.matches("^\\d+$")) {
+            JOptionPane.showMessageDialog(null,
+                    "Hiệu lực bảo hành chỉ được chứa số.",
+                    "Lỗi nhập liệu",
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        if (Anh == null) {
+            JOptionPane.showMessageDialog(null,
+                    "Ảnh sản phẩm không được để trống.",
                     "Lỗi nhập liệu",
                     JOptionPane.ERROR_MESSAGE);
             return false;
@@ -150,7 +168,7 @@ public class ProductBUS {
         ProductDAO dao = new ProductDAO();
         return dao.updateStockAfterSale(productId, quantity);
     }
-    
+
     public double getProductDiscount(String productID) {
         ProductDTO product = getProductByID(productID);
         if (product != null) {
@@ -174,7 +192,7 @@ public class ProductBUS {
         }
         return 0;
     }
-    
+
     public boolean increaseStock(String productId, int quantity) {
         ProductDAO dao = new ProductDAO();
         return dao.increaseStock(productId, quantity);

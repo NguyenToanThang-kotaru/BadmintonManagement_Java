@@ -5,6 +5,7 @@ import DAO.PermissionDAO;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JOptionPane;
 
 public class PermissionBUS {
 
@@ -18,8 +19,8 @@ public class PermissionBUS {
 
         return suffixes;
     }
-    
-    public static List<String> convertName(List<String> functionCodes){
+
+    public static List<String> convertName(List<String> functionCodes) {
         List<String> converted = new ArrayList<>();
 
         for (String code : functionCodes) {
@@ -209,8 +210,32 @@ public class PermissionBUS {
                 numberCode.toLowerCase(); // Trả về dạng lowercase nếu không khớp
         };
     }
-    
+
     public static List<PermissionDTO> searchPermission(String keyword) {
         return PermissionDAO.searchPermission(keyword);
     }
+
+    public static boolean validatePermission(PermissionDTO permission) {
+        String name = permission.getName();
+
+        if (name == null || name.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(null,
+                    "Tên quyền không được để trống.",
+                    "Lỗi nhập liệu",
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        int slChucNang = Integer.parseInt(permission.getSlChucNang());
+        if (slChucNang <= 0) {
+            JOptionPane.showMessageDialog(null,
+                    "Một quyền phải có ít nhất một chức năng.",
+                    "Lỗi nhập liệu",
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        return true;
+    }
+
 }
