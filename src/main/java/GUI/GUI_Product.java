@@ -42,6 +42,10 @@ public class GUI_Product extends JPanel {
         reloadButton = new CustomButton("Tải Lại Trang");
         topPanel.add(reloadButton, BorderLayout.WEST);
 
+        CustomButton exportExcelButton = new CustomButton("Xuất Excel");
+        exportExcelButton.setPreferredSize(new Dimension(120, 30));
+
+        topPanel.add(exportExcelButton, BorderLayout.WEST);
         addButton = new CustomButton("+ Thêm sản phẩm");
         addButton.setFont(new Font("Arial", Font.BOLD, 14));
         addButton.setPreferredSize(new Dimension(170, 30));
@@ -266,6 +270,25 @@ public class GUI_Product extends JPanel {
         reloadButton.addActionListener(e -> {
             loadProductData();
             tableModel.fireTableDataChanged();
+        });
+
+        exportExcelButton.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Chọn nơi lưu file Excel");
+            fileChooser.setSelectedFile(new File("DanhSachSanPham.xlsx"));
+            int userSelection = fileChooser.showSaveDialog(this);
+        
+            if (userSelection == JFileChooser.APPROVE_OPTION) {
+                File fileToSave = fileChooser.getSelectedFile();
+                String filePath = fileToSave.getAbsolutePath();
+                ProductBUS bus = new ProductBUS();
+                boolean success = bus.exportToExcel(filePath);
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Xuất file Excel thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Lỗi khi xuất file Excel!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                }
+            }
         });
 
         ShowSEButton.addActionListener(e -> {
