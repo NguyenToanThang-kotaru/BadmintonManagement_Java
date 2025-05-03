@@ -7,6 +7,8 @@ import BUS.GuaranteeBUS;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.io.File;
+
 import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +40,11 @@ public class GUI_Guarantee extends JPanel {
         topPanel.add(searchField, BorderLayout.CENTER);
         reloadButton = new CustomButton("Tải Lại Trang");
         topPanel.add(reloadButton, BorderLayout.WEST);
+        
+        // Nút xuất Excel
+        CustomButton exportExcelButton = new CustomButton("Xuất Excel");
+        exportExcelButton.setPreferredSize(new Dimension(120, 30));
+        topPanel.add(exportExcelButton, BorderLayout.EAST);
 
         // ========== BẢNG HIỂN THỊ ==========
         midPanel = new JPanel(new BorderLayout());
@@ -149,6 +156,24 @@ public class GUI_Guarantee extends JPanel {
             fixForm.setVisible(true);
         });
 
+        exportExcelButton.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Chọn nơi lưu file Excel");
+            fileChooser.setSelectedFile(new File("DanhSachBaoHanh.xlsx"));
+            int userSelection = fileChooser.showSaveDialog(this);
+        
+            if (userSelection == JFileChooser.APPROVE_OPTION) {
+                File fileToSave = fileChooser.getSelectedFile();
+                String filePath = fileToSave.getAbsolutePath();
+                boolean success = new GuaranteeBUS().exportToExcel(filePath);
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Xuất file Excel thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Lỗi khi xuất file Excel!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        
         reloadButton.addActionListener(e -> {
             loadGuaranteeData();
             tableModel.fireTableDataChanged();
