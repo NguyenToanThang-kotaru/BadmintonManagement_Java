@@ -51,28 +51,36 @@ public class GUI_Employee extends JPanel {
         searchPanel.add(searchField);
         topPanel.add(searchPanel, BorderLayout.CENTER);
 
-        // Panel chứa 3 nút với FlowLayout
-        JPanel buttonPanelWest = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        // Panel chứa 2 nút với BorderLayout
+        JPanel buttonPanelWest = new JPanel(new BorderLayout(5, 0));
         buttonPanelWest.setBackground(Color.WHITE);
-
-        reloadButton = new CustomButton("Tải Lại");
-        reloadButton.setPreferredSize(new Dimension(90, 30)); // Giảm kích thước
-        buttonPanelWest.add(reloadButton);
+        buttonPanelWest.setMaximumSize(new Dimension(250, 30));
 
         importExcelButton = new CustomButton("Nhập Excel");
-        importExcelButton.setPreferredSize(new Dimension(90, 30)); // Giảm kích thước
-        buttonPanelWest.add(importExcelButton);
+        importExcelButton.setPreferredSize(new Dimension(120, 30));
+        buttonPanelWest.add(importExcelButton, BorderLayout.WEST);
 
         CustomButton exportExcelButton = new CustomButton("Xuất Excel");
-        exportExcelButton.setPreferredSize(new Dimension(90, 30)); // Giảm kích thước
-        buttonPanelWest.add(exportExcelButton);
+        exportExcelButton.setPreferredSize(new Dimension(120, 30));
+        buttonPanelWest.add(exportExcelButton, BorderLayout.EAST);
 
         topPanel.add(buttonPanelWest, BorderLayout.WEST);
 
-        addButton = new CustomButton("+ Thêm Nhân Viên"); // Nút thêm nhân viên
+        // Panel chứa nút Tải Lại và Thêm Nhân Viên ở EAST
+        JPanel eastButtonPanel = new JPanel(new BorderLayout( 5, 0));
+        eastButtonPanel.setBackground(Color.WHITE);
+        eastButtonPanel.setMaximumSize(new Dimension(250, 30));
+        reloadButton = new CustomButton("Tải Lại");
+        reloadButton.setPreferredSize(new Dimension(120, 30)); 
+        eastButtonPanel.add(reloadButton, BorderLayout.WEST);
+
+        addButton = new CustomButton("+ Thêm NV");
+        addButton.setPreferredSize(new Dimension(120, 30));
         if (a.contains("them_nv")) {
-            topPanel.add(addButton, BorderLayout.EAST);
+            eastButtonPanel.add(addButton, BorderLayout.EAST);
         }
+
+        topPanel.add(eastButtonPanel, BorderLayout.EAST);
 
         // ========== BẢNG HIỂN THỊ DANH SÁCH NHÂN VIÊN ==========
         midPanel = new JPanel(new BorderLayout());
