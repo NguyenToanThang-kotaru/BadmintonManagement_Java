@@ -24,7 +24,8 @@ public class OrderDAO {
                             rs.getString("ma_khach_hang"),
                             rs.getString("tong_tien"),
                             rs.getString("ngay_xuat"),
-                            rs.getString("tong_loi_nhuan")
+                            rs.getString("tong_loi_nhuan"),
+                            rs.getBoolean("is_deleted")
                     );
                 }
             }
@@ -37,7 +38,7 @@ public class OrderDAO {
     
     public static ArrayList<OrderDTO> getAllOrder() {
         ArrayList<OrderDTO> order = new ArrayList<>();
-        String query = "SELECT * FROM hoa_don WHERE is_deleted = 0";
+        String query = "SELECT * FROM hoa_don";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query);
              ResultSet rs = stmt.executeQuery()) {
@@ -48,7 +49,8 @@ public class OrderDAO {
                         rs.getString("ma_khach_hang"),
                         rs.getString("tong_tien"),
                         rs.getString("ngay_xuat"),
-                        rs.getString("tong_loi_nhuan")
+                        rs.getString("tong_loi_nhuan"),
+                        rs.getBoolean("is_deleted")
                 ));
             }
         } catch (Exception e) {
@@ -186,7 +188,8 @@ public class OrderDAO {
                         rs.getString("ma_khach_hang"),
                         rs.getString("tong_tien"),
                         rs.getString("ngay_xuat"),
-                        rs.getString("tong_loi_nhuan") 
+                        rs.getString("tong_loi_nhuan"),
+                        rs.getBoolean("is_deleted")
                     ));
                 }
             }

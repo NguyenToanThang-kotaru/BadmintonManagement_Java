@@ -98,10 +98,6 @@ public class Form_Order extends JDialog {
         add(mainPanel);
 
         loadAllProducts();
-
-        if (currentOrder != null) {
-            loadOrderData();
-        }
     }
 
     private JPanel createInfoPanel() {
@@ -545,45 +541,47 @@ public class Form_Order extends JDialog {
         int selectedRow = productsTable.getSelectedRow();
         if (selectedRow >= 0) {
             try {
-                String uniqueKey = orderTableModel.getValueAt(selectedRow, 0).toString();
-                String productId = uniqueKey.split("_")[0];
+                String productId = orderTableModel.getValueAt(selectedRow, 0).toString();
+                String lookupKey = productId + "_" + selectedRow;
+                String uniqueKey = productIdToUniqueKeyMap.get(lookupKey);
+                
                 int quantity = Integer.parseInt(orderTableModel.getValueAt(selectedRow, 3).toString());
                 int thanhTien = Integer.parseInt(orderTableModel.getValueAt(selectedRow, 5).toString().replaceAll("[^0-9]", ""));
 
-                // Nếu đang sửa hóa đơn → xóa chi tiết cũ và giải phóng serials từ DB
-                if (currentOrder != null) {
-                    List<DetailOrderDTO> chiTiet = DetailOrderBUS.getDetailOrderByOrderID(currentOrder.getorderID());
-                    List<String> removedSerials = new ArrayList<>();
-                    int removedCount = 0;
-
-                    for (DetailOrderDTO d : chiTiet) {
-                        if (d.getproductID().equals(productId) && removedCount < quantity) {
-                            DetailOrderBUS.deleteDetailOrderByID(d.getdetailorderID());
-                            removedSerials.add(d.getserialID());
-                            removedCount++;
-                        }
-                    }
-
-                    productBUS.increaseStock(productId, removedCount);
-                    productBUS.unmarkSerialsAsUsed(removedSerials);
-                } else {
-                    // Nếu đang tạo hóa đơn mới → lấy từ map tạm
-                    List<String> serialsToUnmark = usedSerialsMap.get(uniqueKey);
-                    if (serialsToUnmark != null && !serialsToUnmark.isEmpty()) {
-                        productBUS.increaseStock(productId, quantity);
-                        productBUS.unmarkSerialsAsUsed(serialsToUnmark);
-                        usedSerialsMap.remove(uniqueKey);
-                    }
+                // Nếu đang tạo hóa đơn mới
+                List<String> serialsToUnmark = usedSerialsMap.get(uniqueKey);
+                if (serialsToUnmark != null && !serialsToUnmark.isEmpty()) {
+                    productBUS.increaseStock(productId, quantity);
+                    productBUS.unmarkSerialsAsUsed(serialsToUnmark);
+                    usedSerialsMap.remove(uniqueKey);
                 }
 
                 totalAmount -= thanhTien;
                 lblTongTien.setText(formatCurrency(totalAmount));
                 orderTableModel.removeRow(selectedRow);
+                productIdToUniqueKeyMap.remove(lookupKey);
 
+                // Nếu giỏ hàng trống, cho chỉnh lại thông tin khách
                 if (orderTableModel.getRowCount() == 0) {
                     txtSoDienThoai.setEditable(true);
                     txtTenKhachHang.setEditable(true);
                 }
+
+                //Cập nhật lại product sau khi xóa ===
+                Map<String, String> newMap = new HashMap<>();
+                for (int i = 0; i < orderTableModel.getRowCount(); i++) {
+                    String pid = orderTableModel.getValueAt(i, 0).toString();
+
+                    // Duyệt map cũ, nếu key cũ bắt đầu để giữ lại uniqueKey
+                    for (Map.Entry<String, String> entry : productIdToUniqueKeyMap.entrySet()) {
+                        if (entry.getKey().startsWith(pid + "_")) {
+                            newMap.put(pid + "_" + i, entry.getValue());
+                            break;
+                        }
+                    }
+                }
+                productIdToUniqueKeyMap.clear();
+                productIdToUniqueKeyMap.putAll(newMap);
 
                 loadAllProducts();
 
@@ -669,16 +667,6 @@ public class Form_Order extends JDialog {
         // Thêm mới hoặc cập nhật
         if (currentOrder == null) {
             orderBUS.addOrder(orderdto);
-        } else {
-            orderBUS.updateOrder(orderdto);
-
-            // Xóa toàn bộ chi tiết hóa đơn cũ trước khi ghi lại
-            List<DetailOrderDTO> oldDetails = DetailOrderBUS.getDetailOrderByOrderID(orderID);
-            for (DetailOrderDTO detail : oldDetails) {
-                DetailOrderBUS.deleteDetailOrderByID(detail.getdetailorderID());
-                productBUS.increaseStock(detail.getproductID(), 1);
-                productBUS.unmarkSerialsAsUsed(List.of(detail.getserialID()));
-            }
         }
 
         // Ghi mới các chi tiết hóa đơn từ giỏ hàng hiện tại
@@ -686,8 +674,7 @@ public class Form_Order extends JDialog {
         int detailIndex = 1;
 
         for (int i = 0; i < orderTableModel.getRowCount(); i++) {
-            String key = orderTableModel.getValueAt(i, 0).toString();
-            String productID = key.split("_")[0];
+            String productID = orderTableModel.getValueAt(i, 0).toString();
             int quantity = Integer.parseInt(orderTableModel.getValueAt(i, 3).toString());
             String priceStr = orderTableModel.getValueAt(i, 4).toString().replaceAll("[^0-9]", "");
 
