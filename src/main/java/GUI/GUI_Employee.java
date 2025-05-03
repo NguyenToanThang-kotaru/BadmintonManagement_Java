@@ -16,6 +16,7 @@ import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.awt.Color;
 
@@ -24,7 +25,7 @@ public class GUI_Employee extends JPanel {
     private JPanel topPanel, midPanel, botPanel;
     private JTable employeeTable;
     private DefaultTableModel tableModel;
-    private CustomButton editButton, deleteButton, addButton, reloadButton;
+    private CustomButton editButton, deleteButton, addButton, reloadButton, importExcelButton;
     private CustomSearch searchField;
     private EmployeeBUS employeeBUS;
     private EmployeeDTO employeeChoosing;
@@ -36,17 +37,38 @@ public class GUI_Employee extends JPanel {
         setBorder(new EmptyBorder(10, 10, 10, 10));
         setBackground(new Color(200, 200, 200));
 
-        // ========== PANEL TRÊN CÙNG (Thanh tìm kiếm & nút thêm) ==========
+        // ========== PANEL TRÊN CÙNG (Thanh tìm kiếm & nút) ==========
         topPanel = new JPanel(new BorderLayout(10, 10));
         topPanel.setPreferredSize(new Dimension(0, 60));
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         topPanel.setBackground(Color.WHITE);
 
+        // Panel chứa thanh tìm kiếm
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        searchPanel.setBackground(Color.WHITE);
         searchField = new CustomSearch(250, 30); // Ô nhập tìm kiếm
         searchField.setBackground(Color.WHITE);
-        topPanel.add(searchField, BorderLayout.CENTER);
-        reloadButton = new CustomButton("Tải Lại Trang");
-        topPanel.add(reloadButton, BorderLayout.WEST);
+        searchPanel.add(searchField);
+        topPanel.add(searchPanel, BorderLayout.CENTER);
+
+        // Panel chứa 3 nút với FlowLayout
+        JPanel buttonPanelWest = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        buttonPanelWest.setBackground(Color.WHITE);
+
+        reloadButton = new CustomButton("Tải Lại");
+        reloadButton.setPreferredSize(new Dimension(90, 30)); // Giảm kích thước
+        buttonPanelWest.add(reloadButton);
+
+        importExcelButton = new CustomButton("Nhập Excel");
+        importExcelButton.setPreferredSize(new Dimension(90, 30)); // Giảm kích thước
+        buttonPanelWest.add(importExcelButton);
+
+        CustomButton exportExcelButton = new CustomButton("Xuất Excel");
+        exportExcelButton.setPreferredSize(new Dimension(90, 30)); // Giảm kích thước
+        buttonPanelWest.add(exportExcelButton);
+
+        topPanel.add(buttonPanelWest, BorderLayout.WEST);
+
         addButton = new CustomButton("+ Thêm Nhân Viên"); // Nút thêm nhân viên
         if (a.contains("them_nv")) {
             topPanel.add(addButton, BorderLayout.EAST);
@@ -71,7 +93,6 @@ public class GUI_Employee extends JPanel {
 
         //Phần trái
         JPanel leftPanel = new JPanel(null);
-
         leftPanel.setPreferredSize(new Dimension(310, 290));
         leftPanel.setBackground(Color.WHITE);
 
@@ -79,6 +100,7 @@ public class GUI_Employee extends JPanel {
         imageLabel.setBounds(30, 10, 210, 190);
         imageLabel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
         leftPanel.add(imageLabel);
+
         // Phần phải
         JPanel righPanel = new JPanel();
         righPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
@@ -89,9 +111,6 @@ public class GUI_Employee extends JPanel {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
-
-        CustomButton exportExcelButton = new CustomButton("Xuất Excel");
-        topPanel.add(exportExcelButton, BorderLayout.SOUTH);
 
         // Nhãn hiển thị thông tin nhân viên
         gbc.gridx = 0;
@@ -166,8 +185,6 @@ public class GUI_Employee extends JPanel {
 
                 if (employeeImg != null && !employeeImg.isEmpty()) {
                     String tempPath = "images/" + employeeImg;
-                    
-
                     File imageFile = new File(tempPath);
                     System.out.println(imageFile);
                     if (imageFile.exists()) {
@@ -177,12 +194,10 @@ public class GUI_Employee extends JPanel {
                 ImageIcon employeeIcon = new ImageIcon(imagePath);
                 Image img = employeeIcon.getImage().getScaledInstance(220, 220, Image.SCALE_SMOOTH);
                 imageLabel.setIcon(new ImageIcon(img));
-
             }
         });
 
         addButton.addActionListener(e -> {
-//            JOptionPane.showMessageDialog(this, "Chức năng thêm nhân viên chưa được triển khai!");
             Form_Employee GFE = new Form_Employee(this, null);
             GFE.setVisible(true);
         });
@@ -196,7 +211,7 @@ public class GUI_Employee extends JPanel {
                 addressLabel.setText("");
                 phoneLabel.setText("");
                 String employeeImg = employeeChoosing.getImage();
-                String imagePath = "images/Avatar.png"; // Đường dẫn mặc 
+                String imagePath = "images/Avatar.png"; // Đường dẫn mặc định
 
                 if (employeeImg != null && !employeeImg.isEmpty()) {
                     String tempPath = "images/" + employeeImg;
@@ -208,7 +223,6 @@ public class GUI_Employee extends JPanel {
                 ImageIcon employeeIcon = new ImageIcon(imagePath);
                 Image img = employeeIcon.getImage().getScaledInstance(220, 220, Image.SCALE_SMOOTH);
                 imageLabel.setIcon(new ImageIcon(img));
-
             }
         });
 
@@ -221,7 +235,7 @@ public class GUI_Employee extends JPanel {
             Form_Employee GFE = new Form_Employee(this, employeeChoosing);
             GFE.setVisible(true);
         });
-        
+
         searchField.setSearchListener(e -> {
             String keyword = searchField.getText().trim();
             if (!keyword.isEmpty()) {
@@ -235,6 +249,30 @@ public class GUI_Employee extends JPanel {
             exportToExcel();
         });
 
+        importExcelButton.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Chọn file Excel để nhập");
+            fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Excel files", "xlsx", "xls"));
+            int userSelection = fileChooser.showOpenDialog(this);
+
+            if (userSelection == JFileChooser.APPROVE_OPTION) {
+                File fileToImport = fileChooser.getSelectedFile();
+                try {
+                    boolean success = employeeBUS.importEmployeesFromExcel(fileToImport);
+                    if (success) {
+                        JOptionPane.showMessageDialog(this, "Nhập dữ liệu từ Excel thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                        loadEmployees(); // Cập nhật lại bảng sau khi nhập
+                        tableModel.fireTableDataChanged();
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Nhập dữ liệu từ Excel thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "Lỗi khi nhập file Excel: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    ex.printStackTrace();
+                }
+            }
+        });
+
         // Thêm các panel vào giao diện chính
         add(topPanel);
         add(Box.createVerticalStrut(5));
@@ -245,7 +283,6 @@ public class GUI_Employee extends JPanel {
         if (a.contains("xem_nv")) {
             loadEmployees();
         }
-
     }
 
     private Boolean deleteEmployee(String EmployeeID, String employeeImg) {
@@ -265,7 +302,6 @@ public class GUI_Employee extends JPanel {
             JOptionPane.showMessageDialog(this, "Xóa nhân viên thất bại!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
             return false;
         }
-
     }
 
     private void loadEmployees() {
@@ -282,7 +318,7 @@ public class GUI_Employee extends JPanel {
             });
         }
     }
-    
+
     private void searchEmployee(String keyword) {
         List<EmployeeDTO> employee = employeeBUS.searchEmployee(keyword);
         tableModel.setRowCount(0);
@@ -290,62 +326,63 @@ public class GUI_Employee extends JPanel {
             tableModel.addRow(new Object[]{emp.getEmployeeID(), emp.getFullName(), emp.getAddress(), emp.getPhone(), emp.getImage()});
         }
     }
+
     private void exportToExcel() {
-    // Tạo workbook và sheet
-    Workbook workbook = new XSSFWorkbook();
-    Sheet sheet = workbook.createSheet("Danh sách nhân viên");
+        // Tạo workbook và sheet
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Danh sách nhân viên");
 
-    // Tạo dòng tiêu đề
-    Row headerRow = sheet.createRow(0);
-    String[] columns = {"STT", "Họ Tên", "Địa Chỉ", "SĐT"};
-    for (int i = 0; i < columns.length; i++) {
-        Cell cell = headerRow.createCell(i);
-        cell.setCellValue(columns[i]);
-        // Tùy chỉnh style cho tiêu đề (tuỳ chọn)
-        CellStyle headerStyle = workbook.createCellStyle();
-        Font font = workbook.createFont();
-        font.setBold(true);
-        headerStyle.setFont(font);
-        cell.setCellStyle(headerStyle);
-    }
+        // Tạo dòng tiêu đề
+        Row headerRow = sheet.createRow(0);
+        String[] columns = {"STT", "Họ Tên", "Địa Chỉ", "SĐT"};
+        for (int i = 0; i < columns.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(columns[i]);
+            // Tùy chỉnh style cho tiêu đề (tuỳ chọn)
+            CellStyle headerStyle = workbook.createCellStyle();
+            Font font = workbook.createFont();
+            font.setBold(true);
+            headerStyle.setFont(font);
+            cell.setCellStyle(headerStyle);
+        }
 
-    // Lấy dữ liệu từ EmployeeDAO
-    List<EmployeeDTO> employees = EmployeeDAO.getAllEmployees();
-    int rowNum = 1;
-    for (EmployeeDTO emp : employees) {
-        Row row = sheet.createRow(rowNum++);
-        row.createCell(0).setCellValue(rowNum - 1);
-        row.createCell(1).setCellValue(emp.getFullName());
-        row.createCell(2).setCellValue(emp.getAddress());
-        row.createCell(3).setCellValue(emp.getPhone());
-    }
+        // Lấy dữ liệu từ EmployeeDAO
+        List<EmployeeDTO> employees = EmployeeDAO.getAllEmployees();
+        int rowNum = 1;
+        for (EmployeeDTO emp : employees) {
+            Row row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(rowNum - 1);
+            row.createCell(1).setCellValue(emp.getFullName());
+            row.createCell(2).setCellValue(emp.getAddress());
+            row.createCell(3).setCellValue(emp.getPhone());
+        }
 
-    // Tự động điều chỉnh kích thước cột
-    for (int i = 0; i < columns.length; i++) {
-        sheet.autoSizeColumn(i);
-    }
+        // Tự động điều chỉnh kích thước cột
+        for (int i = 0; i < columns.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
 
-    // Mở dialog để người dùng chọn nơi lưu file
-    JFileChooser fileChooser = new JFileChooser();
-    fileChooser.setDialogTitle("Chọn nơi lưu file Excel");
-    fileChooser.setSelectedFile(new File("DanhSachNhanVien.xlsx"));
-    int userSelection = fileChooser.showSaveDialog(this);
+        // Mở dialog để người dùng chọn nơi lưu file
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Chọn nơi lưu file Excel");
+        fileChooser.setSelectedFile(new File("DanhSachNhanVien.xlsx"));
+        int userSelection = fileChooser.showSaveDialog(this);
 
-    if (userSelection == JFileChooser.APPROVE_OPTION) {
-        File fileToSave = fileChooser.getSelectedFile();
-        try (FileOutputStream fileOut = new FileOutputStream(fileToSave)) {
-            workbook.write(fileOut);
-            JOptionPane.showMessageDialog(this, "Xuất file Excel thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi xuất file Excel: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-            ex.printStackTrace();
-        } finally {
-            try {
-                workbook.close();
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = fileChooser.getSelectedFile();
+            try (FileOutputStream fileOut = new FileOutputStream(fileToSave)) {
+                workbook.write(fileOut);
+                JOptionPane.showMessageDialog(this, "Xuất file Excel thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
             } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this, "Lỗi khi xuất file Excel: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
                 ex.printStackTrace();
+            } finally {
+                try {
+                    workbook.close();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
             }
         }
     }
-}
 }

@@ -1,18 +1,18 @@
 package DAO;
 
 import DTO.EmployeeDTO;
-
 import Connection.DatabaseConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class EmployeeDAO {
 
     public static Boolean addEmployee(EmployeeDTO employee) {
-        String sql = "INSERT INTO nhan_vien (ma_nhan_vien, ten_nhan_vien, dia_chi, so_dien_thoai, hinh_anh) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO nhan_vien (ma_nhan_vien, ten_nhan_vien, dia_chi, so_dien_thoai, hinh_anh, chuc_vu) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -23,6 +23,7 @@ public class EmployeeDAO {
             stmt.setString(3, employee.getAddress());
             stmt.setString(4, employee.getPhone());
             stmt.setString(5, employee.getImage());
+            stmt.setString(6, employee.getChucVu()); // Thêm chuc_vu
 
             stmt.executeUpdate();
             System.out.println("Thêm nhân viên thành công với ID: " + newID);
@@ -35,8 +36,8 @@ public class EmployeeDAO {
     }
 
     public static Boolean deleteEmployee(String employeeID) {
-        String queery = "UPDATE nhan_vien SET is_deleted = 1 WHERE ma_nhan_vien = ?;";
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(queery)) {
+        String query = "UPDATE nhan_vien SET is_deleted = 1 WHERE ma_nhan_vien = ?;";
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, employeeID);
             stmt.executeUpdate();
             System.out.println("Xoa thanh cong");
@@ -58,7 +59,8 @@ public class EmployeeDAO {
                             rs.getString("ten_nhan_vien"),
                             rs.getString("dia_chi"),
                             rs.getString("so_dien_thoai"),
-                            rs.getString("hinh_anh")
+                            rs.getString("hinh_anh"),
+                            rs.getString("chuc_vu")
                     );
                 }
             }
@@ -79,7 +81,8 @@ public class EmployeeDAO {
                             rs.getString("ten_nhan_vien"),
                             rs.getString("dia_chi"),
                             rs.getString("so_dien_thoai"),
-                            rs.getString("hinh_anh")
+                            rs.getString("hinh_anh"),
+                            rs.getString("chuc_vu")
                     );
                 }
             }
@@ -100,10 +103,10 @@ public class EmployeeDAO {
                         rs.getString("ten_nhan_vien"),
                         rs.getString("dia_chi"),
                         rs.getString("so_dien_thoai"),
-                        rs.getString("hinh_anh")
+                        rs.getString("hinh_anh"),
+                        rs.getString("chuc_vu")
                 ));
             }
-//            System.out.println("Lấy danh sách nhân viên thành công.");
         } catch (Exception e) {
             System.out.println("Lỗi lấy danh sách nhân viên: " + e.getMessage());
             e.printStackTrace();
@@ -112,15 +115,16 @@ public class EmployeeDAO {
     }
 
     public static Boolean updateEmployee(EmployeeDTO employee) {
-        String sql = "UPDATE nhan_vien SET ten_nhan_vien = ?, dia_chi = ?, so_dien_thoai = ?, hinh_anh= ? WHERE ma_nhan_vien = ?";
+        String sql = "UPDATE nhan_vien SET ten_nhan_vien = ?, dia_chi = ?, so_dien_thoai = ?, hinh_anh = ?, chuc_vu = ? WHERE ma_nhan_vien = ?";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, employee.getFullName());
             stmt.setString(2, employee.getAddress());
             stmt.setString(3, employee.getPhone());
-            stmt.setString(4, employee.getImage());// Chuyển về vị trí đúng
-            stmt.setString(5, employee.getEmployeeID());
+            stmt.setString(4, employee.getImage());
+            stmt.setString(5, employee.getChucVu()); // Thêm chuc_vu
+            stmt.setString(6, employee.getEmployeeID());
             stmt.executeUpdate();
             System.out.println("Cập nhật nhân viên thành công.");
             return true;
@@ -129,7 +133,6 @@ public class EmployeeDAO {
             e.printStackTrace();
             return false;
         }
-
     }
 
     private static String generateNewEmployeeID() {
@@ -169,7 +172,8 @@ public class EmployeeDAO {
                         rs.getString("ten_nhan_vien"),
                         rs.getString("dia_chi"),
                         rs.getString("so_dien_thoai"),
-                        rs.getString("hinh_anh")
+                        rs.getString("hinh_anh"),
+                        rs.getString("chuc_vu")
                 ));
             }
             System.out.println("Lấy danh sách nhân viên chưa có tài khoản thành công.");
@@ -218,7 +222,8 @@ public class EmployeeDAO {
                         rs.getString("ten_nhan_vien"),
                         rs.getString("dia_chi"),
                         rs.getString("so_dien_thoai"),
-                        rs.getString("hinh_anh")
+                        rs.getString("hinh_anh"),
+                        rs.getString("chuc_vu")
                     ));
                 }
             }
@@ -226,5 +231,41 @@ public class EmployeeDAO {
             e.printStackTrace();
         }
         return employee;
+    }
+
+    public static boolean importEmployees(List<EmployeeDTO> employees) {
+        String sql = "INSERT INTO nhan_vien (ma_nhan_vien, ten_nhan_vien, dia_chi, so_dien_thoai, hinh_anh, chuc_vu) VALUES (?, ?, ?, ?, ?, ?)";
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            conn.setAutoCommit(false); // Bắt đầu giao dịch
+
+            for (EmployeeDTO employee : employees) {
+                String newID = generateNewEmployeeID(); // Tạo ID mới cho mỗi nhân viên
+
+                stmt.setString(1, newID);
+                stmt.setString(2, employee.getFullName());
+                stmt.setString(3, employee.getAddress());
+                stmt.setString(4, employee.getPhone());
+                stmt.setString(5, employee.getImage() != null ? employee.getImage() : "");
+                stmt.setString(6, employee.getChucVu()); // Thêm chuc_vu
+
+                stmt.addBatch();
+
+                // Cập nhật ID cho đối tượng EmployeeDTO
+                employee.setEmployeeID(newID);
+            }
+
+            stmt.executeBatch();
+            conn.commit(); // Xác nhận giao dịch
+            System.out.println("Nhập danh sách nhân viên từ Excel thành công.");
+            return true;
+
+        } catch (SQLException e) {
+            System.out.println("Lỗi nhập danh sách nhân viên từ Excel: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
     }
 }

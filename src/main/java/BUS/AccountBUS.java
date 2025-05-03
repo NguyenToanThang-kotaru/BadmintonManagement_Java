@@ -54,7 +54,7 @@ public class AccountBUS {
     public static Boolean addAccount(String username, String password, String tenquyen) {
         System.out.println(tenquyen);
         PermissionDTO a= new PermissionDTO(PermissionDAO.getPermissionByName(tenquyen));
-        EmployeeDTO e = new EmployeeDTO(EmployeeDAO.getEmployeeByName(username));
+        EmployeeDTO e = EmployeeDAO.getEmployeeByName(username);
         if (AccountDAO.addAccount(e.getEmployeeID(), password, a.getID())==true)
             return true;
         else
