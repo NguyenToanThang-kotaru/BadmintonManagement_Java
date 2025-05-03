@@ -2,6 +2,7 @@ package GUI;
 
 import DTO.EmployeeDTO;
 import DAO.EmployeeDAO;
+import BUS.EmployeeBUS;
 
 import java.awt.*;
 import javax.swing.*;
@@ -133,6 +134,12 @@ public class Form_Employee extends JDialog {
             // Tạo Employee mới
             EmployeeDTO newEmployee = new EmployeeDTO(null, name, address, phone, imagePath);
             System.out.println("duong dan anh" + newEmployee.getImage());
+
+            EmployeeBUS bus = new EmployeeBUS();
+            if (!bus.validateEmployee(newEmployee)) {
+                return; // Dừng lại nếu không hợp lệ
+            }
+
             boolean success = EmployeeDAO.addEmployee(newEmployee);
 
             if (success) {
@@ -150,6 +157,11 @@ public class Form_Employee extends JDialog {
             employee.setFullName(name);
             employee.setAddress(address);
             employee.setPhone(phone);
+
+            EmployeeBUS bus = new EmployeeBUS();
+            if (!bus.validateEmployee(employee)) {
+                return; // Dừng lại nếu không hợp lệ
+            }
             boolean success = EmployeeDAO.updateEmployee(employee);
 
             if (success) {

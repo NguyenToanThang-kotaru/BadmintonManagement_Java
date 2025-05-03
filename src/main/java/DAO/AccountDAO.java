@@ -3,6 +3,7 @@ package DAO;
 import DTO.AccountDTO;
 import DTO.PermissionDTO;
 import Connection.DatabaseConnection;
+import DTO.Permission2DTO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -28,28 +29,27 @@ public class AccountDAO {
     }
 
     public static AccountDTO getAccount(String username, String password) {
-        String accountQuery = "SELECT tk.ten_dang_nhap, tk.mat_khau, nv.ten_nhan_vien, q.ma_quyen, q.ten_quyen " +
-                "FROM tai_khoan AS tk JOIN quyen AS q ON q.ma_quyen = tk.ma_quyen " +
-                "JOIN nhan_vien AS nv ON nv.ma_nhan_vien = tk.ten_dang_nhap " +
-                "WHERE tk.ten_dang_nhap = ? AND tk.mat_khau = ? AND tk.is_deleted = 0";
-        String functionQuery = "SELECT ma_chuc_nang FROM phan_quyen WHERE ma_quyen = ?";
+
+        // Truy vấn lấy thông tin tài khoản và quyền cơ bản
+        String accountQuery = "SELECT tk.ten_dang_nhap, tk.mat_khau, nv.ten_nhan_vien, "
+                + "q.ma_quyen, q.ten_quyen "
+                + "FROM tai_khoan AS tk "
+                + "JOIN quyen2 AS q ON q.ma_quyen = tk.ma_quyen "
+                + "JOIN nhan_vien AS nv ON nv.ma_nhan_vien = tk.ten_dang_nhap "
+                + "WHERE tk.ten_dang_nhap = ? AND tk.mat_khau = ? AND tk.is_deleted = 0";
+
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement accountStmt = conn.prepareStatement(accountQuery)) {
             accountStmt.setString(1, username);
             accountStmt.setString(2, password);
             try (ResultSet accountRs = accountStmt.executeQuery()) {
                 if (accountRs.next()) {
                     String roleId = accountRs.getString("ma_quyen");
-                    String roleName = accountRs.getString("ten_quyen");
-                    List<String> functions = new ArrayList<>();
-                    try (PreparedStatement functionStmt = conn.prepareStatement(functionQuery)) {
-                        functionStmt.setString(1, roleId);
-                        try (ResultSet functionRs = functionStmt.executeQuery()) {
-                            while (functionRs.next()) {
-                                functions.add(functionRs.getString("ma_chuc_nang"));
-                            }
-                        }
-                    }
-                    PermissionDTO permission = new PermissionDTO(roleId, roleName, functions);
+
+                    System.out.println(roleId);
+
+                    // Tạo PermissionDTO
+                    Permission2DTO permission = Permission2DAO.getPermissionByID(roleId);
+
                     return new AccountDTO(
                             accountRs.getString("ten_dang_nhap"),
                             accountRs.getString("mat_khau"),
@@ -66,27 +66,27 @@ public class AccountDAO {
 
     public static ArrayList<AccountDTO> getAllAccounts() {
         ArrayList<AccountDTO> accounts = new ArrayList<>();
-        String accountQuery = "SELECT tk.ten_dang_nhap, tk.mat_khau, nv.ten_nhan_vien, q.ma_quyen, q.ten_quyen " +
-                "FROM tai_khoan AS tk JOIN nhan_vien AS nv ON nv.ma_nhan_vien = tk.ten_dang_nhap " +
-                "JOIN quyen AS q ON q.ma_quyen = tk.ma_quyen WHERE tk.is_deleted = 0;";
-        String functionQuery = "SELECT ma_chuc_nang FROM phan_quyen WHERE ma_quyen = ?";
+
+
+        // Truy vấn lấy thông tin tài khoản + quyền
+        String accountQuery = "SELECT tk.ten_dang_nhap, tk.mat_khau, nv.ten_nhan_vien, "
+                + "q.ma_quyen, q.ten_quyen "
+                + "FROM tai_khoan AS tk "
+                + "JOIN nhan_vien AS nv ON nv.ma_nhan_vien = tk.ten_dang_nhap "
+                + "JOIN quyen2 AS q ON q.ma_quyen = tk.ma_quyen "
+                + "WHERE tk.is_deleted = 0 "
+                + "ORDER BY tk.ten_dang_nhap ASC;";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement accountStmt = conn.prepareStatement(accountQuery); ResultSet accountRs = accountStmt.executeQuery()) {
             while (accountRs.next()) {
                 String username = accountRs.getString("ten_dang_nhap");
                 String password = accountRs.getString("mat_khau");
                 String fullname = accountRs.getString("ten_nhan_vien");
                 String roleId = accountRs.getString("ma_quyen");
-                String roleName = accountRs.getString("ten_quyen");
-                List<String> functions = new ArrayList<>();
-                try (PreparedStatement functionStmt = conn.prepareStatement(functionQuery)) {
-                    functionStmt.setString(1, roleId);
-                    try (ResultSet functionRs = functionStmt.executeQuery()) {
-                        while (functionRs.next()) {
-                            functions.add(functionRs.getString("ma_chuc_nang"));
-                        }
-                    }
-                }
-                PermissionDTO permission = new PermissionDTO(roleId, roleName, functions);
+
+
+                // Tạo PermissionDTO
+                Permission2DTO permission = Permission2DAO.getPermissionByID(roleId);
+
                 accounts.add(new AccountDTO(username, password, fullname, permission));
             }
         } catch (Exception e) {
@@ -136,11 +136,17 @@ public class AccountDAO {
 
     public static ArrayList<AccountDTO> searchAccounts(String keyword) {
         ArrayList<AccountDTO> accounts = new ArrayList<>();
-        String accountQuery = "SELECT tk.ten_dang_nhap, tk.mat_khau, nv.ten_nhan_vien, q.ma_quyen, q.ten_quyen " +
-                "FROM tai_khoan AS tk JOIN nhan_vien AS nv ON nv.ma_nhan_vien = tk.ten_dang_nhap " +
-                "JOIN quyen AS q ON q.ma_quyen = tk.ma_quyen " +
-                "WHERE tk.is_deleted = 0 AND (tk.ten_dang_nhap LIKE ? OR nv.ten_nhan_vien LIKE ? OR q.ten_quyen LIKE ?)";
-        String functionQuery = "SELECT ma_chuc_nang FROM phan_quyen WHERE ma_quyen = ?";
+
+
+        String accountQuery = "SELECT tk.ten_dang_nhap, tk.mat_khau, nv.ten_nhan_vien, "
+                + "q.ma_quyen, q.ten_quyen "
+                + "FROM tai_khoan AS tk "
+                + "JOIN nhan_vien AS nv ON nv.ma_nhan_vien = tk.ten_dang_nhap "
+                + "JOIN quyen2 AS q ON q.ma_quyen = tk.ma_quyen "
+                + "WHERE tk.is_deleted = 0 AND (tk.ten_dang_nhap LIKE ? OR nv.ten_nhan_vien LIKE ? OR q.ten_quyen Like ?)";
+
+        String functionQuery = "SELECT ma_chuc_nang FROM phan_quyen2 WHERE ma_quyen = ?";
+
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement accountStmt = conn.prepareStatement(accountQuery)) {
             String searchKeyword = "%" + keyword + "%";
             accountStmt.setString(1, searchKeyword);
@@ -152,17 +158,7 @@ public class AccountDAO {
                     String password = accountRs.getString("mat_khau");
                     String fullname = accountRs.getString("ten_nhan_vien");
                     String roleId = accountRs.getString("ma_quyen");
-                    String roleName = accountRs.getString("ten_quyen");
-                    List<String> functions = new ArrayList<>();
-                    try (PreparedStatement functionStmt = conn.prepareStatement(functionQuery)) {
-                        functionStmt.setString(1, roleId);
-                        try (ResultSet functionRs = functionStmt.executeQuery()) {
-                            while (functionRs.next()) {
-                                functions.add(functionRs.getString("ma_chuc_nang"));
-                            }
-                        }
-                    }
-                    PermissionDTO permission = new PermissionDTO(roleId, roleName, functions);
+                    Permission2DTO permission = Permission2DAO.getPermissionByID(roleId);
                     accounts.add(new AccountDTO(username, password, fullname, permission));
                 }
             }

@@ -61,7 +61,7 @@ public class ProductDAO {
             }
 
             // Tiếp tục thêm sản phẩm
-            String sql = "INSERT INTO san_pham (ma_san_pham, ten_san_pham, gia, so_luong, ma_nha_cung_cap, thong_so_ki_thuat, ma_loai, hinh_anh, gia_goc, khuyen_mai, is_deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO san_pham (ma_san_pham, ten_san_pham, gia, so_luong, ma_nha_cung_cap, thong_so_ki_thuat, ma_loai, hinh_anh, gia_goc, khuyen_mai, is_deleted, thoi_gian_bao_hanh) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
                 String newID = generateNewProductID(); // Tạo ID mới
@@ -77,6 +77,7 @@ public class ProductDAO {
                 stmt.setString(9, product.getgiaGoc());
                 stmt.setString(10, product.getkhuyenMai());
                 stmt.setInt(11, 0); // Gán mặc định là 0
+                stmt.setString(12, product.getTGBH());
                 stmt.executeUpdate();
                 System.out.println("Thêm sản phẩm thành công với ID: " + newID);
                 return true;
@@ -133,7 +134,7 @@ public class ProductDAO {
     // Lấy thông tin của một sản phẩm
     public static ProductDTO getProduct(String ProductID) {
         String query = "SELECT sp.ma_san_pham, sp.ten_san_pham, sp.gia, sp.so_luong, sp.ma_nha_cung_cap, "
-                + "sp.thong_so_ki_thuat, sp.ma_loai, lsp.ten_loai, sp.hinh_anh, ncc.ten_nha_cung_cap, sp.gia_goc, sp.khuyen_mai "
+                + "sp.thong_so_ki_thuat, sp.ma_loai, lsp.ten_loai, sp.hinh_anh, ncc.ten_nha_cung_cap, sp.gia_goc, sp.khuyen_mai, sp.thoi_gian_bao_hanh "
                 + "FROM san_pham sp "
                 + "JOIN loai lsp ON sp.ma_loai = lsp.ma_loai "
                 + "LEFT JOIN nha_cung_cap ncc ON sp.ma_nha_cung_cap = ncc.ma_nha_cung_cap "
@@ -158,7 +159,8 @@ public class ProductDAO {
                             rs.getString("hinh_anh"),
                             supplierName,
                             rs.getString("gia_goc"),
-                            rs.getString("khuyen_mai")
+                            rs.getString("khuyen_mai"),
+                            rs.getString("thoi_gian_bao_hanh")
                     );
                 }
             }
@@ -204,7 +206,7 @@ public class ProductDAO {
     public static ArrayList<ProductDTO> getAllProducts() {
         ArrayList<ProductDTO> products = new ArrayList<>();
         String query = "SELECT sp.ma_san_pham, sp.ten_san_pham, sp.gia, sp.so_luong, sp.ma_nha_cung_cap, "
-                + "sp.thong_so_ki_thuat, sp.ma_loai, lsp.ten_loai, sp.hinh_anh, ncc.ten_nha_cung_cap, sp.gia_goc, sp.khuyen_mai "
+                + "sp.thong_so_ki_thuat, sp.ma_loai, lsp.ten_loai, sp.hinh_anh, ncc.ten_nha_cung_cap, sp.gia_goc, sp.khuyen_mai, sp.thoi_gian_bao_hanh "
                 + "FROM san_pham sp "
                 + "JOIN loai lsp ON sp.ma_loai = lsp.ma_loai "
                 + "LEFT JOIN nha_cung_cap ncc ON sp.ma_nha_cung_cap = ncc.ma_nha_cung_cap "
@@ -228,7 +230,8 @@ public class ProductDAO {
                         rs.getString("hinh_anh"),
                         supplierName,
                         rs.getString("gia_goc"),
-                        rs.getString("khuyen_mai")
+                        rs.getString("khuyen_mai"),
+                        rs.getString("thoi_gian_bao_hanh")
                 ));
             }
 //            System.out.println("Lấy danh sách sản phẩm thành công.");
@@ -243,7 +246,7 @@ public class ProductDAO {
     public static void updateProduct(ProductDTO product) {
         String findMaLoaiSQL = "SELECT ma_loai FROM loai WHERE ten_loai = ?";
         String findMaNCCSQL = "SELECT ma_nha_cung_cap FROM nha_cung_cap WHERE ten_nha_cung_cap = ?";
-        String updateProductSQL = "UPDATE san_pham SET ten_san_pham = ?, gia = ?, so_luong = ?, ma_nha_cung_cap = ?, thong_so_ki_thuat = ?, ma_loai = ?, hinh_anh = ?, gia_goc = ?, khuyen_mai = ? WHERE ma_san_pham = ? AND is_deleted = 0";
+        String updateProductSQL = "UPDATE san_pham SET ten_san_pham = ?, gia = ?, so_luong = ?, ma_nha_cung_cap = ?, thong_so_ki_thuat = ?, ma_loai = ?, hinh_anh = ?, gia_goc = ?, khuyen_mai = ?, thoi_gian_bao_hanh = ? WHERE ma_san_pham = ? AND is_deleted = 0";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement findMaLoaiStmt = conn.prepareStatement(findMaLoaiSQL); PreparedStatement findMaNCCStmt = conn.prepareStatement(findMaNCCSQL); PreparedStatement updateProductStmt = conn.prepareStatement(updateProductSQL)) {
 
@@ -279,7 +282,8 @@ public class ProductDAO {
             updateProductStmt.setString(7, product.getAnh());
             updateProductStmt.setString(8, product.getgiaGoc());
             updateProductStmt.setString(9, product.getkhuyenMai());
-            updateProductStmt.setString(10, product.getProductID());
+            updateProductStmt.setString(10, product.getTGBH());
+            updateProductStmt.setString(11, product.getProductID());
 
             int rowsUpdated = updateProductStmt.executeUpdate();
             if (rowsUpdated > 0) {
@@ -415,14 +419,14 @@ public class ProductDAO {
 
         String query = "SELECT sp.ma_san_pham, sp.ten_san_pham, sp.gia, sp.so_luong, "
                 + "sp.ma_nha_cung_cap, sp.thong_so_ki_thuat, sp.ma_loai, "
-                + "lsp.ten_loai, sp.hinh_anh, ncc.ten_nha_cung_cap, sp.gia_goc, sp.khuyen_mai "
+                + "lsp.ten_loai, sp.hinh_anh, ncc.ten_nha_cung_cap, sp.gia_goc, sp.khuyen_mai, sp.thoi_gian_bao_hanh "
                 + "FROM san_pham sp "
                 + "JOIN loai lsp ON sp.ma_loai = lsp.ma_loai "
                 + "JOIN nha_cung_cap ncc ON sp.ma_nha_cung_cap = ncc.ma_nha_cung_cap "
                 + "WHERE sp.is_deleted = 0 AND "
                 + "(sp.ma_san_pham LIKE ? OR sp.ten_san_pham LIKE ? OR lsp.ten_loai LIKE ? OR ncc.ten_nha_cung_cap LIKE ?)"
                 + "ORDER BY sp.ma_san_pham ASC";
-        
+
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
 
             String searchKeyword = "%" + keyword + "%";
@@ -445,7 +449,8 @@ public class ProductDAO {
                             rs.getString("hinh_anh"),
                             rs.getString("ten_nha_cung_cap"),
                             rs.getString("gia_goc"),
-                            rs.getString("khuyen_mai")
+                            rs.getString("khuyen_mai"),
+                            rs.getString("thoi_gian_bao_hanh")
                     ));
                 }
             }
@@ -473,7 +478,7 @@ public class ProductDAO {
         }
         return serials;
     }
-    
+
     public boolean increaseStock(String productId, int quantity) {
         String query = "UPDATE san_pham SET so_luong = so_luong + ? WHERE ma_san_pham = ? AND is_deleted = 0";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {

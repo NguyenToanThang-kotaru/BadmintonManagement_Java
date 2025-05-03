@@ -5,6 +5,7 @@ import DAO.EmployeeDAO;
 import DAO.PermissionDAO;
 import DTO.AccountDTO;
 import DTO.EmployeeDTO;
+import DTO.Permission2DTO;
 import DTO.PermissionDTO;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -62,18 +63,43 @@ public class AccountBUS {
     }
 
     public static Boolean addAccount(String username, String password, String tenquyen) {
+
+        System.out.println(tenquyen);
         PermissionDTO a = new PermissionDTO(PermissionDAO.getPermissionByName(tenquyen));
-        EmployeeDTO e = EmployeeDAO.getEmployeeByName(username);
-        if (AccountDAO.addAccount(e.getEmployeeID(), password, a.getID()) == true)
-            return true;
-        else
-            System.out.println("Khong co cc j het");
+        EmployeeDTO e = new EmployeeDTO(EmployeeDAO.getEmployeeByName(username));
+        if (username != null && password != null && tenquyen != null) {
+            if (AccountDAO.addAccount(e.getEmployeeID(), password, a.getID()) == true) {
+                return true;
+            }
+        }
         return false;
     }
 
     public static Boolean updateAccount(String username, String password, String maquyen) {
         PermissionDTO a = new PermissionDTO(PermissionDAO.getPermissionByName(maquyen));
         return AccountDAO.updateAccount(username, password, a.getID()) == true;
+    }
+
+    public static boolean validateAccount(AccountDTO account) {
+        String password = account.getPassword();
+
+        if (password == null || password.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(null,
+                    "Mật khẩu không được để trống.",
+                    "Lỗi nhập liệu",
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        if (password.trim().length() < 6) {
+            JOptionPane.showMessageDialog(null,
+                    "Mật khẩu phải có ít nhất 6 ký tự.",
+                    "Lỗi nhập liệu",
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        return true;
     }
     public boolean exportAccountsToExcel(File file) {
         List<AccountDTO> accounts = AccountDAO.exportAccounts();

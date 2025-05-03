@@ -22,7 +22,7 @@ public class GUI_Order extends JPanel {
     private OrderBUS orderBUS = new OrderBUS();
     private OrderDTO order =  new OrderDTO();
 
-    public GUI_Order(AccountDTO cn, List<String> t) {
+    public GUI_Order(AccountDTO cn) {
         orderBUS = new OrderBUS();
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));

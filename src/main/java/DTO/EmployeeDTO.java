@@ -1,12 +1,13 @@
 package DTO;
 
 public class EmployeeDTO {
+
     private String employeeID;
     private String fullName;
     private String address;
     private String phone;
     private String image;
-    private String chucVu; 
+    private String chucVu;
 
     public EmployeeDTO() {
     }
@@ -18,6 +19,15 @@ public class EmployeeDTO {
         this.phone = phone;
         this.image = image;
         this.chucVu = "Nhân viên";
+    }
+
+    public EmployeeDTO(EmployeeDTO e) {
+        this.employeeID = e.employeeID;
+        this.fullName = e.fullName;
+        this.address = e.address;
+        this.phone = e.phone;
+        this.image = e.image;
+        this.chucVu = e.chucVu;
     }
 
     public EmployeeDTO(String employeeID, String fullName, String address, String phone, String image, String chucVu) {

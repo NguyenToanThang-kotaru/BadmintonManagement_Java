@@ -1,7 +1,5 @@
 package DTO;
 
-
-
 public class ProductDTO {
 
     private String productID;
@@ -16,6 +14,7 @@ public class ProductDTO {
     private String tenNCC;
     private String giaGoc;
     private String khuyenMai;
+    private String TGBH;
 
     public ProductDTO() {
         this.productID = "";
@@ -30,9 +29,10 @@ public class ProductDTO {
         this.tenNCC = "";
         this.giaGoc = "";
         this.khuyenMai = "";
+        this.TGBH = "";
     }
 
-    public ProductDTO(String productID, String productName, String gia, String soluong, String maNCC, String TSKT, String ML, String TL, String anh, String tenNCC, String giaGoc, String khuyenMai) {
+    public ProductDTO(String productID, String productName, String gia, String soluong, String maNCC, String TSKT, String ML, String TL, String anh, String tenNCC, String giaGoc, String khuyenMai, String TGBH) {
         this.productID = productID;
         this.productName = productName;
         this.gia = gia;
@@ -45,9 +45,8 @@ public class ProductDTO {
         this.tenNCC = tenNCC;
         this.giaGoc = giaGoc;
         this.khuyenMai = khuyenMai;
+        this.TGBH = TGBH;
     }
-
-
 
     public String getProductID() {
         return productID;
@@ -72,6 +71,7 @@ public class ProductDTO {
     public void setGia(String gia) {
         this.gia = gia;
     }
+
     public String getGiaGoc() {
         return giaGoc;
     }
@@ -79,6 +79,7 @@ public class ProductDTO {
     public void setGiaGoc(String giaGoc) {
         this.giaGoc = giaGoc;
     }
+
     public String getSoluong() {
         return soluong;
     }
@@ -149,5 +150,13 @@ public class ProductDTO {
 
     public void setkhuyenMai(String khuyenMai) {
         this.khuyenMai = khuyenMai;
+    }
+
+    public String getTGBH() {
+        return TGBH;
+    }
+
+    public void setTGBH(String TGBH) {
+        this.TGBH = TGBH;
     }
 }

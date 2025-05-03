@@ -16,7 +16,7 @@ import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 
 public class Form_FixProduct extends JDialog {
 
-    private JTextField nameField, priceField, soluongField, tsktField, priceIntoField, saleField;
+    private JTextField nameField, priceField, soluongField, tsktField, priceIntoField, saleField, HLBHField;
     private CustomCombobox TLField, NCCField;
     private CustomButton saveButton, cancelButton, btnChooseImage;
     private JLabel imageLabel;
@@ -55,13 +55,15 @@ public class Form_FixProduct extends JDialog {
 //        soluongField.setText(String.valueOf(product.getSoluong()));
         addComponent("Thông số kỹ thuật:", tsktField = new JTextField(20), gbc, 3);
         tsktField.setText(product.getTSKT());
-        addComponent("Giá nhập:", priceIntoField = new JTextField(20), gbc, 4);
+        addComponent("Hiệu lực bảo hành:", HLBHField = new JTextField(20), gbc, 4);
+        HLBHField.setText(product.getTGBH());
+        addComponent("Giá nhập:", priceIntoField = new JTextField(20), gbc, 5);
         priceIntoField.setText(product.getgiaGoc());
-        addComponent("Khuyến mãi:", saleField = new JTextField(20), gbc, 5);
+        addComponent("Khuyến mãi:", saleField = new JTextField(20), gbc, 6);
         saleField.setText(product.getkhuyenMai());
 
         gbc.gridx = 0;
-        gbc.gridy = 6;
+        gbc.gridy = 7;
         add(new JLabel("Tên loại:"), gbc);
         gbc.gridx = 1;
         ArrayList<String> categoryList = ProductBUS.getAllCategoryNames();
@@ -71,7 +73,7 @@ public class Form_FixProduct extends JDialog {
         add(TLField, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 7;
+        gbc.gridy = 8;
         add(new JLabel("Nhà cung cấp:"), gbc);
         gbc.gridx = 1;
         ArrayList<String> NCCList = SuppliersBUS.getAllNCCNames();
@@ -81,7 +83,7 @@ public class Form_FixProduct extends JDialog {
         add(NCCField, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 8;
+        gbc.gridy = 9;
         add(new JLabel("Ảnh sản phẩm:"), gbc);
 
         gbc.gridx = 1;
@@ -94,7 +96,7 @@ public class Form_FixProduct extends JDialog {
             displayImage("images/" + product.getAnh());
         }
 
-        gbc.gridy = 9;
+        gbc.gridy = 10;
         gbc.gridx = 1;
         btnChooseImage = new CustomButton("Chọn ảnh");
         btnChooseImage.addActionListener(e -> chooseImage());
@@ -106,7 +108,7 @@ public class Form_FixProduct extends JDialog {
         buttonPanel.add(saveButton);
         buttonPanel.add(cancelButton);
 
-        gbc.gridy = 10;
+        gbc.gridy = 11;
         gbc.gridx = 1;
         add(buttonPanel, gbc);
 
@@ -151,6 +153,7 @@ public class Form_FixProduct extends JDialog {
         String price = priceField.getText().trim();
 //        String soluong = soluongField.getText().trim();
         String tskt = tsktField.getText().trim();
+        String HLBH = HLBHField.getText().trim();
         String gianhap = priceIntoField.getText().trim();
         String khuyenmai = saleField.getText().trim();
         String tenLoai = (String) TLField.getSelectedItem();
@@ -171,6 +174,7 @@ public class Form_FixProduct extends JDialog {
         product.settenNCC(tenNCC);
 //        product.setSoluong(soluong);
         product.setTSKT(tskt);
+        product.setTGBH(HLBH);
         product.setTL(tenLoai);
         product.setAnh(anh);
         product.setgiaGoc(gianhap);

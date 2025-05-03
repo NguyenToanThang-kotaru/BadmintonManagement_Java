@@ -1,9 +1,12 @@
 package GUI;
 
+import BUS.ActionBUS;
 import DAO.GuaranteeDAO;
 import DTO.GuaranteeDTO;
 
 import BUS.GuaranteeBUS;
+import DTO.AccountDTO;
+import DTO.ActionDTO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -22,7 +25,7 @@ public class GUI_Guarantee extends JPanel {
     private CustomButton saveButton, fixButton, reloadButton;
     private CustomSearch searchField;
 
-    public GUI_Guarantee(List<String> b) {
+    public GUI_Guarantee(AccountDTO a) {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(new EmptyBorder(10, 10, 10, 10));
         setBackground(new Color(200, 200, 200));
@@ -55,8 +58,10 @@ public class GUI_Guarantee extends JPanel {
         warrantyTable = customTable.getAccountTable();
         tableModel = customTable.getTableModel();
 
-        midPanel.add(customTable, BorderLayout.CENTER);
         CustomScrollPane scrollPane = new CustomScrollPane(warrantyTable);
+        midPanel.add(scrollPane, BorderLayout.CENTER);
+        midPanel.setMinimumSize(new Dimension(600, 200));
+        midPanel.setPreferredSize(new Dimension(600, 200));
 
         // ========== PANEL CHI TIẾT ==========
         botPanel = new JPanel(new GridBagLayout());
@@ -82,7 +87,6 @@ public class GUI_Guarantee extends JPanel {
 //        gbc.gridx = 1;
 //        JLabel purchaseDateLabel = new JLabel("Chưa chọn");
 //        botPanel.add(purchaseDateLabel, gbc);
-
         // Trạng thái bảo hành
         gbc.gridx = 0;
         gbc.gridy = 1;
@@ -125,18 +129,15 @@ public class GUI_Guarantee extends JPanel {
                 textReasonLabel.setText(guarantee.getLydo());
                 StatusTime.setText(guarantee.getTGBH());
                 StatusLabel.setText(guarantee.gettrangthai());
-                if (b.contains("sua_bh")) {
-                    botPanel.add(fixButton, gbc);
-                    System.out.println("Co sua ");
-                } else {
-                    System.out.println("Khong co sua ");
-                }
+                botPanel.add(fixButton, gbc);
+                System.out.println("Co sua ");
+
             }
         }
         );
         // ========== THÊM MỌI THỨ VÀO MAIN PANEL ==========
         add(topPanel);
-        add(scrollPane);
+        add(midPanel);
         add(botPanel);
 
         fixButton.addActionListener(e -> {
@@ -179,9 +180,25 @@ public class GUI_Guarantee extends JPanel {
             tableModel.fireTableDataChanged();
         });
 
-        if (b.contains("xem_bh")) {
-            loadGuaranteeData();
+        loadGuaranteeData();
+        ArrayList<ActionDTO> actions = ActionBUS.getPermissionActions(a, "Quản lý bảo hành");
+
+        Boolean canEdit = false, canWatch = false;
+
+        if (actions != null) {
+            for (ActionDTO action : actions) {
+                switch (action.getName()) {
+                    case "Sửa" ->
+                        canEdit = true;
+                    case "Xem" ->
+                        canWatch = true;
+                }
+            }
         }
+
+        fixButton.setVisible(canEdit);
+        scrollPane.setVisible(canWatch);
+//        reloadButton.setVisible(false);
 
         // Xử lý sự kiện chọn dòng trong bảng
         // Xử lý sự kiện chọn dòng trong bảng
