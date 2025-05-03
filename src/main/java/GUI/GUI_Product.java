@@ -1,8 +1,11 @@
 package GUI;
 
+import BUS.ActionBUS;
 import DAO.ProductDAO;
 import DTO.ProductDTO;
 import BUS.ProductBUS;
+import DTO.AccountDTO;
+import DTO.ActionDTO;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -23,7 +26,7 @@ public class GUI_Product extends JPanel {
     private CustomSearch searchField;
     private ProductDTO productChoosing;
 
-    public GUI_Product() {
+    public GUI_Product(AccountDTO a) {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(new EmptyBorder(10, 10, 10, 10));
         setBackground(new Color(200, 200, 200));
@@ -348,6 +351,30 @@ public class GUI_Product extends JPanel {
             ArrayList<ProductDTO> ketQua = ProductBUS.searchProducts(keyword);
             capNhatBangSanPham(ketQua); // Hiển thị kết quả tìm được trên bảng
         });
+        ArrayList<ActionDTO> actions = ActionBUS.getPermissionActions(a, "Quản lý sản phẩm");
+
+        boolean canAdd = false, canEdit = false, canDelete = false, canWatch = false;
+
+        if (actions != null) {
+            for (ActionDTO action : actions) {
+                switch (action.getName()) {
+                    case "Thêm" ->
+                        canAdd = true;
+                    case "Sửa" ->
+                        canEdit = true;
+                    case "Xóa" ->
+                        canDelete = true;
+                    case "Xem" ->
+                        canWatch = true;
+                }
+            }
+        }
+
+        addButton.setVisible(canAdd);
+        fixButton.setVisible(canEdit);
+        deleteButton.setVisible(canDelete);
+        scrollPane.setVisible(canWatch);
+        reloadButton.setVisible(false);
 
     }
 
@@ -475,16 +502,16 @@ public class GUI_Product extends JPanel {
         }
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("Quản Lý Sản Phẩm");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(800, 600);
-            frame.setLocationRelativeTo(null);
-            GUI_Product guiProduct = new GUI_Product();
-            frame.setContentPane(guiProduct);
-
-            frame.setVisible(true);
-        });
-    }
+//    public static void main(String[] args) {
+//        SwingUtilities.invokeLater(() -> {
+//            JFrame frame = new JFrame("Quản Lý Sản Phẩm");
+//            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//            frame.setSize(800, 600);
+//            frame.setLocationRelativeTo(null);
+//            GUI_Product guiProduct = new GUI_Product();
+//            frame.setContentPane(guiProduct);
+//
+//            frame.setVisible(true);
+//        });
+//    }
 }

@@ -1,8 +1,13 @@
 package GUI;
 
+import BUS.ActionBUS;
+import BUS.FunctionBUS;
 import DAO.PermissionDAO;
 import DTO.PermissionDTO;
 import BUS.PermissionBUS;
+import DTO.ActionDTO;
+import DTO.FunctionDTO;
+import DTO.Permission2DTO;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,11 +22,11 @@ public class Form_Permission extends JDialog {
     private List<JCheckBox> allCheckBoxes = new ArrayList<>();
     private CustomButton btnSave, btnCancel;
 
-    public Form_Permission(JPanel parent, PermissionDTO permission) {
+    public Form_Permission(GUI_Permission parent, Permission2DTO permission) {
         super((Frame) SwingUtilities.getWindowAncestor(parent),
                 permission == null ? "Thêm Quyền" : "Sửa Quyền", true);
 
-        setSize(400, 500); // Tăng chiều cao để hiển thị rõ hơn
+        setSize(600, 500); // Tăng chiều cao để hiển thị rõ hơn
         setLocationRelativeTo(parent);
         setLayout(new GridBagLayout());
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -47,18 +52,17 @@ public class Form_Permission extends JDialog {
         addComponent("Tên Quyền:", txtPermissionName, gbc);
 
         // Danh sách chức năng với checkbox
-        checkBoxPanel = new JPanel();
-        checkBoxPanel.setLayout(new BoxLayout(checkBoxPanel, BoxLayout.Y_AXIS));
-
+        checkBoxPanel = CheckBox(permission);
+//        checkBoxPanel.setLayout(new BoxLayout(checkBoxPanel, BoxLayout.Y_AXIS));
+//        CustomScrollPane scrollPane = new CustomScrollPane(checkBoxPanel);
         // Thêm checkbox cho tất cả chức năng
 //        PermissionDTO allFunctions = new PermissionDTO(PermissionDAO.getPermission("1"));
-        for (String chucNang : PermissionDAO.getAllFunctionByName()) {
-            JCheckBox checkBox = new JCheckBox(PermissionBUS.decodeFunctionName(chucNang));
-            checkBox.setName(chucNang); // Lưu mã gốc vào thuộc tính name
-            allCheckBoxes.add(checkBox);
-            checkBoxPanel.add(checkBox);
-        }
-
+//        for (String chucNang : PermissionDAO.getAllFunctionByName()) {
+//            JCheckBox checkBox = new JCheckBox(PermissionBUS.decodeFunctionName(chucNang));
+//            checkBox.setName(chucNang); // Lưu mã gốc vào thuộc tính name
+//            allCheckBoxes.add(checkBox);
+//            checkBoxPanel.add(checkBox);
+//        }
         // Thêm vào ScrollPane
         CustomScrollPane scrollPane = new CustomScrollPane(checkBoxPanel);
         scrollPane.setPreferredSize(new Dimension(350, 250));
@@ -81,55 +85,155 @@ public class Form_Permission extends JDialog {
         gbc.gridy++;
         gbc.anchor = GridBagConstraints.CENTER;
         add(buttonPanel, gbc);
-
-        // Nếu là chế độ sửa, load dữ liệu hiện có
         if (permission != null) {
             txtPermissionName.setText(permission.getName());
-
-            // Chọn các checkbox tương ứng với quyền hiện có
-            for (JCheckBox checkBox : allCheckBoxes) {
-                if (permission.getChucNang().contains(checkBox.getName())) {
-                    checkBox.setSelected(true);
-                }
-            }
         }
         btnCancel.addActionListener(e -> dispose());
         btnSave.addActionListener(e -> {
-            PermissionDTO NewPermission = new PermissionDTO("1", txtPermissionName.getText(), getSelectedFunctions(), "0");
-            PermissionBUS bus = new PermissionBUS();
-            if (!bus.validatePermission(NewPermission)) {
-                return;
-            }
-            
+            Permission2DTO NewPermission = new Permission2DTO(PermissionBUS.generateID(),
+                    txtPermissionName.getText(), "", getSelectedFunctions());
             if (permission == null) {
-                if (PermissionDAO.addPermission(NewPermission) == true) {
+                if (PermissionBUS.addPermission(NewPermission) == true) {
                     System.out.println(txtPermissionName.getText());
                     System.out.println(NewPermission.getName());
-
                     JOptionPane.showMessageDialog(null, "Thêm quyền thành công.");
                     dispose();
-                } else {
-                    JOptionPane.showMessageDialog(null, "Thêm quyền thất bại.");
-                }
-            } else if (PermissionDAO.editPermission(permission, txtPermissionName.getText(), getSelectedFunctions()) == true) {
-                System.out.println(txtPermissionName.getText());
-
-                JOptionPane.showMessageDialog(null, "Sửa quyền thành công.");
-                dispose();
+                } 
             } else {
-                JOptionPane.showMessageDialog(null, "Sửa quyền thất bại.");
+                permission.setName(txtPermissionName.getText());
+                permission.setFunction(getSelectedFunctions());
+                if (PermissionBUS.updatePermission(permission)) {
+                    parent.loadPermissions();
+                    dispose();
+                } else {
+                    System.out.println("Sua that bai...");
+                }
+
             }
         });
+//            } else if (PermissionDAO.editPermission(permission, txtPermissionName.getText(), getSelectedFunctions()) == true) {
+//                System.out.println(txtPermissionName.getText());
+//
+//                System.out.println("Sua thanh cong");
+//                dispose();
+//            } else {
+//                System.out.println("Sua that bai...");
+//            }
+//        });
     }
 
-    public List<String> getSelectedFunctions() {
-        List<String> selected = new ArrayList<>();
-        for (JCheckBox checkBox : allCheckBoxes) {
-            if (checkBox.isSelected()) {
-                selected.add(checkBox.getName()); // Lấy mã chức năng từ thuộc tính name
+    public JPanel CheckBox(Permission2DTO per) {
+        ArrayList<ActionDTO> actions = new ArrayList<>();
+        for (var action : ActionBUS.getAllActions()) {
+            actions.add(action); // Add, Edit, Delete
+        }
+
+        ArrayList<FunctionDTO> functions = new ArrayList<>();
+        for (var function : FunctionBUS.getAllFunctions()) {
+            functions.add(function); // Quản lý SP, Khuyến mãi...
+        }
+
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        // Hàng tiêu đề (Xem, Thêm, Sửa, Xóa)
+        gbc.gridy = 0;
+        gbc.gridx = 0;
+        panel.add(new JLabel("Tên chức năng"), gbc);
+
+        for (int i = 0; i < actions.size(); i++) {
+            gbc.gridx = i + 1;
+            JLabel actionLabel = new JLabel(actions.get(i).getName(), JLabel.CENTER);
+            actionLabel.setFont(new Font("Arial", Font.BOLD, 12));
+            panel.add(actionLabel, gbc);
+        }
+        // Các dòng chức năng
+        for (int row = 0; row < functions.size(); row++) {
+            FunctionDTO function = functions.get(row);
+            gbc.gridy = row + 1;
+            gbc.gridx = 0;
+            // Label chức năng
+            panel.add(new JLabel(function.getName()), gbc);
+            for (int col = 0; col < actions.size(); col++) {
+                ActionDTO action = actions.get(col);
+                gbc.gridx = col + 1;
+
+                JCheckBox cb = new JCheckBox();
+                cb.setName(function.getName() + "_" + action.getName()); // Ví dụ: "Quản lý SP_Add"
+                if (function.getUname().equals("Quan ly thong ke") && (col == 1 || col == 2 || col == 3)) {
+                    continue;
+                }
+//                System.out.println(cb.getName());
+                allCheckBoxes.add(cb);
+                panel.add(cb, gbc);
             }
         }
-        return selected;
+        if (per != null) {
+            for (FunctionDTO func : per.getFunction()) {
+                for (ActionDTO act : func.getActions()) {
+                    String key = func.getName() + "_" + act.getName();
+                    boolean found = false;
+                    for (JCheckBox cb : allCheckBoxes) {
+                        if (cb.getName().equals(key)) {
+                            cb.setSelected(true);
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        System.out.println("Không tìm thấy checkbox với key: " + key);
+                    }
+                }
+            }
+        }
+        return panel;
+    }
+
+    public ArrayList<FunctionDTO> getSelectedFunctions() {
+        ArrayList<FunctionDTO> selectedFunctions = new ArrayList<>();
+
+        for (JCheckBox checkBox : allCheckBoxes) {
+            if (checkBox.isSelected()) {
+                String[] parts = checkBox.getName().split("_");
+                String functionName = parts[0];
+                String actionName = parts[1];
+
+                // Kiểm tra xem FunctionDTO đã tồn tại trong selectedFunctions chưa
+                FunctionDTO existingFunction = null;
+                for (FunctionDTO func : selectedFunctions) {
+                    if (func.getName().equals(functionName)) {
+                        existingFunction = func;
+                        break;
+                    }
+                }
+
+                // Nếu chưa tồn tại, tạo mới và thêm vào danh sách
+                if (existingFunction == null) {
+                    existingFunction = FunctionBUS.getFunctionByName(functionName);
+                    existingFunction.setActions(new ArrayList<>()); // Khởi tạo danh sách action
+                    selectedFunctions.add(existingFunction);
+                }
+
+                // Thêm ActionDTO vào FunctionDTO (nếu chưa có)
+                ActionDTO action = ActionBUS.getActionByName(actionName);
+                if (action != null) {
+                    boolean actionExists = false;
+                    for (ActionDTO existingAction : existingFunction.getActions()) {
+                        if (existingAction.getName().equals(actionName)) {
+                            actionExists = true;
+                            break;
+                        }
+                    }
+                    if (!actionExists) {
+                        existingFunction.getActions().add(action);
+                    }
+                }
+            }
+        }
+
+        return selectedFunctions;
     }
 
     private void addComponent(String label, JComponent component, GridBagConstraints gbc) {

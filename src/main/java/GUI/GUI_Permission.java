@@ -1,13 +1,18 @@
 package GUI;
 
-import DAO.PermissionDAO;
+import BUS.ActionBUS;
 import DTO.PermissionDTO;
 import BUS.PermissionBUS;
+import DAO.Permission2DAO;
+import DTO.AccountDTO;
+import DTO.ActionDTO;
+import DTO.Permission2DTO;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GUI_Permission extends JPanel {
@@ -18,9 +23,9 @@ public class GUI_Permission extends JPanel {
     private DefaultTableModel tableModel;
     private CustomButton detailPermissionButton, editButton, addButton, deleteButton, reloadButton;
     private CustomSearch searchField;
-    private PermissionDTO permissionChoosing;
+    private Permission2DTO permissionChoosing;
 
-    public GUI_Permission(List<String> b) {
+    public GUI_Permission(AccountDTO acc) {
         // Cấu hình layout chính
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -40,22 +45,22 @@ public class GUI_Permission extends JPanel {
         topPanel.add(searchField, BorderLayout.CENTER);
 
         addButton = new CustomButton("+ Thêm quyền"); // Nút thêm 
-        if (b.contains("them_quyen")) {
-            topPanel.add(addButton, BorderLayout.EAST);
-        }
+        topPanel.add(addButton, BorderLayout.EAST);
 
         // ========== BẢNG HIỂN THỊ DANH SÁCH TÀI KHOẢN ==========
         midPanel = new JPanel(new BorderLayout());
         midPanel.setBackground(Color.WHITE);
-
+        midPanel.setMinimumSize(new Dimension(600, 200));
+        midPanel.setPreferredSize(new Dimension(600, 200));
         // Định nghĩa tiêu đề cột
         String[] columnNames = {"STT", "Tên quyền", "Số lượng quyền", "Số lượng tài khoản"};
         CustomTable customTable = new CustomTable(columnNames);
         permissionTable = customTable.getAccountTable(); // Lấy JTable từ CustomTable
         tableModel = customTable.getTableModel(); // Lấy model của bảng
-            
-        midPanel.add(customTable, BorderLayout.CENTER);
+//        midPanel.add(customTable, BorderLayout.CENTER);
         CustomScrollPane scrollPane = new CustomScrollPane(permissionTable);
+        midPanel.add(scrollPane,BorderLayout.CENTER);
+        midPanel.setMinimumSize(new Dimension(200, 450));
         // ========== PANEL CHI TIẾT TÀI KHOẢN ==========
         botPanel = new JPanel(new GridBagLayout());
         botPanel.setBackground(Color.WHITE);
@@ -93,13 +98,11 @@ public class GUI_Permission extends JPanel {
 
         deleteButton = new CustomButton("Xóa");
         deleteButton.setCustomColor(new Color(220, 0, 0));
-        if(b.contains("xoa_quyen"))
-            buttonPanel.add(deleteButton, BorderLayout.WEST);
+        buttonPanel.add(deleteButton, BorderLayout.WEST);
 
         editButton = new CustomButton("Sửa");
         editButton.setCustomColor(new Color(0, 230, 0));
-        if(b.contains("sua_quyen"))
-            buttonPanel.add(editButton, BorderLayout.CENTER);
+        buttonPanel.add(editButton, BorderLayout.CENTER);
 
         detailPermissionButton = new CustomButton("Xem Chi Tiết Quyền");
         detailPermissionButton.setCustomColor(new Color(0, 120, 215));
@@ -119,7 +122,7 @@ public class GUI_Permission extends JPanel {
                 String soluongQuyen = (String) permissionTable.getValueAt(selectedRow, 2);
                 String soluongTaiKhoan = (String) permissionTable.getValueAt(selectedRow, 3);
 
-                permissionChoosing = new PermissionDTO(PermissionDAO.getPermissionByName(tenQuyen));
+                permissionChoosing = Permission2DAO.getPermissionByName(tenQuyen);
 
                 // Hiển thị dữ liệu trên giao diện
                 permissionLabel.setText(tenQuyen);
@@ -132,13 +135,12 @@ public class GUI_Permission extends JPanel {
         // Thêm các panel vào giao diện chính
         add(topPanel);
         add(Box.createVerticalStrut(10));
-        add(scrollPane);
+        add(midPanel);
         add(Box.createVerticalStrut(10));
         add(botPanel);
 
         // Tải dữ liệu tài khoản lên bảng
-        if(b.contains("xem_quyen"))
-            loadPermissions();
+        loadPermissions();
         addButton.addActionListener(e -> {
             Form_Permission a = new Form_Permission(this, null);
             a.setVisible(true);
@@ -150,10 +152,25 @@ public class GUI_Permission extends JPanel {
         });
 
         deleteButton.addActionListener(e -> {
-            if (PermissionDAO.deletePermission(permissionChoosing.getID()) == true) {
-                System.out.println("Da xoa thanh cong");
+            if (helped.confirmDelete("Bạn có chắc muốn xóa quyền này") == true) {
+                int rs = PermissionBUS.deletePermission(permissionChoosing);
+                if (rs == 1) {
+                    System.out.println("Da xoa thanh cong");
+                    loadPermissions();
+                } else if (rs == 2) {
+                    JOptionPane.showMessageDialog(this,
+                            "Quyền này hiện còn tài khoản đang được sử dụng",
+                            "Lỗi",
+                            JOptionPane.ERROR_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this,
+                            "Thất bại trong việc xóa quyền",
+                            "Lỗi",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+
             }
-            loadPermissions();
+
         });
 
         detailPermissionButton.addActionListener(e -> {
@@ -164,7 +181,7 @@ public class GUI_Permission extends JPanel {
         reloadButton.addActionListener(e -> {
             loadPermissions();
         });
-        
+
         searchField.setSearchListener(e -> {
             String keyword = searchField.getText().trim();
             if (!keyword.isEmpty()) {
@@ -173,18 +190,45 @@ public class GUI_Permission extends JPanel {
                 loadPermissions(); // Nếu ô tìm kiếm trống, load lại toàn bộ khách hàng
             }
         });
+        ArrayList<ActionDTO> actions = ActionBUS.getPermissionActions(acc, "Quản lý phân quyền");
+
+        boolean canAdd = false, canEdit = false, canDelete = false, canWatch = false;
+
+        if (actions != null) {
+            for (ActionDTO action : actions) {
+                switch (action.getName()) {
+                    case "Thêm" ->
+                        canAdd = true;
+                    case "Sửa" ->
+                        canEdit = true;
+                    case "Xóa" ->
+                        canDelete = true;
+                    case "Xem" ->
+                        canWatch = true;
+                }
+            }
+        }
+
+        addButton.setVisible(canAdd);
+        editButton.setVisible(canEdit);
+        deleteButton.setVisible(canDelete);
+        scrollPane.setVisible(canWatch);
+//        reloadButton.setVisible(false);
     }
 
     // Phương thức tải danh sách tài khoản từ database lên bảng
-    private void loadPermissions() {
-        List<PermissionDTO> permissions = PermissionDAO.getAllPermissions(); // Lấy danh sách tài khoản
+    public void loadPermissions() {
+        List<Permission2DTO> permissions = Permission2DAO.getAllPermissions(); // Lấy danh sách tài khoản
         tableModel.setRowCount(0); // Xóa dữ liệu cũ trước khi cập nhật
         int index = 1;
-        for (PermissionDTO per : permissions) {
-            tableModel.addRow(new Object[]{index++, per.getName(), per.getSlChucNang(), per.getSlTk()});
+        for (Permission2DTO per : permissions) {
+            tableModel.addRow(new Object[]{index++, per.getName(),
+                PermissionBUS.countDistinctFunctionsByPermission(per.getID()),
+                PermissionBUS.countAllAccountsByPer(per.getID())});
+
         }
     }
-    
+
     private void searchPermission(String keyword) {
         List<PermissionDTO> permission = PermissionBUS.searchPermission(keyword);
         tableModel.setRowCount(0);

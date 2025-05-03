@@ -5,6 +5,7 @@ import DAO.EmployeeDAO;
 import DAO.PermissionDAO;
 import DTO.AccountDTO;
 import DTO.EmployeeDTO;
+import DTO.Permission2DTO;
 import DTO.PermissionDTO;
 
 import java.util.List;
@@ -55,11 +56,12 @@ public class AccountBUS {
         System.out.println(tenquyen);
         PermissionDTO a = new PermissionDTO(PermissionDAO.getPermissionByName(tenquyen));
         EmployeeDTO e = new EmployeeDTO(EmployeeDAO.getEmployeeByName(username));
-        if (AccountDAO.addAccount(e.getEmployeeID(), password, a.getID()) == true) {
-            return true;
-        } else {
-            System.out.println("Khong co cc j het");
+        if (username != null && password != null && tenquyen != null) {
+            if (AccountDAO.addAccount(e.getEmployeeID(), password, a.getID()) == true) {
+                return true;
+            }
         }
+
         return false;
     }
 

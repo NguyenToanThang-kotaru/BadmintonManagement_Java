@@ -1,15 +1,20 @@
 package GUI;
 
+import BUS.ActionBUS;
 import BUS.ImportBUS;
+import DTO.ActionDTO;
 import DTO.ImportDTO;
+import DTO.AccountDTO;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GUI_Import extends JPanel {
+
     private final ImportBUS importBUS;
     private final DefaultTableModel tableModel;
     private final JTable importTable;
@@ -20,7 +25,7 @@ public class GUI_Import extends JPanel {
     private final JLabel receiptDateLabel;
     private ImportDTO selectedImport;
 
-    public GUI_Import() {
+    public GUI_Import(AccountDTO a) {
         this.importBUS = new ImportBUS();
         String currentUsername = GUI_Login.getCurrentUsername();
 
@@ -60,11 +65,11 @@ public class GUI_Import extends JPanel {
         JPanel botPanel = new JPanel(new GridBagLayout());
         botPanel.setBackground(Color.WHITE);
         botPanel.setBorder(BorderFactory.createTitledBorder("Hóa Đơn Nhập"));
-        
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
-        
+
         gbc.gridx = 0;
         gbc.gridy = 0;
         botPanel.add(new JLabel("Mã Phiếu Nhập: "), gbc);
@@ -92,7 +97,7 @@ public class GUI_Import extends JPanel {
         gbc.gridx = 1;
         receiptDateLabel = new JLabel("");
         botPanel.add(receiptDateLabel, gbc);
-        
+
         gbc.gridx = 0;
         gbc.gridy = 4;
         botPanel.add(new JLabel("Tổng Giá Gốc: "), gbc);
@@ -137,10 +142,10 @@ public class GUI_Import extends JPanel {
                 String importID = (String) importTable.getValueAt(selectedRow, 0);
                 String employeeID = (String) importTable.getValueAt(selectedRow, 1);
                 String receiptDate = (String) importTable.getValueAt(selectedRow, 3);
-        
+
                 int calculatedTotal = importBUS.calculateImportTotal(importID);
                 selectedImport = new ImportDTO(importID, employeeID, String.valueOf(calculatedTotal), receiptDate);
-        
+
                 importIdLabel.setText(importID);
                 employeeIdLabel.setText(employeeID);
                 totalMoneyLabel.setText(Utils.formatCurrency(calculatedTotal));
@@ -148,19 +153,40 @@ public class GUI_Import extends JPanel {
                 receiptDateLabel.setText(receiptDate);
             }
         });
+        ArrayList<ActionDTO> actions = ActionBUS.getPermissionActions(a, "Quản lý hóa đơn nhập");
+
+        boolean canAdd = false, canEdit = false, canDelete = false, canWatch = false;
+
+        if (actions != null) {
+            for (ActionDTO action : actions) {
+                switch (action.getName()) {
+                    case "Thêm" ->
+                        canAdd = true;
+                    case "Sửa" ->
+                        canEdit = true;
+                    case "Xóa" ->
+                        canDelete = true;
+                    case "Xem" ->
+                        canWatch = true;
+                }
+            }
+        }
+
+        addButton.setVisible(canAdd);
+        deleteButton.setVisible(canDelete);
     }
 
     // Tải danh sách phiếu nhập vào bảng
-    public void loadImport() { 
+    public void loadImport() {
         List<ImportDTO> importList = importBUS.getAllImport();
         tableModel.setRowCount(0);
         for (ImportDTO importDTO : importList) {
             int calculatedTotal = importBUS.calculateImportTotal(importDTO.getimportID());
             tableModel.addRow(new Object[]{
-                    importDTO.getimportID(),
-                    importDTO.getemployeeID(),
-                    Utils.formatCurrency(calculatedTotal),
-                    importDTO.getreceiptdate()
+                importDTO.getimportID(),
+                importDTO.getemployeeID(),
+                Utils.formatCurrency(calculatedTotal),
+                importDTO.getreceiptdate()
             });
         }
     }
@@ -172,14 +198,14 @@ public class GUI_Import extends JPanel {
         tableModel.setRowCount(0);
 
         for (ImportDTO importDTO : importList) {
-            if (importDTO.getimportID().toLowerCase().contains(keyword) ||
-                importDTO.getemployeeID().toLowerCase().contains(keyword)) {
+            if (importDTO.getimportID().toLowerCase().contains(keyword)
+                    || importDTO.getemployeeID().toLowerCase().contains(keyword)) {
                 int calculatedTotal = importBUS.calculateImportTotal(importDTO.getimportID());
                 tableModel.addRow(new Object[]{
-                        importDTO.getimportID(),
-                        importDTO.getemployeeID(),
-                        Utils.formatCurrency(calculatedTotal),
-                        importDTO.getreceiptdate()
+                    importDTO.getimportID(),
+                    importDTO.getemployeeID(),
+                    Utils.formatCurrency(calculatedTotal),
+                    importDTO.getreceiptdate()
                 });
             }
         }
@@ -191,9 +217,9 @@ public class GUI_Import extends JPanel {
             return;
         }
 
-        int result = JOptionPane.showConfirmDialog(this, 
-            "Bạn có chắc chắn muốn đánh dấu phiếu nhập này là đã xóa?", 
-            "Xác nhận", JOptionPane.YES_NO_OPTION);
+        int result = JOptionPane.showConfirmDialog(this,
+                "Bạn có chắc chắn muốn đánh dấu phiếu nhập này là đã xóa?",
+                "Xác nhận", JOptionPane.YES_NO_OPTION);
         if (result == JOptionPane.YES_OPTION) {
             importBUS.deleteImport(selectedImport.getimportID());
             loadImport();

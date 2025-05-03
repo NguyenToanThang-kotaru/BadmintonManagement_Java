@@ -1,9 +1,10 @@
- package DAO;
+package DAO;
 
 import DTO.AccountDTO;
 import DTO.PermissionDTO;
- 
+
 import Connection.DatabaseConnection;
+import DTO.Permission2DTO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -38,12 +39,9 @@ public class AccountDAO {
         String accountQuery = "SELECT tk.ten_dang_nhap, tk.mat_khau, nv.ten_nhan_vien, "
                 + "q.ma_quyen, q.ten_quyen "
                 + "FROM tai_khoan AS tk "
-                + "JOIN quyen AS q ON q.ma_quyen = tk.ma_quyen "
+                + "JOIN quyen2 AS q ON q.ma_quyen = tk.ma_quyen "
                 + "JOIN nhan_vien AS nv ON nv.ma_nhan_vien = tk.ten_dang_nhap "
                 + "WHERE tk.ten_dang_nhap = ? AND tk.mat_khau = ? AND tk.is_deleted = 0";
-
-        // Truy vấn lấy danh sách chức năng của quyền
-        String functionQuery = "SELECT ma_chuc_nang FROM phan_quyen WHERE ma_quyen = ?";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement accountStmt = conn.prepareStatement(accountQuery)) {
 
@@ -55,21 +53,10 @@ public class AccountDAO {
                 if (accountRs.next()) {
                     // Lấy thông tin cơ bản
                     String roleId = accountRs.getString("ma_quyen");
-                    String roleName = accountRs.getString("ten_quyen");
-
-                    // Lấy danh sách chức năng của quyền
-                    List<String> functions = new ArrayList<>();
-                    try (PreparedStatement functionStmt = conn.prepareStatement(functionQuery)) {
-                        functionStmt.setString(1, roleId);
-                        try (ResultSet functionRs = functionStmt.executeQuery()) {
-                            while (functionRs.next()) {
-                                functions.add(functionRs.getString("ma_chuc_nang"));
-                            }
-                        }
-                    }
+                    System.out.println(roleId);
 
                     // Tạo PermissionDTO
-                    PermissionDTO permission = new PermissionDTO(roleId, roleName, functions);
+                    Permission2DTO permission = Permission2DAO.getPermissionByID(roleId);
 
                     // Tạo và trả về AccountDTO
                     return new AccountDTO(
@@ -95,12 +82,11 @@ public class AccountDAO {
                 + "q.ma_quyen, q.ten_quyen "
                 + "FROM tai_khoan AS tk "
                 + "JOIN nhan_vien AS nv ON nv.ma_nhan_vien = tk.ten_dang_nhap "
-                + "JOIN quyen AS q ON q.ma_quyen = tk.ma_quyen "
-                + "WHERE tk.is_deleted = 0;";
+                + "JOIN quyen2 AS q ON q.ma_quyen = tk.ma_quyen "
+                + "WHERE tk.is_deleted = 0 "
+                + "ORDER BY tk.ten_dang_nhap ASC;";
 
         // Truy vấn lấy danh sách chức năng của quyền
-        String functionQuery = "SELECT ma_chuc_nang FROM phan_quyen WHERE ma_quyen = ?";
-
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement accountStmt = conn.prepareStatement(accountQuery); ResultSet accountRs = accountStmt.executeQuery()) {
 
             while (accountRs.next()) {
@@ -109,21 +95,9 @@ public class AccountDAO {
                 String password = accountRs.getString("mat_khau");
                 String fullname = accountRs.getString("ten_nhan_vien");
                 String roleId = accountRs.getString("ma_quyen");
-                String roleName = accountRs.getString("ten_quyen");
-
-                // Lấy danh sách chức năng của quyền
-                List<String> functions = new ArrayList<>();
-                try (PreparedStatement functionStmt = conn.prepareStatement(functionQuery)) {
-                    functionStmt.setString(1, roleId);
-                    try (ResultSet functionRs = functionStmt.executeQuery()) {
-                        while (functionRs.next()) {
-                            functions.add(functionRs.getString("ma_chuc_nang"));
-                        }
-                    }
-                }
 
                 // Tạo PermissionDTO
-                PermissionDTO permission = new PermissionDTO(roleId, roleName, functions);
+                Permission2DTO permission = Permission2DAO.getPermissionByID(roleId);
 
                 // Tạo AccountDTO và thêm vào danh sách
                 accounts.add(new AccountDTO(username, password, fullname, permission));
@@ -190,10 +164,10 @@ public class AccountDAO {
                 + "q.ma_quyen, q.ten_quyen "
                 + "FROM tai_khoan AS tk "
                 + "JOIN nhan_vien AS nv ON nv.ma_nhan_vien = tk.ten_dang_nhap "
-                + "JOIN quyen AS q ON q.ma_quyen = tk.ma_quyen "
+                + "JOIN quyen2 AS q ON q.ma_quyen = tk.ma_quyen "
                 + "WHERE tk.is_deleted = 0 AND (tk.ten_dang_nhap LIKE ? OR nv.ten_nhan_vien LIKE ? OR q.ten_quyen Like ?)";
 
-        String functionQuery = "SELECT ma_chuc_nang FROM phan_quyen WHERE ma_quyen = ?";
+        String functionQuery = "SELECT ma_chuc_nang FROM phan_quyen2 WHERE ma_quyen = ?";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement accountStmt = conn.prepareStatement(accountQuery)) {
 
@@ -207,19 +181,8 @@ public class AccountDAO {
                     String password = accountRs.getString("mat_khau");
                     String fullname = accountRs.getString("ten_nhan_vien");
                     String roleId = accountRs.getString("ma_quyen");
-                    String roleName = accountRs.getString("ten_quyen");
 
-                    List<String> functions = new ArrayList<>();
-                    try (PreparedStatement functionStmt = conn.prepareStatement(functionQuery)) {
-                        functionStmt.setString(1, roleId);
-                        try (ResultSet functionRs = functionStmt.executeQuery()) {
-                            while (functionRs.next()) {
-                                functions.add(functionRs.getString("ma_chuc_nang"));
-                            }
-                        }
-                    }
-
-                    PermissionDTO permission = new PermissionDTO(roleId, roleName, functions);
+                    Permission2DTO permission = Permission2DAO.getPermissionByID(roleId);
                     accounts.add(new AccountDTO(username, password, fullname, permission));
                 }
             }

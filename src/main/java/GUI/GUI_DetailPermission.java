@@ -2,14 +2,17 @@ package GUI;
 
 import DTO.PermissionDTO;
 import BUS.PermissionBUS;
+import DTO.FunctionDTO;
+import DTO.Permission2DTO;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GUI_DetailPermission extends JFrame {
 
-    public GUI_DetailPermission(PermissionDTO permission) {
+    public GUI_DetailPermission(Permission2DTO permission) {
         setTitle("Chi Tiết Quyền");
         setSize(500, 400);
         setLocationRelativeTo(null); // Center on screen
@@ -17,7 +20,7 @@ public class GUI_DetailPermission extends JFrame {
         setResizable(false);
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
+                                                            
         // 1. Header panel
         JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JLabel lblTitle = new JLabel("CHI TIẾT QUYỀN: " + permission.getName());
@@ -27,10 +30,10 @@ public class GUI_DetailPermission extends JFrame {
 
         // 2. Function list
         JTextArea txt = new JTextArea();
-        List<String> functions = permission.getChucNang();
+        ArrayList<FunctionDTO> functions = permission.getFunction();
 
         for (int i = 0; i < functions.size(); i++) {
-            String line = (i + 1) + ". " + PermissionBUS.decodeFunctionName(functions.get(i)) + "\n";
+            String line = (i + 1) + ". " + functions.get(i).getName() + "\n";
             txt.setText(txt.getText() + line); // Cập nhật nội dung mỗi lần lặp
         }
         CustomScrollPane scrollPane = new CustomScrollPane(txt);

@@ -4,20 +4,17 @@ public class CustomerDTO {
 
     private String customerID;
     private String fullName;
-    private String email;
     private String phone;
 
     public CustomerDTO() {
         this.customerID = "";
         this.fullName = "";
         this.phone = "";
-        this.email = "";
     }
 
-    public CustomerDTO(String customerID, String fullName, String phone, String email) {
+    public CustomerDTO(String customerID, String fullName, String phone) {
         this.customerID = customerID;
         this.fullName = fullName;
-        this.email = email;
         this.phone = phone;
     }
 
@@ -43,13 +40,5 @@ public class CustomerDTO {
 
     public void setPhone(String phone) {
         this.phone = phone;
-    }
-    
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 }

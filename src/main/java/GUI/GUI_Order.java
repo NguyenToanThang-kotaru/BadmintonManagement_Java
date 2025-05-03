@@ -16,12 +16,12 @@ public class GUI_Order extends JPanel {
     private JPanel topPanel, midPanel, botPanel;
     private JTable orderTable;
     private DefaultTableModel tableModel;
-    private CustomButton editButton, deleteButton, addButton, detailorderButton;
+    private CustomButton deleteButton, addButton, detailorderButton, excelButton;
     private CustomSearch searchField;
     private OrderBUS orderBUS = new OrderBUS();
     private OrderDTO order =  new OrderDTO();
 
-    public GUI_Order(AccountDTO cn, List<String> t) {
+    public GUI_Order(AccountDTO cn) {
         orderBUS = new OrderBUS();
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -37,7 +37,10 @@ public class GUI_Order extends JPanel {
         searchField = new CustomSearch(275,20); // Ô nhập tìm kiếm
         searchField.setBackground(Color.WHITE);
         topPanel.add(searchField, BorderLayout.CENTER);
-
+        
+        excelButton = new CustomButton("Xuất Excel");
+        topPanel.add(excelButton, BorderLayout.WEST);
+        
         addButton = new CustomButton("+ Thêm Hóa Đơn"); // Nút thêm hóa đơn
         topPanel.add(addButton, BorderLayout.EAST);
 
@@ -46,7 +49,7 @@ public class GUI_Order extends JPanel {
         midPanel.setBackground(Color.WHITE);
         
         // Định nghĩa tiêu đề cột
-        String[] columnNames = {"Mã HĐ", "Mã NV", "Mã KH", "Tổng Tiền", "Ngày Xuất", "Tổng Lợi Nhuận"};
+        String[] columnNames = {"Mã HĐ", "Mã NV", "Mã KH", "Tổng Tiền", "Ngày Xuất", "Tổng Lợi Nhuận", "Trạng Thái"};
         CustomTable customTable = new CustomTable(columnNames);
         orderTable = customTable.getOrderTable(); 
         tableModel = customTable.getTableModel(); 
@@ -105,13 +108,7 @@ public class GUI_Order extends JPanel {
 
         deleteButton = new CustomButton("Xóa");
         deleteButton.setCustomColor(new Color(220, 0, 0));
-        if(t.contains("xoa_hd")){
-        buttonPanel.add(deleteButton, BorderLayout.WEST);}
-
-        editButton = new CustomButton("Sửa");
-        editButton.setCustomColor(new Color(0, 230, 0));
-        if(t.contains("xoa_hd")){
-        buttonPanel.add(editButton, BorderLayout.CENTER );}
+        buttonPanel.add(deleteButton); 
         
         detailorderButton = new CustomButton("Xem Chi Tiết Hóa Đơn");
         detailorderButton.setCustomColor(new Color(0, 120, 215));
@@ -176,11 +173,6 @@ public class GUI_Order extends JPanel {
                 GFO.setVisible(true);
         });
         
-        editButton.addActionListener(e -> {
-            Form_Order GFO = new Form_Order(this, order, cn);
-            GFO.setVisible(true);
-        });
-        
         // Thêm các panel vào giao diện chính
         add(topPanel);
         add(Box.createVerticalStrut(10));
@@ -188,8 +180,7 @@ public class GUI_Order extends JPanel {
         add(Box.createVerticalStrut(10));
         add(botPanel);
         
-        if(t.contains("xoa_hd")){
-        loadOrder();}
+        loadOrder();
         
         detailorderButton.addActionListener(e -> {
             int selectedRow = orderTable.getSelectedRow();
@@ -209,6 +200,10 @@ public class GUI_Order extends JPanel {
             }
         });
         
+        excelButton.addActionListener(e -> {
+            
+        });
+        
         searchField.setSearchListener(e -> {
             String keyword = searchField.getText().trim();
             if (!keyword.isEmpty()) {
@@ -224,13 +219,17 @@ public class GUI_Order extends JPanel {
     private void updateTable(List<OrderDTO> orders) {
         tableModel.setRowCount(0);
         for (OrderDTO odr : orders) {
+            String statusText = odr.getis_deleted()
+                ? "<html><font color='red'>Đã hủy</font></html>"
+                : "<html><font color='green'>Đã hoàn thành</font></html>";
             tableModel.addRow(new Object[]{
                 odr.getorderID(),
                 odr.getemployeeID(),
                 odr.getcustomerID(),
                 odr.gettotalmoney(),
                 odr.getissuedate(),
-                odr.gettotalprofit()
+                odr.gettotalprofit(),
+                statusText
             });
         }
     }
@@ -241,7 +240,18 @@ public class GUI_Order extends JPanel {
         //int index = 0;
         String no = "";
         for (OrderDTO odr : order ) {
-            tableModel.addRow(new Object[]{odr.getorderID(), odr.getemployeeID(), odr.getcustomerID(), odr.gettotalmoney(), odr.getissuedate(), odr.gettotalprofit()});
+            String statusText = odr.getis_deleted()
+                ? "<html><font color='red'>Đã hủy</font></html>"
+                : "<html><font color='green'>Đã hoàn thành</font></html>";
+            tableModel.addRow(new Object[]{
+                odr.getorderID(),
+                odr.getemployeeID(),
+                odr.getcustomerID(),
+                odr.gettotalmoney(),
+                odr.getissuedate(),
+                odr.gettotalprofit(),
+                statusText
+            });
         }
     }
 }
