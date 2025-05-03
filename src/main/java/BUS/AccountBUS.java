@@ -75,68 +75,6 @@ public class AccountBUS {
         PermissionDTO a = new PermissionDTO(PermissionDAO.getPermissionByName(maquyen));
         return AccountDAO.updateAccount(username, password, a.getID()) == true;
     }
-
-    public boolean importAccountsFromExcel(File file) {
-        List<AccountDTO> accountsToImport = new ArrayList<>();
-        DataFormatter dataFormatter = new DataFormatter(); // Sử dụng DataFormatter để chuẩn hóa giá trị ô
-        try (FileInputStream fis = new FileInputStream(file); Workbook workbook = new XSSFWorkbook(fis)) {
-            Sheet sheet = workbook.getSheetAt(0);
-            for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
-                Row row = sheet.getRow(rowIndex);
-                if (row == null) continue;
-                AccountDTO account = new AccountDTO();
-
-                Cell fullNameCell = row.getCell(1); // Tên nhân viên
-                Cell usernameCell = row.getCell(2); // Tên đăng nhập (ma_nhan_vien)
-                Cell passwordCell = row.getCell(3); // Mật khẩu
-                Cell roleCell = row.getCell(4); // Quyền
-
-                String fullName = fullNameCell != null ? dataFormatter.formatCellValue(fullNameCell).trim() : "";
-                String username = usernameCell != null ? dataFormatter.formatCellValue(usernameCell).trim() : "";
-                String password = passwordCell != null ? dataFormatter.formatCellValue(passwordCell).trim() : "";
-                String roleName = roleCell != null ? dataFormatter.formatCellValue(roleCell).trim() : "";
-
-                // Kiểm tra dữ liệu bắt buộc
-                if (fullName.isEmpty() || username.isEmpty() || password.isEmpty() || roleName.isEmpty()) {
-                    System.out.println("Dòng " + (rowIndex + 1) + " thiếu thông tin, bỏ qua.");
-                    continue;
-                }
-
-                // Kiểm tra nhân viên tồn tại
-                EmployeeDTO employee = EmployeeDAO.getEmployeeByName(fullName);
-                if (employee == null) {
-                    System.out.println("Nhân viên " + fullName + " không tồn tại, bỏ qua dòng " + (rowIndex + 1));
-                    continue;
-                }
-
-                // Kiểm tra quyền tồn tại
-                PermissionDTO permission = PermissionDAO.getPermissionByName(roleName);
-                if (permission == null) {
-                    System.out.println("Quyền " + roleName + " không tồn tại, bỏ qua dòng " + (rowIndex + 1));
-                    continue;
-                }
-
-                // Kiểm tra tài khoản đã tồn tại
-                if (AccountDAO.getAccount(employee.getEmployeeID(), password) != null) {
-                    System.out.println("Tài khoản " + employee.getEmployeeID() + " đã tồn tại, bỏ qua dòng " + (rowIndex + 1));
-                    continue;
-                }
-
-                account.setUsername(employee.getEmployeeID());
-                account.setPassword(password);
-                account.setFullname(fullName);
-                account.setPermission(permission);
-                accountsToImport.add(account);
-            }
-            boolean success = AccountDAO.importAccounts(accountsToImport);
-            return success;
-        } catch (Exception e) {
-            System.err.println("Lỗi khi nhập Excel: " + e.getMessage());
-            e.printStackTrace();
-            return false;
-        }
-    }
-
     public boolean exportAccountsToExcel(File file) {
         List<AccountDTO> accounts = AccountDAO.exportAccounts();
         try (Workbook workbook = new XSSFWorkbook(); FileOutputStream fos = new FileOutputStream(file)) {

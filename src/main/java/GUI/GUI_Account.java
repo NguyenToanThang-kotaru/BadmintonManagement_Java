@@ -18,7 +18,7 @@ public class GUI_Account extends JPanel {
     private JPanel midPanel, topPanel, botPanel;
     private JTable accountTable;
     private DefaultTableModel tableModel;
-    private CustomButton deleteButton, addButton, editButton, reloadButton, importButton, exportButton;
+    private CustomButton deleteButton, addButton, editButton, reloadButton, exportButton;
     private CustomSearch searchField;
     private AccountBUS accountBUS;
     private AccountDTO accountChoosing;
@@ -39,11 +39,9 @@ public class GUI_Account extends JPanel {
         JPanel leftButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         leftButtonPanel.setOpaque(false);
         reloadButton = new CustomButton("Tải lại trang");
-        importButton = new CustomButton("Nhập Excel");
         exportButton = new CustomButton("Xuất Excel");
         if (a.contains("xem_tk")) {
             leftButtonPanel.add(reloadButton);
-            leftButtonPanel.add(importButton);
             leftButtonPanel.add(exportButton);
         }
         topPanel.add(leftButtonPanel, BorderLayout.WEST);
@@ -175,48 +173,22 @@ public class GUI_Account extends JPanel {
             capNhatBangTaiKhoan(ketQua);
         });
 
-        // Thêm sự kiện cho nút Nhập Excel
-        importButton.addActionListener(e -> {
-            JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
-                public boolean accept(File f) {
-                    return f.getName().toLowerCase().endsWith(".xlsx") || f.isDirectory();
-                }
-                public String getDescription() {
-                    return "Excel Files (*.xlsx)";
-                }
-            });
-            if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-                File file = fileChooser.getSelectedFile();
-                if (accountBUS.importAccountsFromExcel(file)) {
-                    JOptionPane.showMessageDialog(this, "Nhập tài khoản từ Excel thành công!");
-                    loadAccounts();
-                } else {
-                    JOptionPane.showMessageDialog(this, "Lỗi khi nhập tài khoản từ Excel!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        });
-
-        // Thêm sự kiện cho nút Xuất Excel
+        // Sự kiện cho nút Xuất Excel
         exportButton.addActionListener(e -> {
             JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
-                public boolean accept(File f) {
-                    return f.getName().toLowerCase().endsWith(".xlsx") || f.isDirectory();
+            fileChooser.setDialogTitle("Chọn nơi lưu file Excel");
+            fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Excel Files", "xlsx"));
+            if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                String filePath = fileChooser.getSelectedFile().getAbsolutePath();
+                if (!filePath.endsWith(".xlsx")) {
+                    filePath += ".xlsx";
                 }
-                public String getDescription() {
-                    return "Excel Files (*.xlsx)";
-                }
-            });
-            if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
-                File file = fileChooser.getSelectedFile();
-                if (!file.getName().toLowerCase().endsWith(".xlsx")) {
-                    file = new File(file.getAbsolutePath() + ".xlsx");
-                }
-                if (accountBUS.exportAccountsToExcel(file)) {
-                    JOptionPane.showMessageDialog(this, "Xuất tài khoản ra Excel thành công!");
+                File file = new File(filePath);
+                boolean success = accountBUS.exportAccountsToExcel(file);
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Xuất file Excel thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
                 } else {
-                    JOptionPane.showMessageDialog(this, "Lỗi khi xuất tài khoản ra Excel!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Xuất file Excel thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });

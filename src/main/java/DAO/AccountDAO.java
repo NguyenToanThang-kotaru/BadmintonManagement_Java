@@ -172,72 +172,9 @@ public class AccountDAO {
         return accounts;
     }
 
-    public static boolean importAccounts(List<AccountDTO> accounts) {
-        String sql = "INSERT INTO tai_khoan (ma_tai_khoan, ten_dang_nhap, mat_khau, ma_quyen, is_deleted) VALUES (?, ?, ?, ?, 0)";
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        try {
-            conn = DatabaseConnection.getConnection();
-            conn.setAutoCommit(false);
-            stmt = conn.prepareStatement(sql);
-            String lastID = getLastAccountID(conn);
-            int number = lastID != null ? Integer.parseInt(lastID.substring(2)) : 0;
-            for (AccountDTO account : accounts) {
-                number++;
-                String newID = String.format("TK%03d", number);
-                stmt.setString(1, newID);
-                stmt.setString(2, account.getUsername());
-                stmt.setString(3, account.getPassword());
-                stmt.setString(4, account.getPermission().getID());
-                stmt.addBatch();
-            }
-            stmt.executeBatch();
-            conn.commit();
-            System.out.println("Nhập danh sách tài khoản từ Excel thành công.");
-            return true;
-        } catch (SQLException e) {
-            System.out.println("Lỗi nhập danh sách tài khoản từ Excel: " + e.getMessage());
-            e.printStackTrace();
-            if (conn != null) {
-                try {
-                    conn.rollback();
-                    System.out.println("Đã rollback giao dịch.");
-                } catch (SQLException ex) {
-                    System.out.println("Lỗi khi rollback: " + ex.getMessage());
-                    ex.printStackTrace();
-                }
-            }
-            return false;
-        } finally {
-            if (stmt != null) {
-                try {
-                    stmt.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (conn != null) {
-                try {
-                    conn.setAutoCommit(true);
-                    conn.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
+   
 
     public static List<AccountDTO> exportAccounts() {
         return getAllAccounts();
-    }
-
-    private static String getLastAccountID(Connection conn) throws SQLException {
-        String query = "SELECT ma_tai_khoan FROM tai_khoan ORDER BY ma_tai_khoan DESC LIMIT 1";
-        try (PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
-            if (rs.next()) {
-                return rs.getString("ma_tai_khoan");
-            }
-        }
-        return null;
     }
 }
