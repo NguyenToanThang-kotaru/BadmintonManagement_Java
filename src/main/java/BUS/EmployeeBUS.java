@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -114,6 +117,58 @@ public class EmployeeBUS {
             System.err.println("Lỗi khi nhập Excel: " + e.getMessage());
             e.printStackTrace();
             return false;
+        }
+    }
+    public boolean exportToExcel(String filePath) {
+        // Tạo workbook và sheet
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Danh sách nhân viên");
+
+        try {
+            // Tạo dòng tiêu đề
+            Row headerRow = sheet.createRow(0);
+            String[] columns = {"STT", "Họ Tên", "Địa Chỉ", "SĐT"};
+            for (int i = 0; i < columns.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(columns[i]);
+                // Tùy chỉnh style cho tiêu đề
+                CellStyle headerStyle = workbook.createCellStyle();
+                Font font = workbook.createFont();
+                font.setBold(true);
+                headerStyle.setFont(font);
+                cell.setCellStyle(headerStyle);
+            }
+
+            // Lấy dữ liệu từ EmployeeDAO
+            List<EmployeeDTO> employees = EmployeeDAO.getAllEmployees();
+            int rowNum = 1;
+            for (EmployeeDTO emp : employees) {
+                Row row = sheet.createRow(rowNum++);
+                row.createCell(0).setCellValue(rowNum - 1);
+                row.createCell(1).setCellValue(emp.getFullName());
+                row.createCell(2).setCellValue(emp.getAddress());
+                row.createCell(3).setCellValue(emp.getPhone());
+            }
+
+            // Tự động điều chỉnh kích thước cột
+            for (int i = 0; i < columns.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            // Lưu file Excel
+            try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
+                workbook.write(fileOut);
+                return true;
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return false;
+        } finally {
+            try {
+                workbook.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 }
