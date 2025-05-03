@@ -1,8 +1,7 @@
- package DAO;
+package DAO;
 
 import DTO.AccountDTO;
 import DTO.PermissionDTO;
- 
 import Connection.DatabaseConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,50 +13,33 @@ import java.util.List;
 public class AccountDAO {
 
     public static Boolean addAccount(String username, String password, String maquyen) {
-        String query = "INSERT INTO tai_khoan (ma_tai_khoan, ten_dang_nhap, mat_khau, ma_quyen, is_deleted) "
-                + "VALUES (?, ?, ?, ?, 0);";
-
+        String query = "INSERT INTO tai_khoan (ma_tai_khoan, ten_dang_nhap, mat_khau, ma_quyen, is_deleted) VALUES (?, ?, ?, ?, 0);";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
-
             stmt.setString(1, generateNewAccountID());
             stmt.setString(2, username);
             stmt.setString(3, password);
             stmt.setString(4, maquyen);
-
-            int rowsInserted = stmt.executeUpdate(); // SỬA executeQuery() thành executeUpdate()
+            int rowsInserted = stmt.executeUpdate();
             return rowsInserted > 0;
-
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
     public static AccountDTO getAccount(String username, String password) {
-        // Truy vấn lấy thông tin tài khoản và quyền cơ bản
-        String accountQuery = "SELECT tk.ten_dang_nhap, tk.mat_khau, nv.ten_nhan_vien, "
-                + "q.ma_quyen, q.ten_quyen "
-                + "FROM tai_khoan AS tk "
-                + "JOIN quyen AS q ON q.ma_quyen = tk.ma_quyen "
-                + "JOIN nhan_vien AS nv ON nv.ma_nhan_vien = tk.ten_dang_nhap "
-                + "WHERE tk.ten_dang_nhap = ? AND tk.mat_khau = ? AND tk.is_deleted = 0";
-
-        // Truy vấn lấy danh sách chức năng của quyền
+        String accountQuery = "SELECT tk.ten_dang_nhap, tk.mat_khau, nv.ten_nhan_vien, q.ma_quyen, q.ten_quyen " +
+                "FROM tai_khoan AS tk JOIN quyen AS q ON q.ma_quyen = tk.ma_quyen " +
+                "JOIN nhan_vien AS nv ON nv.ma_nhan_vien = tk.ten_dang_nhap " +
+                "WHERE tk.ten_dang_nhap = ? AND tk.mat_khau = ? AND tk.is_deleted = 0";
         String functionQuery = "SELECT ma_chuc_nang FROM phan_quyen WHERE ma_quyen = ?";
-
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement accountStmt = conn.prepareStatement(accountQuery)) {
-
-            // Thiết lập tham số cho truy vấn tài khoản
             accountStmt.setString(1, username);
             accountStmt.setString(2, password);
-
             try (ResultSet accountRs = accountStmt.executeQuery()) {
                 if (accountRs.next()) {
-                    // Lấy thông tin cơ bản
                     String roleId = accountRs.getString("ma_quyen");
                     String roleName = accountRs.getString("ten_quyen");
-
-                    // Lấy danh sách chức năng của quyền
                     List<String> functions = new ArrayList<>();
                     try (PreparedStatement functionStmt = conn.prepareStatement(functionQuery)) {
                         functionStmt.setString(1, roleId);
@@ -67,11 +49,7 @@ public class AccountDAO {
                             }
                         }
                     }
-
-                    // Tạo PermissionDTO
                     PermissionDTO permission = new PermissionDTO(roleId, roleName, functions);
-
-                    // Tạo và trả về AccountDTO
                     return new AccountDTO(
                             accountRs.getString("ten_dang_nhap"),
                             accountRs.getString("mat_khau"),
@@ -81,37 +59,24 @@ public class AccountDAO {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace(); // Nên ghi log lỗi đầy đủ
+            e.printStackTrace();
         }
-        return null; // Không tìm thấy tài khoản
+        return null;
     }
 
-    // Lấy danh sách tài khoản cho bảng GUI
     public static ArrayList<AccountDTO> getAllAccounts() {
         ArrayList<AccountDTO> accounts = new ArrayList<>();
-
-        // Truy vấn lấy thông tin tài khoản + quyền
-        String accountQuery = "SELECT tk.ten_dang_nhap, tk.mat_khau, nv.ten_nhan_vien, "
-                + "q.ma_quyen, q.ten_quyen "
-                + "FROM tai_khoan AS tk "
-                + "JOIN nhan_vien AS nv ON nv.ma_nhan_vien = tk.ten_dang_nhap "
-                + "JOIN quyen AS q ON q.ma_quyen = tk.ma_quyen "
-                + "WHERE tk.is_deleted = 0;";
-
-        // Truy vấn lấy danh sách chức năng của quyền
+        String accountQuery = "SELECT tk.ten_dang_nhap, tk.mat_khau, nv.ten_nhan_vien, q.ma_quyen, q.ten_quyen " +
+                "FROM tai_khoan AS tk JOIN nhan_vien AS nv ON nv.ma_nhan_vien = tk.ten_dang_nhap " +
+                "JOIN quyen AS q ON q.ma_quyen = tk.ma_quyen WHERE tk.is_deleted = 0;";
         String functionQuery = "SELECT ma_chuc_nang FROM phan_quyen WHERE ma_quyen = ?";
-
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement accountStmt = conn.prepareStatement(accountQuery); ResultSet accountRs = accountStmt.executeQuery()) {
-
             while (accountRs.next()) {
-                // Lấy thông tin cơ bản
                 String username = accountRs.getString("ten_dang_nhap");
                 String password = accountRs.getString("mat_khau");
                 String fullname = accountRs.getString("ten_nhan_vien");
                 String roleId = accountRs.getString("ma_quyen");
                 String roleName = accountRs.getString("ten_quyen");
-
-                // Lấy danh sách chức năng của quyền
                 List<String> functions = new ArrayList<>();
                 try (PreparedStatement functionStmt = conn.prepareStatement(functionQuery)) {
                     functionStmt.setString(1, roleId);
@@ -121,11 +86,7 @@ public class AccountDAO {
                         }
                     }
                 }
-
-                // Tạo PermissionDTO
                 PermissionDTO permission = new PermissionDTO(roleId, roleName, functions);
-
-                // Tạo AccountDTO và thêm vào danh sách
                 accounts.add(new AccountDTO(username, password, fullname, permission));
             }
         } catch (Exception e) {
@@ -135,19 +96,17 @@ public class AccountDAO {
     }
 
     public static void deleteAccount(String username) {
-        String sql = "UPDATE tai_khoan SET is_deleted =1 WHERE ten_dang_nhap = ?;";
-
+        String sql = "UPDATE tai_khoan SET is_deleted = 1 WHERE ten_dang_nhap = ?;";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, username);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace(); // In lỗi ra để debug
+            e.printStackTrace();
         }
     }
 
     public static Boolean updateAccount(String username, String password, String maquyen) {
         String sql = "UPDATE tai_khoan SET mat_khau = ?, ma_quyen = ? WHERE ten_dang_nhap = ?;";
-
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, password);
             stmt.setString(2, maquyen);
@@ -155,48 +114,34 @@ public class AccountDAO {
             stmt.executeUpdate();
             return true;
         } catch (SQLException e) {
-            e.printStackTrace(); // Nên log lỗi để debug dễ hơn
+            e.printStackTrace();
             return false;
         }
     }
 
     private static String generateNewAccountID() {
         String query = "SELECT ma_tai_khoan FROM tai_khoan ORDER BY ma_tai_khoan DESC LIMIT 1";
-
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
-
             if (rs.next()) {
-                String lastID = rs.getString("ma_tai_khoan"); // Ví dụ: "NV005"
-
-                // Cắt bỏ "TK", chỉ lấy số
+                String lastID = rs.getString("ma_tai_khoan");
                 int number = Integer.parseInt(lastID.substring(2));
-
-                // Tạo ID mới với định dạng NVXXX
-                return String.format("TK%03d", number + 1); // Ví dụ: "NV006"
+                return String.format("TK%03d", number + 1);
             }
-
         } catch (SQLException e) {
-            System.out.println("Lỗi khi tạo mã nhân viên mới: " + e.getMessage());
+            System.out.println("Lỗi khi tạo mã tài khoản mới: " + e.getMessage());
             e.printStackTrace();
         }
-
-        return "TK001"; // Nếu không có nhân viên nào, bắt đầu từ "NV001"
+        return "TK001";
     }
 
     public static ArrayList<AccountDTO> searchAccounts(String keyword) {
         ArrayList<AccountDTO> accounts = new ArrayList<>();
-
-        String accountQuery = "SELECT tk.ten_dang_nhap, tk.mat_khau, nv.ten_nhan_vien, "
-                + "q.ma_quyen, q.ten_quyen "
-                + "FROM tai_khoan AS tk "
-                + "JOIN nhan_vien AS nv ON nv.ma_nhan_vien = tk.ten_dang_nhap "
-                + "JOIN quyen AS q ON q.ma_quyen = tk.ma_quyen "
-                + "WHERE tk.is_deleted = 0 AND (tk.ten_dang_nhap LIKE ? OR nv.ten_nhan_vien LIKE ? OR q.ten_quyen Like ?)";
-
+        String accountQuery = "SELECT tk.ten_dang_nhap, tk.mat_khau, nv.ten_nhan_vien, q.ma_quyen, q.ten_quyen " +
+                "FROM tai_khoan AS tk JOIN nhan_vien AS nv ON nv.ma_nhan_vien = tk.ten_dang_nhap " +
+                "JOIN quyen AS q ON q.ma_quyen = tk.ma_quyen " +
+                "WHERE tk.is_deleted = 0 AND (tk.ten_dang_nhap LIKE ? OR nv.ten_nhan_vien LIKE ? OR q.ten_quyen LIKE ?)";
         String functionQuery = "SELECT ma_chuc_nang FROM phan_quyen WHERE ma_quyen = ?";
-
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement accountStmt = conn.prepareStatement(accountQuery)) {
-
             String searchKeyword = "%" + keyword + "%";
             accountStmt.setString(1, searchKeyword);
             accountStmt.setString(2, searchKeyword);
@@ -208,7 +153,6 @@ public class AccountDAO {
                     String fullname = accountRs.getString("ten_nhan_vien");
                     String roleId = accountRs.getString("ma_quyen");
                     String roleName = accountRs.getString("ten_quyen");
-
                     List<String> functions = new ArrayList<>();
                     try (PreparedStatement functionStmt = conn.prepareStatement(functionQuery)) {
                         functionStmt.setString(1, roleId);
@@ -218,7 +162,6 @@ public class AccountDAO {
                             }
                         }
                     }
-
                     PermissionDTO permission = new PermissionDTO(roleId, roleName, functions);
                     accounts.add(new AccountDTO(username, password, fullname, permission));
                 }
@@ -229,4 +172,72 @@ public class AccountDAO {
         return accounts;
     }
 
+    public static boolean importAccounts(List<AccountDTO> accounts) {
+        String sql = "INSERT INTO tai_khoan (ma_tai_khoan, ten_dang_nhap, mat_khau, ma_quyen, is_deleted) VALUES (?, ?, ?, ?, 0)";
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        try {
+            conn = DatabaseConnection.getConnection();
+            conn.setAutoCommit(false);
+            stmt = conn.prepareStatement(sql);
+            String lastID = getLastAccountID(conn);
+            int number = lastID != null ? Integer.parseInt(lastID.substring(2)) : 0;
+            for (AccountDTO account : accounts) {
+                number++;
+                String newID = String.format("TK%03d", number);
+                stmt.setString(1, newID);
+                stmt.setString(2, account.getUsername());
+                stmt.setString(3, account.getPassword());
+                stmt.setString(4, account.getPermission().getID());
+                stmt.addBatch();
+            }
+            stmt.executeBatch();
+            conn.commit();
+            System.out.println("Nhập danh sách tài khoản từ Excel thành công.");
+            return true;
+        } catch (SQLException e) {
+            System.out.println("Lỗi nhập danh sách tài khoản từ Excel: " + e.getMessage());
+            e.printStackTrace();
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                    System.out.println("Đã rollback giao dịch.");
+                } catch (SQLException ex) {
+                    System.out.println("Lỗi khi rollback: " + ex.getMessage());
+                    ex.printStackTrace();
+                }
+            }
+            return false;
+        } finally {
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public static List<AccountDTO> exportAccounts() {
+        return getAllAccounts();
+    }
+
+    private static String getLastAccountID(Connection conn) throws SQLException {
+        String query = "SELECT ma_tai_khoan FROM tai_khoan ORDER BY ma_tai_khoan DESC LIMIT 1";
+        try (PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getString("ma_tai_khoan");
+            }
+        }
+        return null;
+    }
 }
