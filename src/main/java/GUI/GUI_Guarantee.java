@@ -2,6 +2,7 @@ package GUI;
 
 import DAO.GuaranteeDAO;
 import DTO.GuaranteeDTO;
+import BUS.GuaranteeBUS;
 
 import BUS.GuaranteeBUS;
 import javax.swing.*;
@@ -75,7 +76,6 @@ public class GUI_Guarantee extends JPanel {
 //        gbc.gridx = 1;
 //        JLabel purchaseDateLabel = new JLabel("Chưa chọn");
 //        botPanel.add(purchaseDateLabel, gbc);
-
         // Trạng thái bảo hành
         gbc.gridx = 0;
         gbc.gridy = 1;
@@ -149,6 +149,12 @@ public class GUI_Guarantee extends JPanel {
             fixForm.setVisible(true);
         });
 
+        searchField.setSearchListener(e -> {
+            String keyword = searchField.getText();
+            ArrayList<GuaranteeDTO> ketQua = GuaranteeBUS.searchGuarantees(keyword);
+            capNhatBangBaoHanh(ketQua); // Hiển thị kết quả tìm được trên bảng
+        });
+
         reloadButton.addActionListener(e -> {
             loadGuaranteeData();
             tableModel.fireTableDataChanged();
@@ -171,6 +177,18 @@ public class GUI_Guarantee extends JPanel {
             });
         }
 
+    }
+
+    private void capNhatBangBaoHanh(ArrayList<GuaranteeDTO> guarantees) {
+        tableModel.setRowCount(0); // Xóa dữ liệu cũ
+        for (GuaranteeDTO guarantee : guarantees) {
+            tableModel.addRow(new Object[]{
+                guarantee.getBaohanhID(),
+                guarantee.getSerialID(),
+                guarantee.getLydo(),
+                guarantee.gettrangthai()
+            });
+        }
     }
 //
 
