@@ -49,7 +49,7 @@ public class GUI_Customer extends JPanel {
         midPanel.setBackground(Color.WHITE);
 
         // Định nghĩa tiêu đề cột
-        String[] columnNames = {"Mã KH", "Họ Tên", "SĐT", "Email"};
+        String[] columnNames = { "STT", "Mã KH", "Họ Tên", "SĐT"};
         CustomTable customTable = new CustomTable(columnNames);
         customerTable = customTable.getCustomerTable();
         tableModel = customTable.getTableModel();
@@ -87,14 +87,6 @@ public class GUI_Customer extends JPanel {
         gbc.gridx = 1;
         JLabel phoneLabel = new JLabel("");
         botPanel.add(phoneLabel, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        botPanel.add(new JLabel("Email: "), gbc);
-        gbc.gridx = 1;
-        JLabel emailLabel = new JLabel("");
-        botPanel.add(emailLabel, gbc);
-
         // ========== PANEL BUTTON ==========
         JPanel buttonPanel = new JPanel(new BorderLayout());
         buttonPanel.setOpaque(false);
@@ -115,17 +107,14 @@ public class GUI_Customer extends JPanel {
         customerTable.getSelectionModel().addListSelectionListener(e -> {
             int selectedRow = customerTable.getSelectedRow();
             if (selectedRow != -1) {
-
-                String customerID = (String) customerTable.getValueAt(selectedRow, 0);
-                String hoten = (String) customerTable.getValueAt(selectedRow, 1);
-                String sdt = (String) customerTable.getValueAt(selectedRow, 2);
-                String email = (String) customerTable.getValueAt(selectedRow, 3);
-                customerChoosing = new CustomerDTO(customerID, hoten, sdt, email);
+                String customerID = (String) customerTable.getValueAt(selectedRow, 1);
+                String hoten = (String) customerTable.getValueAt(selectedRow, 2);
+                String sdt = (String) customerTable.getValueAt(selectedRow, 3);
+                customerChoosing = new CustomerDTO(customerID, hoten, sdt);
                 // Hiển thị dữ liệu trên giao diện
                 customerLabel.setText(hoten);
                 customeridLabel.setText(customerID);
                 phoneLabel.setText(sdt);
-                emailLabel.setText(email);
                 botPanel.add(buttonPanel, gbc);
             }
         });
@@ -203,10 +192,9 @@ public class GUI_Customer extends JPanel {
     private void loadCustomer() {
         List<CustomerDTO> customer = customerBUS.getAllCustomer();
         tableModel.setRowCount(0);
-        //int index = 0;
-        String no = "";
+        int index = 1;
         for (CustomerDTO ctm : customer) {
-            tableModel.addRow(new Object[]{ctm.getcustomerID(), ctm.getFullName(), ctm.getPhone(), ctm.getEmail()});
+            tableModel.addRow(new Object[]{index++, ctm.getcustomerID(), ctm.getFullName(), ctm.getPhone()});
         }
     }
 
@@ -214,7 +202,7 @@ public class GUI_Customer extends JPanel {
         List<CustomerDTO> customers = customerBUS.searchCustomer(keyword);
         tableModel.setRowCount(0);
         for (CustomerDTO ctm : customers) {
-            tableModel.addRow(new Object[]{ctm.getcustomerID(), ctm.getFullName(), ctm.getPhone(), ctm.getEmail()});
+            tableModel.addRow(new Object[]{ctm.getcustomerID(), ctm.getFullName(), ctm.getPhone()});
         }
     }
 }

@@ -21,8 +21,7 @@ public class CustomerDAO {
                     return new CustomerDTO(
                             rs.getString("ma_khach_hang"),
                             rs.getString("ten_khach_hang"),
-                            rs.getString("so_dien_thoai"),
-                            rs.getString("email")  
+                            rs.getString("so_dien_thoai") 
                     );
                 }
             }
@@ -41,8 +40,7 @@ public class CustomerDAO {
                 customer.add(new CustomerDTO(
                         rs.getString("ma_khach_hang"),
                         rs.getString("ten_khach_hang"),
-                        rs.getString("so_dien_thoai"),
-                        rs.getString("email")
+                        rs.getString("so_dien_thoai")
                 ));
             }
         } catch (Exception e) {
@@ -52,13 +50,12 @@ public class CustomerDAO {
     }
 
     public void updateCustomer(CustomerDTO customer) {
-        String sql = "UPDATE khach_hang SET ma_khach_hang = ?, ten_khach_hang = ?, so_dien_thoai = ? WHERE email = ?";
+        String sql = "UPDATE khach_hang SET ma_khach_hang = ?, ten_khach_hang = ? WHERE so_dien_thoai = ?";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, customer.getcustomerID());
             stmt.setString(2, customer.getFullName());
             stmt.setString(3, customer.getPhone());
-            stmt.setString(4, customer.getEmail());
 
             stmt.executeUpdate();
         } catch (SQLException e) {
@@ -95,8 +92,7 @@ public class CustomerDAO {
                     return new CustomerDTO(
                             rs.getString("ma_khach_hang"),
                             rs.getString("ten_khach_hang"),
-                            rs.getString("so_dien_thoai"),
-                            rs.getString("email")
+                            rs.getString("so_dien_thoai")
                     );
                 }
             }
@@ -125,13 +121,12 @@ public class CustomerDAO {
     }
     
     public static void addCustomer(CustomerDTO customer) {
-        String query = "INSERT INTO khach_hang (ma_khach_hang, ten_khach_hang, so_dien_thoai, email, is_deleted) VALUES (?, ?, ?, ?,0)";
+        String query = "INSERT INTO khach_hang (ma_khach_hang, ten_khach_hang, so_dien_thoai, is_deleted) VALUES (?, ?, ?, 0)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, customer.getcustomerID());
             stmt.setString(2, customer.getFullName());
             stmt.setString(3, customer.getPhone());
-            stmt.setString(4, customer.getEmail() != null ? customer.getEmail() : "");
             stmt.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -154,7 +149,7 @@ public class CustomerDAO {
     public static ArrayList<CustomerDTO> searchCustomer(String keyword) {
         ArrayList<CustomerDTO> customers = new ArrayList<>();
         String query = "SELECT * FROM khach_hang WHERE is_deleted = 0 AND " +
-                      "(ma_khach_hang LIKE ? OR ten_khach_hang LIKE ? OR so_dien_thoai LIKE ? OR email LIKE ?)";
+                      "(ma_khach_hang LIKE ? OR ten_khach_hang LIKE ? OR so_dien_thoai LIKE ?)";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -163,15 +158,13 @@ public class CustomerDAO {
             stmt.setString(1, searchPattern);
             stmt.setString(2, searchPattern);
             stmt.setString(3, searchPattern);
-            stmt.setString(4, searchPattern);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     customers.add(new CustomerDTO(
                         rs.getString("ma_khach_hang"),
                         rs.getString("ten_khach_hang"),
-                        rs.getString("so_dien_thoai"),
-                        rs.getString("email")
+                        rs.getString("so_dien_thoai")
                     ));
                 }
             }
