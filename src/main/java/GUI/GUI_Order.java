@@ -21,7 +21,7 @@ public class GUI_Order extends JPanel {
     private OrderBUS orderBUS = new OrderBUS();
     private OrderDTO order =  new OrderDTO();
 
-    public GUI_Order(AccountDTO cn, List<String> t) {
+    public GUI_Order(AccountDTO cn) {
         orderBUS = new OrderBUS();
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -105,13 +105,12 @@ public class GUI_Order extends JPanel {
 
         deleteButton = new CustomButton("Xóa");
         deleteButton.setCustomColor(new Color(220, 0, 0));
-        if(t.contains("xoa_hd")){
-        buttonPanel.add(deleteButton, BorderLayout.WEST);}
+        buttonPanel.add(deleteButton, BorderLayout.WEST);
 
         editButton = new CustomButton("Sửa");
         editButton.setCustomColor(new Color(0, 230, 0));
-        if(t.contains("xoa_hd")){
-        buttonPanel.add(editButton, BorderLayout.CENTER );}
+       
+        buttonPanel.add(editButton, BorderLayout.CENTER );
         
         detailorderButton = new CustomButton("Xem Chi Tiết Hóa Đơn");
         detailorderButton.setCustomColor(new Color(0, 120, 215));
@@ -188,8 +187,7 @@ public class GUI_Order extends JPanel {
         add(Box.createVerticalStrut(10));
         add(botPanel);
         
-        if(t.contains("xoa_hd")){
-        loadOrder();}
+        loadOrder();
         
         detailorderButton.addActionListener(e -> {
             int selectedRow = orderTable.getSelectedRow();

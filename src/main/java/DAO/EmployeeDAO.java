@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class EmployeeDAO {
 
     public static Boolean addEmployee(EmployeeDTO employee) {
-        String sql = "INSERT INTO nhan_vien (ma_nhan_vien, ten_nhan_vien, dia_chi, so_dien_thoai, hinh_anh) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO nhan_vien (ma_nhan_vien, ten_nhan_vien, dia_chi, so_dien_thoai, hinh_anh, chuc_vu) VALUES (?, ?, ?, ?, ?, 'Nhân Viên')";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
 

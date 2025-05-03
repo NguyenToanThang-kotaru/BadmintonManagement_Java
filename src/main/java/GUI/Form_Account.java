@@ -1,16 +1,19 @@
 package GUI;
 
 import BUS.AccountBUS;
+import BUS.PermissionBUS;
 import DAO.PermissionDAO;
 import DTO.EmployeeDTO;
 import DTO.AccountDTO;
 import DAO.EmployeeDAO;
+import DTO.Permission2DTO;
 import DTO.PermissionDTO;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 
 public class Form_Account extends JDialog {
@@ -21,7 +24,7 @@ public class Form_Account extends JDialog {
     private CustomCombobox<String> cbRole, cbEmployeeName;
     private CustomButton btnSave, btnCancel;
 
-    public Form_Account(JPanel parent, AccountDTO account) {
+    public Form_Account(GUI_Account parent, AccountDTO account) {
         super((Frame) SwingUtilities.getWindowAncestor(parent), account == null ? "Thêm Tài Khoản" : "Sửa Tài Khoản", true);
         setSize(400, 300);
         setLocationRelativeTo(parent);
@@ -58,10 +61,10 @@ public class Form_Account extends JDialog {
         txtRePassword = new JPasswordField(20);
         txtEditPassword = new JTextField(20);
 //        cbRole = new CustomCombobox<>();
-        java.util.List<PermissionDTO> permissions = PermissionDAO.getAllPermissions();
+        ArrayList<Permission2DTO> permissions = PermissionBUS.getAllPermissions();
         String[] roles = new String[permissions.size()];
         int i = 0;
-        for (PermissionDTO per : permissions) {
+        for (Permission2DTO per : permissions) {
             roles[i] = per.getName(); // Lấy tên quyền và gán vào mảng roles
             i++;
         }
@@ -133,6 +136,7 @@ public class Form_Account extends JDialog {
                     System.out.println(username+password+role);
                     if (AccountBUS.updateAccount(username, password, role) == true) {
                         System.out.println("Thanh cong");
+                        parent.loadAccounts();
                         dispose();
                         
                     }

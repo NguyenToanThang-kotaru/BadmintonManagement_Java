@@ -5,6 +5,7 @@ import DAO.EmployeeDAO;
 import DAO.PermissionDAO;
 import DTO.AccountDTO;
 import DTO.EmployeeDTO;
+import DTO.Permission2DTO;
 import DTO.PermissionDTO;
 
 import java.util.List;
@@ -63,7 +64,7 @@ public class AccountBUS {
     }
 
     public static Boolean updateAccount(String username,String password, String maquyen) {
-        PermissionDTO a = new PermissionDTO(PermissionDAO.getPermissionByName(maquyen));
+        Permission2DTO a = PermissionBUS.getPermissionByName(maquyen);
         return AccountDAO.updateAccount(username, password, a.getID())==true;
     }
 
