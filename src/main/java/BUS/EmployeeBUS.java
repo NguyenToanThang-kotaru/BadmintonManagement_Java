@@ -66,46 +66,50 @@ public class EmployeeBUS {
 
     public boolean importEmployeesFromExcel(File file) {
         List<EmployeeDTO> employeesToImport = new ArrayList<>();
-
+        DataFormatter dataFormatter = new DataFormatter(); // Dùng DataFormatter để đọc đúng định dạng
         try (FileInputStream fis = new FileInputStream(file);
              Workbook workbook = new XSSFWorkbook(fis)) {
-
             Sheet sheet = workbook.getSheetAt(0);
-            for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) { // Bỏ qua dòng tiêu đề
+            for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
                 Row row = sheet.getRow(rowIndex);
                 if (row == null) continue;
-
                 EmployeeDTO employee = new EmployeeDTO();
-
-                // Đọc dữ liệu từ các cột
-                Cell fullNameCell = row.getCell(1); // Cột "Họ Tên"
-                Cell addressCell = row.getCell(2);  // Cột "Địa Chỉ"
-                Cell phoneCell = row.getCell(3);    // Cột "SĐT"
-
-                // Kiểm tra và gán dữ liệu
-                employee.setFullName(fullNameCell != null ? fullNameCell.toString() : "");
-                employee.setAddress(addressCell != null ? addressCell.toString() : "");
-                employee.setPhone(phoneCell != null ? phoneCell.toString() : "");
-                employee.setImage(""); // Hình ảnh mặc định là rỗng vì Excel không chứa hình ảnh
-                employee.setChucVu("Nhân viên"); // Gán giá trị mặc định cho chuc_vu
-
-                // Kiểm tra dữ liệu hợp lệ
+    
+                // Đọc các cột từ Excel
+                Cell fullNameCell = row.getCell(1);
+                Cell addressCell = row.getCell(2);
+                Cell phoneCell = row.getCell(3);
+                Cell chucVuCell = row.getCell(4); // Đọc cột chức vụ (nếu có)
+    
+                // Gán giá trị cho EmployeeDTO
+                employee.setFullName(fullNameCell != null ? dataFormatter.formatCellValue(fullNameCell).trim() : "");
+                employee.setAddress(addressCell != null ? dataFormatter.formatCellValue(addressCell).trim() : "");
+                employee.setPhone(phoneCell != null ? dataFormatter.formatCellValue(phoneCell).trim() : "");
+                employee.setImage("");
+    
+                // Xử lý cột chuc_vu
+                String chucVu = chucVuCell != null ? dataFormatter.formatCellValue(chucVuCell).trim() : "";
+                employee.setChucVu(chucVu); // Gán chuỗi rỗng nếu chuc_vu trống hoặc không có
+    
+                // Kiểm tra dữ liệu bắt buộc
                 if (employee.getFullName().isEmpty() || employee.getAddress().isEmpty() || employee.getPhone().isEmpty()) {
                     System.out.println("Dòng " + (rowIndex + 1) + " thiếu thông tin, bỏ qua.");
                     continue;
                 }
-
+    
+                // Kiểm tra trùng số điện thoại
+                if (EmployeeDAO.isPhoneNumberExists(employee.getPhone())) {
+                    System.out.println("Số điện thoại " + employee.getPhone() + " đã tồn tại, bỏ qua dòng " + (rowIndex + 1));
+                    continue;
+                }
+    
                 employeesToImport.add(employee);
             }
-
-            // Gọi DAO để lưu danh sách nhân viên vào DB
             boolean success = EmployeeDAO.importEmployees(employeesToImport);
             if (success) {
-                // Cập nhật lại danh sách nhân viên trong BUS
                 this.employeeList = EmployeeDAO.getAllEmployees();
             }
             return success;
-
         } catch (Exception e) {
             System.err.println("Lỗi khi nhập Excel: " + e.getMessage());
             e.printStackTrace();

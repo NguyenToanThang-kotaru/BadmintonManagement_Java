@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -234,38 +235,88 @@ public class EmployeeDAO {
     }
 
     public static boolean importEmployees(List<EmployeeDTO> employees) {
-        String sql = "INSERT INTO nhan_vien (ma_nhan_vien, ten_nhan_vien, dia_chi, so_dien_thoai, hinh_anh, chuc_vu) VALUES (?, ?, ?, ?, ?, ?)";
-        
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            conn.setAutoCommit(false); // Bắt đầu giao dịch
-
+        String sql = "INSERT INTO nhan_vien (ma_nhan_vien, ten_nhan_vien, dia_chi, so_dien_thoai, hinh_anh, chuc_vu, is_deleted) VALUES (?, ?, ?, ?, ?, ?, 0)";
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        try {
+            conn = DatabaseConnection.getConnection();
+            conn.setAutoCommit(false);
+            stmt = conn.prepareStatement(sql);
+            String lastID = getLastEmployeeID(conn); // Lấy mã lớn nhất một lần
+            int number = lastID != null ? Integer.parseInt(lastID.substring(2)) : 0;
             for (EmployeeDTO employee : employees) {
-                String newID = generateNewEmployeeID(); // Tạo ID mới cho mỗi nhân viên
-
+                number++;
+                String newID = String.format("NV%03d", number);
                 stmt.setString(1, newID);
                 stmt.setString(2, employee.getFullName());
                 stmt.setString(3, employee.getAddress());
                 stmt.setString(4, employee.getPhone());
                 stmt.setString(5, employee.getImage() != null ? employee.getImage() : "");
-                stmt.setString(6, employee.getChucVu()); // Thêm chuc_vu
-
+                // Gán chuỗi rỗng cho chuc_vu nếu không có giá trị
+                stmt.setString(6, employee.getChucVu() != null ? employee.getChucVu() : "");
                 stmt.addBatch();
-
-                // Cập nhật ID cho đối tượng EmployeeDTO
                 employee.setEmployeeID(newID);
             }
-
             stmt.executeBatch();
-            conn.commit(); // Xác nhận giao dịch
+            conn.commit();
             System.out.println("Nhập danh sách nhân viên từ Excel thành công.");
             return true;
-
         } catch (SQLException e) {
             System.out.println("Lỗi nhập danh sách nhân viên từ Excel: " + e.getMessage());
             e.printStackTrace();
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                    System.out.println("Đã rollback giao dịch.");
+                } catch (SQLException ex) {
+                    System.out.println("Lỗi khi rollback: " + ex.getMessage());
+                    ex.printStackTrace();
+                }
+            }
             return false;
+        } finally {
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
+
+    
+    private static String getLastEmployeeID(Connection conn) throws SQLException {
+        String query = "SELECT ma_nhan_vien FROM nhan_vien WHERE is_deleted = 0 ORDER BY ma_nhan_vien DESC LIMIT 1";
+        try (PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getString("ma_nhan_vien");
+            }
+        }
+        return null;
+    } public static boolean isPhoneNumberExists(String phone) {
+        String query = "SELECT COUNT(*) FROM nhan_vien WHERE so_dien_thoai = ? AND is_deleted = 0";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, phone);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            System.out.println("Lỗi khi kiểm tra số điện thoại: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 }
