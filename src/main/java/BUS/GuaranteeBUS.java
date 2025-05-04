@@ -29,8 +29,12 @@ public class GuaranteeBUS {
         GuaranteeDAO dao = new GuaranteeDAO();
         dao.updateGuarantee(guarantee);
     }
-    
-     public static Boolean addGuarantee(String ma_serial) {
-         return GuaranteeDAO.addGuarantee(ma_serial);
-     }
+
+    public static Boolean addGuarantee(String ma_serial) {
+        return GuaranteeDAO.addGuarantee(ma_serial);
+    }
+
+    public static ArrayList<GuaranteeDTO> searchGuarantees(String keyword) {
+        return GuaranteeDAO.searchGuarantees(keyword);
+    }
 }

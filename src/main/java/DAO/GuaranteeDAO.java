@@ -147,6 +147,40 @@ public class GuaranteeDAO {
         }
     }
 
+    public static ArrayList<GuaranteeDTO> searchGuarantees(String keyword) {
+        ArrayList<GuaranteeDTO> guarantees = new ArrayList<>();
+
+        String query = "SELECT * FROM bao_hanh WHERE ma_bao_hanh LIKE ? OR ma_serial LIKE ?";
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+            String searchKeyword = "%" + keyword + "%";
+            stmt.setString(1, searchKeyword);
+            stmt.setString(2, searchKeyword);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    String status = rs.getString("trang_thai");
+                    if (status == null || status.trim().isEmpty()) {
+                        status = "Không";
+                    }
+
+                    guarantees.add(new GuaranteeDTO(
+                            rs.getString("ma_bao_hanh"),
+                            rs.getString("ma_serial"),
+                            rs.getString("ly_do_bao_hanh"),
+                            rs.getString("thoi_gian_bao_hanh"),
+                            status
+                    ));
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Lỗi khi tìm kiếm bảo hành: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return guarantees;
+    }
+
 //
 //    // Lấy đường dẫn ảnh sản phẩm
 //    public static String getProductImage(String productID) {
