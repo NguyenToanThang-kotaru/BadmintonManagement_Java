@@ -9,9 +9,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import Connection.DatabaseConnection;
+
 import javax.swing.JOptionPane;
 
 public class EmployeeBUS {
@@ -122,56 +129,49 @@ public class EmployeeBUS {
         }
     }
     public boolean exportToExcel(String filePath) {
-        // Tạo workbook và sheet
-        Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Danh sách nhân viên");
-
-        try {
-            // Tạo dòng tiêu đề
-            Row headerRow = sheet.createRow(0);
-            String[] columns = {"STT", "Họ Tên", "Địa Chỉ", "SĐT"};
-            for (int i = 0; i < columns.length; i++) {
-                Cell cell = headerRow.createCell(i);
-                cell.setCellValue(columns[i]);
-                // Tùy chỉnh style cho tiêu đề
-                CellStyle headerStyle = workbook.createCellStyle();
-                Font font = workbook.createFont();
-                font.setBold(true);
-                headerStyle.setFont(font);
-                cell.setCellStyle(headerStyle);
-            }
-
-            // Lấy dữ liệu từ EmployeeDAO
-            List<EmployeeDTO> employees = EmployeeDAO.getAllEmployees();
-            int rowNum = 1;
-            for (EmployeeDTO emp : employees) {
-                Row row = sheet.createRow(rowNum++);
-                row.createCell(0).setCellValue(rowNum - 1);
-                row.createCell(1).setCellValue(emp.getFullName());
-                row.createCell(2).setCellValue(emp.getAddress());
-                row.createCell(3).setCellValue(emp.getPhone());
-            }
-
-            // Tự động điều chỉnh kích thước cột
-            for (int i = 0; i < columns.length; i++) {
-                sheet.autoSizeColumn(i);
-            }
-
-            // Lưu file Excel
-            try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
-                workbook.write(fileOut);
-                return true;
-            }
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            return false;
-        } finally {
-            try {
-                workbook.close();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+    try (Connection conn = DatabaseConnection.getConnection();
+         Workbook workbook = new XSSFWorkbook()) {
+        Sheet sheet = workbook.createSheet("DanhSachNhanVien");
+        
+        // Tạo dòng tiêu đề
+        Row headerRow = sheet.createRow(0);
+        String[] columns = {"ma_nhan_vien", "ten_nhan_vien", "dia_chi", "so_dien_thoai", "hinh_anh", "is_deleted", "chuc_vu"};
+        for (int i = 0; i < columns.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(columns[i]);
         }
+
+        // Lấy dữ liệu từ database
+        String sql = "SELECT * FROM nhan_vien";
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        ResultSet rs = stmt.executeQuery();
+        
+        int rowNum = 1;
+        while (rs.next()) {
+            Row row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(rs.getString("ma_nhan_vien"));
+            row.createCell(1).setCellValue(rs.getString("ten_nhan_vien"));
+            row.createCell(2).setCellValue(rs.getString("dia_chi"));
+            row.createCell(3).setCellValue(rs.getString("so_dien_thoai"));
+            row.createCell(4).setCellValue(rs.getString("hinh_anh"));
+            row.createCell(5).setCellValue(rs.getInt("is_deleted"));
+            row.createCell(6).setCellValue(rs.getString("chuc_vu"));
+        }
+
+        // Tự động điều chỉnh kích thước cột
+        for (int i = 0; i < columns.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        // Ghi vào file
+        try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
+            workbook.write(fileOut);
+        }
+        return true;
+    } catch (SQLException | IOException e) {
+        e.printStackTrace();
+        return false;
+    }
     }
 
     public boolean validateEmployee(EmployeeDTO employee) {
