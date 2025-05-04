@@ -1,7 +1,10 @@
-package GUI;
+    package GUI;
 
+import BUS.ActionBUS;
 import BUS.EmployeeBUS;
 import DAO.EmployeeDAO;
+import DTO.AccountDTO;
+import DTO.ActionDTO;
 import DTO.EmployeeDTO;
 
 import javax.swing.*;
@@ -9,6 +12,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GUI_Employee extends JPanel {
@@ -21,7 +25,8 @@ public class GUI_Employee extends JPanel {
     private EmployeeBUS employeeBUS;
     private EmployeeDTO employeeChoosing;
 
-    public GUI_Employee(List<String> a) {
+    public GUI_Employee(AccountDTO a) {
+
         employeeBUS = new EmployeeBUS();
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -40,21 +45,20 @@ public class GUI_Employee extends JPanel {
         reloadButton = new CustomButton("Tải Lại Trang");
         topPanel.add(reloadButton, BorderLayout.WEST);
         addButton = new CustomButton("+ Thêm Nhân Viên"); // Nút thêm nhân viên
-        if (a.contains("them_nv")) {
-            topPanel.add(addButton, BorderLayout.EAST);
-        }
+        topPanel.add(addButton, BorderLayout.EAST);
 
         // ========== BẢNG HIỂN THỊ DANH SÁCH NHÂN VIÊN ==========
         midPanel = new JPanel(new BorderLayout());
         midPanel.setBackground(Color.WHITE);
-
+        midPanel.setMinimumSize(new Dimension(600, 200));
+        midPanel.setPreferredSize(new Dimension(600, 200));
         // Định nghĩa tiêu đề cột
         String[] columnNames = {"STT", "Họ Tên", "Địa Chỉ", "SĐT"};
         CustomTable customTable = new CustomTable(columnNames);
         employeeTable = customTable.getEmployeeTable();
         tableModel = customTable.getTableModel();
-        midPanel.add(customTable, BorderLayout.CENTER);
         CustomScrollPane scrollPane = new CustomScrollPane(employeeTable);
+        midPanel.add(scrollPane,BorderLayout.CENTER);
 
         // ========== PANEL CHI TIẾT NHÂN VIÊN ==========
         botPanel = new JPanel(new BorderLayout(20, 0)); // Khoảng cách giữa 2 phần
@@ -117,15 +121,12 @@ public class GUI_Employee extends JPanel {
 
         deleteButton = new CustomButton("Xóa");
         deleteButton.setCustomColor(new Color(220, 0, 0));
-        if (a.contains("xoa_nv")) {
-            buttonPanel.add(deleteButton, BorderLayout.WEST);
-        }
+        buttonPanel.add(deleteButton, BorderLayout.WEST);
 
         editButton = new CustomButton("Sửa");
         editButton.setCustomColor(new Color(0, 230, 0));
-        if (a.contains("sua_nv")) {
-            buttonPanel.add(editButton, BorderLayout.EAST);
-        }
+
+        buttonPanel.add(editButton, BorderLayout.EAST);
 
         gbc.gridx = 0;
         gbc.gridy = 6;
@@ -155,7 +156,6 @@ public class GUI_Employee extends JPanel {
 
                 if (employeeImg != null && !employeeImg.isEmpty()) {
                     String tempPath = "images/" + employeeImg;
-                    
 
                     File imageFile = new File(tempPath);
                     System.out.println(imageFile);
@@ -177,27 +177,29 @@ public class GUI_Employee extends JPanel {
         });
 
         deleteButton.addActionListener(e -> {
-            if (deleteEmployee(employeeChoosing.getEmployeeID(), employeeChoosing.getImage()) == true) {
-                loadEmployees();
-                tableModel.fireTableDataChanged();
-                employeeLabel.setText("Chọn nhân viên");
-                employeeidLabel.setText("");
-                addressLabel.setText("");
-                phoneLabel.setText("");
-                String employeeImg = employeeChoosing.getImage();
-                String imagePath = "images/Avatar.png"; // Đường dẫn mặc 
+            if (helped.confirmDelete("Bạn có chắc muốn xóa nhân viên này?") == true) {
+                if (deleteEmployee(employeeChoosing.getEmployeeID(), employeeChoosing.getImage()) == true) {
+                    loadEmployees();
+                    tableModel.fireTableDataChanged();
+                    employeeLabel.setText("Chọn nhân viên");
+                    employeeidLabel.setText("");
+                    addressLabel.setText("");
+                    phoneLabel.setText("");
+                    String employeeImg = employeeChoosing.getImage();
+                    String imagePath = "images/Avatar.png"; // Đường dẫn mặc 
 
-                if (employeeImg != null && !employeeImg.isEmpty()) {
-                    String tempPath = "images/" + employeeImg;
-                    File imageFile = new File(tempPath);
-                    if (imageFile.exists()) {
-                        imagePath = tempPath;
+                    if (employeeImg != null && !employeeImg.isEmpty()) {
+                        String tempPath = "images/" + employeeImg;
+                        File imageFile = new File(tempPath);
+                        if (imageFile.exists()) {
+                            imagePath = tempPath;
+                        }
                     }
-                }
-                ImageIcon employeeIcon = new ImageIcon(imagePath);
-                Image img = employeeIcon.getImage().getScaledInstance(220, 220, Image.SCALE_SMOOTH);
-                imageLabel.setIcon(new ImageIcon(img));
+                    ImageIcon employeeIcon = new ImageIcon(imagePath);
+                    Image img = employeeIcon.getImage().getScaledInstance(220, 220, Image.SCALE_SMOOTH);
+                    imageLabel.setIcon(new ImageIcon(img));
 
+                }
             }
         });
 
@@ -210,7 +212,7 @@ public class GUI_Employee extends JPanel {
             Form_Employee GFE = new Form_Employee(this, employeeChoosing);
             GFE.setVisible(true);
         });
-        
+
         searchField.setSearchListener(e -> {
             String keyword = searchField.getText().trim();
             if (!keyword.isEmpty()) {
@@ -219,17 +221,39 @@ public class GUI_Employee extends JPanel {
                 loadEmployees(); // Nếu ô tìm kiếm trống, load lại toàn bộ khách hàng
             }
         });
-        
+
         // Thêm các panel vào giao diện chính
         add(topPanel);
         add(Box.createVerticalStrut(5));
-        add(scrollPane);
+        add(midPanel);
         add(Box.createVerticalStrut(5));
         add(botPanel);
 
-        if (a.contains("xem_nv")) {
-            loadEmployees();
+        loadEmployees();
+        ArrayList<ActionDTO> actions = ActionBUS.getPermissionActions(a, "Quản lý nhân viên");
+
+        boolean canAdd = false, canEdit = false, canDelete = false, canWatch = false;
+
+        if (actions != null) {
+            for (ActionDTO action : actions) {
+                switch (action.getName()) {
+                    case "Thêm" ->
+                        canAdd = true;
+                    case "Sửa" ->
+                        canEdit = true;
+                    case "Xóa" ->
+                        canDelete = true;
+                    case "Xem" ->
+                        canWatch = true;
+                }
+            }
         }
+
+        addButton.setVisible(canAdd);
+        editButton.setVisible(canEdit);
+        deleteButton.setVisible(canDelete);
+        scrollPane.setVisible(canWatch);
+        reloadButton.setVisible(false);
 
     }
 
@@ -267,7 +291,7 @@ public class GUI_Employee extends JPanel {
             });
         }
     }
-    
+
     private void searchEmployee(String keyword) {
         List<EmployeeDTO> employee = employeeBUS.searchEmployee(keyword);
         tableModel.setRowCount(0);

@@ -4,14 +4,14 @@ public class AccountDTO {
     private String username;
     private String password;
     private String fullname; 
-    private PermissionDTO permission;  
+    private Permission2DTO permission;  
 
     public AccountDTO() {
         this("", "", "", null);
     }
 
     // Constructor mới nhận PermissionDTO
-    public AccountDTO(String username, String password, String fullname, PermissionDTO permission) {
+    public AccountDTO(String username, String password, String fullname, Permission2DTO permission) {
         this.username = username;
         this.password = password;
         this.fullname = fullname;
@@ -43,11 +43,11 @@ public class AccountDTO {
         this.fullname = fullname;
     }
 
-    public PermissionDTO getPermission() {
+    public Permission2DTO getPermission() {
         return permission;
     }
 
-    public void setPermission(PermissionDTO permission) {
+    public void setPermission(Permission2DTO permission) {
         this.permission = permission;
     }
 
@@ -56,9 +56,4 @@ public class AccountDTO {
         return permission != null ? permission.getName() : "";
     }
     
-    // Phương thức kiểm tra có chức năng nào không
-    public boolean hasFunction(String functionCode) {
-        return permission != null && permission.getChucNang()!= null 
-               && permission.getChucNang().contains(functionCode);
-    }
 }

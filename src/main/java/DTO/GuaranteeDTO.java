@@ -47,6 +47,7 @@ public class GuaranteeDTO {
     public void settrangthai(String trangthai) {
         this.trangthai = trangthai;
     }
+
     public String getLydo() {
         return lydo;
     }

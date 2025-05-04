@@ -14,7 +14,13 @@ public class GuaranteeDAO {
 
     // Lấy thông tin của một sản phẩm
     public static GuaranteeDTO getGuarantee(String BaohanhID) {
-        String query = "SELECT * FROM bao_hanh WHERE ma_bao_hanh = ? AND thoi_gian_bao_hanh < 12 ";
+        String query = """
+    SELECT bh.*
+    FROM bao_hanh bh
+    JOIN danh_sach_san_pham ds ON bh.ma_serial = ds.ma_serial
+    JOIN san_pham sp ON ds.ma_san_pham = sp.ma_san_pham
+    WHERE bh.ma_bao_hanh = ? AND bh.thoi_gian_bao_hanh < sp.thoi_gian_bao_hanh
+""";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, BaohanhID);
@@ -40,7 +46,14 @@ public class GuaranteeDAO {
     public static ArrayList<GuaranteeDTO> getAllGuarantee() {
         ArrayList<GuaranteeDTO> products = new ArrayList<>();
 
-        String query = "SELECT * FROM bao_hanh WHERE thoi_gian_bao_hanh < 12 ";
+        String query = """
+    SELECT bh.*
+    FROM bao_hanh bh
+    JOIN danh_sach_san_pham ds ON bh.ma_serial = ds.ma_serial
+    JOIN san_pham sp ON ds.ma_san_pham = sp.ma_san_pham
+    WHERE bh.thoi_gian_bao_hanh < sp.thoi_gian_bao_hanh
+""";
+
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {

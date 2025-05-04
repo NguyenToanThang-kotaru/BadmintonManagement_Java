@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class EmployeeDAO {
 
     public static Boolean addEmployee(EmployeeDTO employee) {
-        String sql = "INSERT INTO nhan_vien (ma_nhan_vien, ten_nhan_vien, dia_chi, so_dien_thoai, hinh_anh) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO nhan_vien (ma_nhan_vien, ten_nhan_vien, dia_chi, so_dien_thoai, hinh_anh, chuc_vu) VALUES (?, ?, ?, ?, ?, 'Nhân Viên')";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -179,11 +179,10 @@ public class EmployeeDAO {
         }
         return employees;
     }
-    
+
     public static String getEmployeeNameByID(String employeeID) {
         String query = "SELECT ten_nhan_vien FROM nhan_vien WHERE ma_nhan_vien = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, employeeID);
             ResultSet rs = stmt.executeQuery();
@@ -196,14 +195,13 @@ public class EmployeeDAO {
         }
         return null;
     }
-    
+
     public static ArrayList<EmployeeDTO> searchEmployee(String keyword) {
         ArrayList<EmployeeDTO> employee = new ArrayList<>();
-        String query = "SELECT * FROM nhan_vien WHERE is_deleted = 0 AND " +
-                      "(ma_nhan_vien LIKE ? OR ten_nhan_vien LIKE ? OR dia_chi LIKE ? OR so_dien_thoai LIKE ?)";
+        String query = "SELECT * FROM nhan_vien WHERE is_deleted = 0 AND "
+                + "(ma_nhan_vien LIKE ? OR ten_nhan_vien LIKE ? OR dia_chi LIKE ? OR so_dien_thoai LIKE ?)";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
 
             String searchPattern = "%" + keyword + "%";
             stmt.setString(1, searchPattern);
@@ -214,11 +212,11 @@ public class EmployeeDAO {
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     employee.add(new EmployeeDTO(
-                        rs.getString("ma_nhan_vien"),
-                        rs.getString("ten_nhan_vien"),
-                        rs.getString("dia_chi"),
-                        rs.getString("so_dien_thoai"),
-                        rs.getString("hinh_anh")
+                            rs.getString("ma_nhan_vien"),
+                            rs.getString("ten_nhan_vien"),
+                            rs.getString("dia_chi"),
+                            rs.getString("so_dien_thoai"),
+                            rs.getString("hinh_anh")
                     ));
                 }
             }
