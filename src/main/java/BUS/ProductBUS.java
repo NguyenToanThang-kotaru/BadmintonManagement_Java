@@ -30,7 +30,7 @@ public class ProductBUS {
     public static ArrayList<ProductDTO> searchProducts(String keyword) {
         return ProductDAO.searchProducts(keyword);
     }
-
+   
     public static ArrayList<String> getSerialsForProduct(String productID) {
         return ProductDAO.getSerialsForProduct(productID);
     }

@@ -1,5 +1,7 @@
 package BUS;
 
+import DAO.StatistiscDAO;
+import DTO.CustomerDTO;
 import DTO.OrderDTO;
 import GUI.Utils.DateOnlyUtils;
 import com.mysql.cj.util.Util;
@@ -9,9 +11,20 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class StatistiscBUS {
+    private StatistiscDAO statDAO = new StatistiscDAO();
+    
+    //Thống kê dựa trên khách hàng
+    public ArrayList<CustomerDTO> getCustomerByDateRange(String fromDate, String toDate) {
+        return statDAO.getCustomerByDateRange(fromDate, toDate);
+    }
+    
+//    public static int getOrderByCustomer(CustomerDTO cus) {
+//        return StatistiscDAO.getOrderByCustomer();
+//    }
 
-    public static ArrayList<OrderDTO> getOrdersByDateRange() {
-        return null;
+    //Thống kê dựa trên hóa đơn
+    public static ArrayList<OrderDTO> getOrdersByDateRange(String fromDate, String toDate) {
+        return StatistiscDAO.getOrdersByDateRange(fromDate, toDate);
     }
 
     public static String tinhTiLePhanTram(double phanTu, double tong) {

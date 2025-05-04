@@ -2,6 +2,7 @@ package BUS;
 
 import DAO.OrderDAO;
 import DAO.CustomerDAO;
+import DTO.CustomerDTO;
 import DTO.OrderDTO;
 import java.util.ArrayList;
 
@@ -11,6 +12,18 @@ public class OrderBUS {
 
     private OrderDAO dao = new OrderDAO();
     private CustomerDAO customer = new CustomerDAO();
+    
+    public ArrayList<OrderDTO> getAllOrderVerify(){
+        return dao.getAllOrderVerify();
+    }
+    
+    public long getTotalSpentByCustomer(CustomerDTO cus){
+        return dao.getTotalSpentByCustomer(cus);
+    }
+    
+    public int getQuantityOrderForCus(CustomerDTO cus){
+        return dao.getQuantityOrderForCus(cus);
+    }
     
     public ArrayList<OrderDTO> getAllOrder() {
         return dao.getAllOrder();

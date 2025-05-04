@@ -1,66 +1,91 @@
 package GUI;
 
+import BUS.ProductBUS;
+import DTO.ProductDTO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import javax.swing.table.DefaultTableModel;
+import com.toedter.calendar.JDateChooser;
+import java.util.ArrayList;
 
 public class GUI_Product_Statistics extends JPanel {
 
     private JPanel topPanel, midPanel, botPanel;
     private CustomTable productStatsTable;
     private JComboBox<String> productFilterCombo;
-    private CustomButton filterButton, exportButton;
-    private JSpinner limitSpinner;
+    private CustomButton filterButton, exportButton, resetButton;
+    private DefaultTableModel tableModel;
+    private ProductBUS productBUS = new ProductBUS();
+    private JLabel totalProductLabel, totalRevenueLabel, totalSoldLabel;
+    private JDateChooser fromDateChooser, toDateChooser;
 
     public GUI_Product_Statistics() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(new EmptyBorder(10, 10, 10, 10));
         setBackground(new Color(200, 200, 200));
 
-        // ========== PANEL TRÊN CÙNG ==========
+        // ========== TOP PANEL ==========
         topPanel = new JPanel(new BorderLayout(10, 10));
-        topPanel.setPreferredSize(new Dimension(0, 60));
+        topPanel.setPreferredSize(new Dimension(0, 100)); // Tăng chiều cao để chứa date chooser
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         topPanel.setBackground(Color.WHITE);
 
-        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
         filterPanel.setOpaque(false);
 
-        // Combobox lọc loại sản phẩm
-        productFilterCombo = new CustomCombobox<>(new String[]{"Bán chạy", "Bán chậm", "Sắp hết hàng"});
+        // Date chooser
+        fromDateChooser = new JDateChooser();
+        fromDateChooser.setDateFormatString("dd/MM/yyyy");
+        fromDateChooser.setPreferredSize(new Dimension(120, 30));
+
+        toDateChooser = new JDateChooser();
+        toDateChooser.setDateFormatString("dd/MM/yyyy");
+        toDateChooser.setPreferredSize(new Dimension(120, 30));
+
+        // Combobox lọc
+        ArrayList<String> Cate = productBUS.getAllCategoryNames();
+        Cate.add(0,"Tất cả");
+        productFilterCombo = new JComboBox<>(Cate.toArray(new String[0]));
         productFilterCombo.setPreferredSize(new Dimension(150, 30));
 
-        filterButton = new CustomButton("Áp dụng");
-        filterButton.setPreferredSize(new Dimension(100, 30));
+        // Các nút chức năng
+        filterButton = new CustomButton("Lọc");
+        filterButton.setPreferredSize(new Dimension(80, 30));
 
-        filterPanel.add(new JLabel("Lọc theo:"));
+        resetButton = new CustomButton("Đặt lại");
+        resetButton.setPreferredSize(new Dimension(80, 30));
+
+        exportButton = new CustomButton("Xuất Excel");
+        exportButton.setPreferredSize(new Dimension(100, 30));
+
+        // Thêm components vào filter panel
+        filterPanel.add(new JLabel("Từ ngày:"));
+        filterPanel.add(fromDateChooser);
+        filterPanel.add(new JLabel("Đến ngày:"));
+        filterPanel.add(toDateChooser);
+        filterPanel.add(new JLabel("Loại:"));
         filterPanel.add(productFilterCombo);
         filterPanel.add(filterButton);
+        filterPanel.add(resetButton);
 
-        // Spinner để nhập số lượng cần hiển thị
-//       JTextField limitSpinner = new JTextField(20);
-//
-//        filterPanel.add(new JLabel("Hiển thị:"));
-//        filterPanel.add(limitSpinner);
-//        filterPanel.add(new JLabel("sản phẩm"));
-        
         topPanel.add(filterPanel, BorderLayout.CENTER);
-
-        exportButton = new CustomButton("Xuất báo cáo");
-        exportButton.setPreferredSize(new Dimension(150, 30));
         topPanel.add(exportButton, BorderLayout.EAST);
 
-        // ========== BẢNG HIỂN THỊ ==========
+        // ========== MID PANEL (Bảng thống kê) ==========
         midPanel = new JPanel(new BorderLayout());
         midPanel.setBackground(Color.WHITE);
 
         String[] columnNames = {"Mã SP", "Tên sản phẩm", "Số lượng bán", "Tồn kho", "Doanh thu"};
         productStatsTable = new CustomTable(columnNames);
-
+        tableModel = productStatsTable.getTableModel();
         JScrollPane scrollPane = new CustomScrollPane(productStatsTable);
         midPanel.add(scrollPane, BorderLayout.CENTER);
 
-        // ========== PANEL TỔNG HỢP ==========
+        // ========== BOTTOM PANEL (Tổng hợp) ==========
         botPanel = new JPanel(new GridBagLayout());
         botPanel.setBackground(Color.WHITE);
         botPanel.setBorder(BorderFactory.createTitledBorder("Tổng hợp"));
@@ -74,7 +99,7 @@ public class GUI_Product_Statistics extends JPanel {
         gbc.gridy = 0;
         botPanel.add(new JLabel("Tổng sản phẩm:"), gbc);
         gbc.gridx = 1;
-        JLabel totalProductLabel = new JLabel("0");
+        totalProductLabel = new JLabel("0");
         botPanel.add(totalProductLabel, gbc);
 
         // Tổng doanh thu
@@ -82,7 +107,7 @@ public class GUI_Product_Statistics extends JPanel {
         gbc.gridy = 1;
         botPanel.add(new JLabel("Tổng doanh thu:"), gbc);
         gbc.gridx = 1;
-        JLabel totalRevenueLabel = new JLabel("0 VND");
+        totalRevenueLabel = new JLabel("0 VND");
         botPanel.add(totalRevenueLabel, gbc);
 
         // Tổng số lượng đã bán
@@ -90,42 +115,97 @@ public class GUI_Product_Statistics extends JPanel {
         gbc.gridy = 2;
         botPanel.add(new JLabel("Tổng SL bán:"), gbc);
         gbc.gridx = 1;
-        JLabel totalSoldLabel = new JLabel("0");
+        totalSoldLabel = new JLabel("0");
         botPanel.add(totalSoldLabel, gbc);
 
-        // Thêm panel vào giao diện chính
+        // Thêm các panel vào giao diện chính
         add(topPanel);
         add(Box.createVerticalStrut(10));
         add(midPanel);
         add(Box.createVerticalStrut(10));
         add(botPanel);
 
-        // Load dữ liệu mẫu
-        loadSampleData();
+        // Load dữ liệu ban đầu
+        loadProductData();
+
+        // Xử lý sự kiện
+//        filterButton.addActionListener(e -> filterProducts());
+        resetButton.addActionListener(e -> resetFilters());
     }
 
-    private void loadSampleData() {
-        productStatsTable.clearTable();
+    private void loadProductData() {
+        tableModel.setRowCount(0); // Xóa dữ liệu cũ
+        
+        List<ProductDTO> products = productBUS.getAllProducts();
+        int totalSold = 0;
+        double totalRevenue = 0;
+        
+        for (ProductDTO product : products) {
+            tableModel.addRow(new Object[]{
+                product.getProductID(),
+                product.getProductName(),
+                product.getProductName(),
+                product.getProductName(),
+                product.getProductName()
+            });
+            
+//            totalSold += product.getSoldQuantity();
+//            totalRevenue += product.getRevenue();
+        }
+        
+        // Cập nhật tổng hợp
+//        updateSummary(products.size(), Utils.formatCurrency(totalRevenue), totalSold);
+    }
 
-        productStatsTable.addRow(new Object[]{"SP001", "Áo thun trắng", 120, 30, "24,000,000 VND"});
-        productStatsTable.addRow(new Object[]{"SP002", "Quần jean xanh", 85, 40, "17,000,000 VND"});
-        productStatsTable.addRow(new Object[]{"SP003", "Giày sneaker", 10, 90, "3,000,000 VND"});
+//    private void filterProducts() {
+//        Date fromDate = fromDateChooser.getDate();
+//        Date toDate = toDateChooser.getDate();
+//        String filterType = (String) productFilterCombo.getSelectedItem();
+//        
+//        // Validate dates
+//        if (fromDate != null && toDate != null && fromDate.after(toDate)) {
+//            JOptionPane.showMessageDialog(this, "Ngày bắt đầu phải trước ngày kết thúc", "Lỗi", JOptionPane.ERROR_MESSAGE);
+//            return;
+//        }
+//        
+//        // Format dates
+//        String fromStr = fromDate != null ? new SimpleDateFormat("yyyy-MM-dd").format(fromDate) : null;
+//        String toStr = toDate != null ? new SimpleDateFormat("yyyy-MM-dd").format(toDate) : null;
+//        
+//        // Filter logic (cần implement trong ProductBUS)
+//        List<ProductDTO> filteredProducts = productBUS.getFilteredProducts(filterType, fromStr, toStr);
+//        
+//        // Update table
+//        tableModel.setRowCount(0);
+//        int totalSold = 0;
+//        double totalRevenue = 0;
+//        
+//        for (ProductDTO product : filteredProducts) {
+//            tableModel.addRow(new Object[]{
+//                product.getProductID(),
+//                product.getProductName(),
+//                product.getSoldQuantity(),
+//                product.getStockQuantity(),
+//                Utils.formatCurrency(product.getRevenue())
+//            });
+//            
+//            totalSold += product.getSoldQuantity();
+//            totalRevenue += product.getRevenue();
+//        }
+//        
+//        updateSummary(filteredProducts.size(), Utils.formatCurrency(totalRevenue), totalSold);
+//    }
 
-        updateSummary(3, "44,000,000 VND", 215);
+    private void resetFilters() {
+        fromDateChooser.setDate(null);
+        toDateChooser.setDate(null);
+        productFilterCombo.setSelectedIndex(0);
+        loadProductData();
     }
 
     private void updateSummary(int totalProducts, String totalRevenue, int totalSold) {
-        for (Component comp : botPanel.getComponents()) {
-            if (comp instanceof JLabel label) {
-                if (label.getText().equals("0")) {
-                    label.setText(String.valueOf(totalProducts));
-                    totalProducts = -1; // tránh cập nhật label khác
-                } else if (label.getText().equals("0 VND")) {
-                    label.setText(totalRevenue);
-                } else if (label.getText().equals("0")) {
-                    label.setText(String.valueOf(totalSold));
-                }
-            }
-        }
+        totalProductLabel.setText(String.valueOf(totalProducts));
+        totalRevenueLabel.setText(totalRevenue);
+        totalSoldLabel.setText(String.valueOf(totalSold));
     }
 }

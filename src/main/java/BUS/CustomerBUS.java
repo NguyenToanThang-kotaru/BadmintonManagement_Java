@@ -2,12 +2,13 @@ package BUS;
 
 import DAO.CustomerDAO;
 import DTO.CustomerDTO;
+import java.util.ArrayList;
 
 import java.util.List;
 
 public class CustomerBUS {
 
-    public List<CustomerDTO> getAllCustomer() {
+    public ArrayList<CustomerDTO> getAllCustomer() {
         return CustomerDAO.getAllCustomer();
     }
 
