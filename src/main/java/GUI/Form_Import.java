@@ -127,17 +127,27 @@ public class Form_Import extends JDialog {
     }
 
     private void loadProductImage(String imageFileName) {
-        String imagePath = "images/" + (imageFileName != null && !imageFileName.isEmpty() ? imageFileName : "default_product.png");
-        File imageFile = new File(imagePath);
+        JLabel imageLabel = productDetailPanel.getLblProductImage();
         
-        if (imageFile.exists()) {
-            ImageIcon productIcon = new ImageIcon(imagePath);
-            Image img = productIcon.getImage().getScaledInstance(140, 140, Image.SCALE_SMOOTH);
-            productDetailPanel.getLblProductImage().setIcon(new ImageIcon(img));
-            productDetailPanel.getLblProductImage().setText("");
+        if (imageFileName != null && !imageFileName.isEmpty()) {
+            String imagePath = "images/" + imageFileName;
+            File imageFile = new File(imagePath);
+            
+            if (imageFile.exists()) {
+                ImageIcon productIcon = new ImageIcon(imagePath);
+                Image img = productIcon.getImage().getScaledInstance(140, 140, Image.SCALE_SMOOTH);
+                imageLabel.setIcon(new ImageIcon(img));
+                imageLabel.setText("");
+                System.out.println("Hình ảnh tồn tại: " + imagePath);
+            } else {
+                imageLabel.setIcon(null);
+                imageLabel.setText("Không có ảnh");
+                System.out.println("Hình ảnh không tồn tại: " + imagePath);
+            }
         } else {
-            productDetailPanel.getLblProductImage().setIcon(null);
-            productDetailPanel.getLblProductImage().setText("Không có ảnh");
+            imageLabel.setIcon(null);
+            imageLabel.setText("Không có ảnh");
+            System.out.println("Không có tên tệp ảnh hoặc tên rỗng");
         }
     }
 
