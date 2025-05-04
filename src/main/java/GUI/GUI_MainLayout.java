@@ -108,5 +108,4 @@ public class GUI_MainLayout extends JFrame {
         add(Sidebar, BorderLayout.WEST);
         add(contentPanel, BorderLayout.CENTER);
     }
-
-}
+}   
