@@ -194,6 +194,11 @@ public class Form_Import extends JDialog {
                 JOptionPane.showMessageDialog(this, "Lưu phiếu nhập thành công", "Thành công", JOptionPane.INFORMATION_MESSAGE);
                 parentImportPanel.loadImport();
                 loadAllProducts();
+                // Cập nhật danh sách sản phẩm trong GUI_Product
+                GUI_Product productPanel = GUI_Product.getInstance();
+                if (productPanel != null) {
+                    productPanel.loadProductData();
+                }
                 resetForm();
             } else {
                 JOptionPane.showMessageDialog(this, "Lỗi khi lưu phiếu nhập", "Lỗi", JOptionPane.ERROR_MESSAGE);
