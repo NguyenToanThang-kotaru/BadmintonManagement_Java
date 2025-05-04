@@ -4,6 +4,7 @@
  */
 package DAO;
 
+
 import BUS.CustomerBUS;
 import Connection.DatabaseConnection;
 import DTO.CustomerDTO;
@@ -12,6 +13,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.sql.ResultSet;
+
 
 /**
  *
@@ -62,5 +64,6 @@ public class StatistiscDAO {
             e.printStackTrace();
         }
         return orders;
+
     }
 }

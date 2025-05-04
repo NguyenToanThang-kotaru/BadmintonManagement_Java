@@ -5,6 +5,8 @@ import DAO.SuppliersDAO;
 import DTO.ProductDTO;
 import DTO.SuppliersDTO;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,6 +14,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Cell;
+
 import Connection.DatabaseConnection;
 
 public class SuppliersBUS {
@@ -107,4 +118,50 @@ public class SuppliersBUS {
       public static ArrayList<String> getAllNCCNames() {
           return SuppliersDAO.getAllNCCNames();
       }
+      public boolean exportToExcel(String filePath) {
+    Workbook workbook = new XSSFWorkbook();
+    Sheet sheet = workbook.createSheet("Danh sách nhà cung cấp");
+
+    try {
+        Row headerRow = sheet.createRow(0);
+        String[] columns = {"Mã NCC", "Tên NCC", "Địa chỉ", "SĐT"};
+        for (int i = 0; i < columns.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(columns[i]);
+            CellStyle headerStyle = workbook.createCellStyle();
+            Font font = workbook.createFont();
+            font.setBold(true);
+            headerStyle.setFont(font);
+            cell.setCellStyle(headerStyle);
+        }
+
+        List<SuppliersDTO> suppliers = getAllSuppliers();
+        int rowNum = 1;
+        for (SuppliersDTO s : suppliers) {
+            Row row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(s.getsuppliersID());
+            row.createCell(1).setCellValue(s.getfullname());
+            row.createCell(2).setCellValue(s.getaddress());
+            row.createCell(3).setCellValue(s.getphone());
+        }
+
+        for (int i = 0; i < columns.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
+            workbook.write(fileOut);
+            return true;
+        }
+    } catch (IOException ex) {
+        ex.printStackTrace();
+        return false;
+    } finally {
+        try {
+            workbook.close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+}
 }
