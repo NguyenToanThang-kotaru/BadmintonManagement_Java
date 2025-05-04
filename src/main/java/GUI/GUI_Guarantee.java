@@ -3,6 +3,7 @@ package GUI;
 import BUS.ActionBUS;
 import DAO.GuaranteeDAO;
 import DTO.GuaranteeDTO;
+import BUS.GuaranteeBUS;
 
 import BUS.GuaranteeBUS;
 import DTO.AccountDTO;
@@ -150,6 +151,12 @@ public class GUI_Guarantee extends JPanel {
             fixForm.setVisible(true);
         });
 
+        searchField.setSearchListener(e -> {
+            String keyword = searchField.getText();
+            ArrayList<GuaranteeDTO> ketQua = GuaranteeBUS.searchGuarantees(keyword);
+            capNhatBangBaoHanh(ketQua); // Hiển thị kết quả tìm được trên bảng
+        });
+
         reloadButton.addActionListener(e -> {
             loadGuaranteeData();
             tableModel.fireTableDataChanged();
@@ -188,6 +195,18 @@ public class GUI_Guarantee extends JPanel {
             });
         }
 
+    }
+
+    private void capNhatBangBaoHanh(ArrayList<GuaranteeDTO> guarantees) {
+        tableModel.setRowCount(0); // Xóa dữ liệu cũ
+        for (GuaranteeDTO guarantee : guarantees) {
+            tableModel.addRow(new Object[]{
+                guarantee.getBaohanhID(),
+                guarantee.getSerialID(),
+                guarantee.getLydo(),
+                guarantee.gettrangthai()
+            });
+        }
     }
 //
 
