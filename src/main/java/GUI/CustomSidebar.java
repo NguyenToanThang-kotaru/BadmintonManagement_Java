@@ -24,7 +24,7 @@ public class CustomSidebar extends JPanel {
 
     public CustomScrollPane scrollPane;
 
-    public CustomSidebar(JFrame login, JFrame Main_Layout, List<String> userFunctions) {
+    public CustomSidebar(JFrame login, JFrame Main_Layout, ArrayList<String> functions) {
         setLayout(new BorderLayout());
         setBackground(Color.LIGHT_GRAY);
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -42,54 +42,63 @@ public class CustomSidebar extends JPanel {
 
         // ====== Danh sách menu từ ArrayList ======
         menuItems = new ArrayList<String>();
-
+//        menuItems.add("Thống Kê");
+//        menuItems.add("Sản Phẩm");
+//        menuItems.add("Tài Khoản");
+//        menuItems.add("Nhà Cung Cấp");
+//        menuItems.add("Đơn Hàng");
+//        menuItems.add("Nhân Viên");
+//        menuItems.add("Hóa Đơn Nhập");
+//        menuItems.add("Khách Hàng");
+//        menuItems.add("Bảo Hành");
+//        menuItems.add("Phân Quyền");
 // Kiểm tra và thêm từng mục dựa trên userFunctions
-        for (String funcCode : userFunctions) {
+        for (String funcCode : functions) {
             switch (funcCode) {
-                case"thongke":
-                        menuItems.add("Thống Kê");
+                case "Quản lý thống kê":
+                    menuItems.add("Thống Kê");
                     break;
-                case "sp":
+                case "Quản lý sản phẩm":
                     if (!menuItems.contains("Sản Phẩm")) {
                         menuItems.add("Sản Phẩm");
                     }
                     break;
-                case "tk":
+                case "Quản lý tài khoản":
                     if (!menuItems.contains("Tài Khoản")) {
                         menuItems.add("Tài Khoản");
                     }
                     break;
-                case "ncc":
+                case "Quản lý nhà cung cấp":
                     if (!menuItems.contains("Nhà Cung Cấp")) {
                         menuItems.add("Nhà Cung Cấp");
                     }
                     break;
-                case "hd":
+                case "Quản lý đơn hàng":
                     if (!menuItems.contains("Đơn Hàng")) {
                         menuItems.add("Đơn Hàng");
                     }
                     break;
-                case "nv":
+                case "Quản lý nhân viên":
                     if (!menuItems.contains("Nhân Viên")) {
                         menuItems.add("Nhân Viên");
                     }
                     break;
-                case "hdn":
+                case "Quản lý hóa đơn nhập":
                     if (!menuItems.contains("Hóa Đơn Nhập")) {
                         menuItems.add("Hóa Đơn Nhập");
                     }
                     break;
-                case "kh":
+                case "Quản lý khách hàng":
                     if (!menuItems.contains("Khách Hàng")) {
                         menuItems.add("Khách Hàng");
                     }
                     break;
-                case "bh":
+                case "Quản lý bảo hành":
                     if (!menuItems.contains("Bảo Hành")) {
                         menuItems.add("Bảo Hành");
                     }
                     break;
-                case "quyen":
+                case "Quản lý phân quyền":
                     if (!menuItems.contains("Phân Quyền")) {
                         menuItems.add("Phân Quyền");
                     }

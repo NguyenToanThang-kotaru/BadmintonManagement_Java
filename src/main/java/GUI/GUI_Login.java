@@ -105,7 +105,8 @@ public class GUI_Login extends JFrame {
 
         userField.addActionListener(e -> checkLogin(userField, passField));
         passField.addActionListener(e -> checkLogin(userField, passField));
-
+        userField.setText("NV001");
+        passField.setText("123456");
         rightPanel.add(loginButton);
         add(tittleBar, BorderLayout.NORTH);
         mainPanel.add(leftPanel);

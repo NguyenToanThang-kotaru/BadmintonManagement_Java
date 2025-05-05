@@ -8,6 +8,7 @@ public class OrderDTO {
     private String totalmoney;
     private String issuedate;
     private String totalprofit;
+    private boolean is_deleted;
     
     public OrderDTO() {
         this.orderID = "";
@@ -16,15 +17,17 @@ public class OrderDTO {
         this.totalmoney = "";
         this.issuedate = "";
         this.totalprofit = "";
+        this.is_deleted = false;
     }
     
-    public OrderDTO(String orderID, String employeeID, String customerID, String totalmoney, String issuedate, String totalprofit) {
+    public OrderDTO(String orderID, String employeeID, String customerID, String totalmoney, String issuedate, String totalprofit, boolean is_deleted) {
         this.orderID = orderID;
         this.employeeID = employeeID;
         this.customerID = customerID;
         this.totalmoney = totalmoney;
         this.issuedate = issuedate;
         this.totalprofit = totalprofit;
+        this.is_deleted = is_deleted;
     }
     
     public String getorderID() {
@@ -73,5 +76,13 @@ public class OrderDTO {
     
     public void settotalprofit(String totalprofit) {
         this.totalprofit = totalprofit;
+    }
+    
+    public boolean getis_deleted() {
+        return is_deleted;
+    }
+    
+    public void setis_deleted(boolean is_deleted) {
+        this.is_deleted = is_deleted;
     }
 }

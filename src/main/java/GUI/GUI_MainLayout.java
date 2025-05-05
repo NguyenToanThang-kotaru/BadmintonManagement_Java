@@ -3,10 +3,12 @@ package GUI;
 import BUS.PermissionBUS;
 import DAO.AccountDAO;
 import DTO.AccountDTO;
+import DTO.FunctionDTO;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GUI_MainLayout extends JFrame {
@@ -16,12 +18,16 @@ public class GUI_MainLayout extends JFrame {
 
     public GUI_MainLayout(JFrame login, String username, String password) {
         AccountDTO logned = AccountDAO.getAccount(username, password);
-        List<String> permissions = PermissionBUS.convertName(logned.getPermission().getChucNang());
-//        System.out.println((logned.getPermission().getChucNang()));
+        ArrayList<String> Functions = new ArrayList<>();
+
+        for (FunctionDTO a : logned.getPermission().getFunction()) {
+            Functions.add(a.getName());
+        }
+
         setTitle("Quản Lý Kho Hàng");
-        setSize(1000, 600);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);    
+        setLocationRelativeTo(null);
         setLayout(new BorderLayout(0, 0));
         setUndecorated(true);
 
@@ -29,42 +35,34 @@ public class GUI_MainLayout extends JFrame {
         tittleBar = new CustomTittleBar(this);
         System.out.println();
         // ================================ CustomSidebar ================================
-        Sidebar = new CustomSidebar(login, this,PermissionBUS.getModule(permissions));
+        Sidebar = new CustomSidebar(login, this, Functions);
 
         // ================================ Content ================================
         JPanel contentPanel = new JPanel(new BorderLayout());
 
-        Sidebar.statisticsPanel = new JPanel();
-        Sidebar.statisticsPanel.setBackground(Color.CYAN);
-        Sidebar.statisticsPanel.add(new JLabel("Thống kê doanh thu"));
+        Sidebar.statisticsPanel = new GUI_Statistics();
 
         Sidebar.promotionPanel = new JPanel();
         Sidebar.promotionPanel.setBackground(Color.BLUE);
         Sidebar.promotionPanel.add(new JLabel("Khuyến mãi"));
 
-        Sidebar.customerPanel = new JPanel();
-        Sidebar.customerPanel.setBackground(Color.RED);
-        Sidebar.customerPanel.add(new JLabel("Khách hàng"));
-        
-        Sidebar.importPanel = new GUI_Import();
+        Sidebar.accountPanel = new GUI_Account();
 
-        Sidebar.employeePanel = new GUI_Employee(permissions);
-
-        Sidebar.accountPanel = new GUI_Account(permissions);
-
-        Sidebar.repairPanel = new GUI_Guarantee(permissions);
-
-        Sidebar.customerPanel = new GUI_Customer();
-
-        Sidebar.productPanel = new GUI_Product();
-        
-        Sidebar.orderPanel = new GUI_Order(logned, permissions);
-        
         Sidebar.supplierPanel = new GUI_Suppliers();
-        
-        Sidebar.importPanel = new GUI_Import();
-        
-        Sidebar.rolePanel = new GUI_Permission(permissions);
+
+        Sidebar.customerPanel = new GUI_Customer(logned);
+
+        Sidebar.productPanel = new GUI_Product(logned);
+
+        Sidebar.orderPanel = new GUI_Order(logned);
+
+        Sidebar.repairPanel = new GUI_Guarantee(logned);
+
+        Sidebar.importPanel = new GUI_Import(logned);
+
+        Sidebar.employeePanel = new GUI_Employee(logned);
+
+        Sidebar.rolePanel = new GUI_Permission(logned);
         for (Component comp : Sidebar.panel2.getComponents()) {
             if (comp instanceof JLabel menuLabel) {
                 menuLabel.addMouseListener(new MouseAdapter() {
@@ -88,7 +86,7 @@ public class GUI_MainLayout extends JFrame {
                             case "Khuyến Mãi" ->
                                 contentPanel.add(Sidebar.promotionPanel, BorderLayout.CENTER);
                             case "Khách Hàng" ->
-                                contentPanel.add(Sidebar.customerPanel  , BorderLayout.CENTER);
+                                contentPanel.add(Sidebar.customerPanel, BorderLayout.CENTER);
                             case "Tài Khoản" ->
                                 contentPanel.add(Sidebar.accountPanel, BorderLayout.CENTER);
                             case "Bảo Hành" ->

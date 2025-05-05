@@ -3,7 +3,9 @@ package GUI;
 import DTO.AccountDTO;
 import BUS.AccountBUS;
 import DAO.AccountDAO;
+import DAO.Permission2DAO;
 import DAO.PermissionDAO;
+import DTO.Permission2DTO;
 import DTO.PermissionDTO;
 
 import javax.swing.*;
@@ -26,7 +28,7 @@ public class GUI_Account extends JPanel {
     private AccountDTO accountChoosing;
     private AccountDAO AccountDAO;
 
-    public GUI_Account(List<String> a) {
+    public GUI_Account() {
         accountBUS = new AccountBUS(); // Khởi tạo đối tượng BUS để lấy dữ liệu tài khoản
 //        System.out.println(a);
         // Cấu hình layout chính
@@ -41,21 +43,16 @@ public class GUI_Account extends JPanel {
         topPanel.setBackground(Color.WHITE);
 
         reloadButton = new CustomButton("Tải lại trang");
-        if (a.contains("xem_tk")) {
             topPanel.add(reloadButton, BorderLayout.WEST);
-        }
+        
 
         searchField = new CustomSearch(275, 20); // Ô nhập tìm kiếm
         searchField.setBackground(Color.WHITE);
         topPanel.add(searchField, BorderLayout.CENTER);
 
         addButton = new CustomButton("+ Thêm Tài Khoản"); // Nút thêm tài khoản
-        if (a.contains("them_tk")) {
-            topPanel.add(addButton, BorderLayout.EAST);
-//            System.out.println("Co them tai khoan");
-        } else {
-            System.out.println("Khong co them tk");
-        }
+        topPanel.add(addButton, BorderLayout.EAST);
+//            System.out.println("Co them tai khoan");\
 
         // ========== BẢNG HIỂN THỊ DANH SÁCH TÀI KHOẢN ==========
         midPanel = new JPanel(new BorderLayout());
@@ -113,16 +110,12 @@ public class GUI_Account extends JPanel {
         // Nút xóa (căn trái)
         deleteButton = new CustomButton("Xoá");
         deleteButton.setCustomColor(new Color(220, 0, 0));
-        if (a.contains("xoa_tk")) {
-            buttonPanel.add(deleteButton, BorderLayout.WEST);
-        }
+        buttonPanel.add(deleteButton, BorderLayout.WEST);
 
         // Nút sửa (căn phải)
         editButton = new CustomButton("Sửa");
         editButton.setCustomColor(new Color(0, 230, 0));
-        if (a.contains("sua_tk")) {
-            buttonPanel.add(editButton, BorderLayout.EAST);
-        }
+        buttonPanel.add(editButton, BorderLayout.EAST);
 
         // Thêm panel vào `botPanel`
         gbc.gridx = 0;
@@ -140,7 +133,7 @@ public class GUI_Account extends JPanel {
                 String taikhoan = (String) accountTable.getValueAt(selectedRow, 2);
                 String matkhau = (String) accountTable.getValueAt(selectedRow, 3);
                 String quyen = (String) accountTable.getValueAt(selectedRow, 4);
-                PermissionDTO temp = PermissionDAO.getPermissionByName(quyen);
+                Permission2DTO temp = Permission2DAO.getPermissionByName(quyen);
                 accountChoosing = new AccountDTO(taikhoan, matkhau, tenNhanVien, temp);
                 // Hiển thị dữ liệu trên giao diện
                 employeeLabel.setText(tenNhanVien);
@@ -160,9 +153,7 @@ public class GUI_Account extends JPanel {
         add(botPanel);
 
         // Tải dữ liệu tài khoản lên bảng
-        if (a.contains("xem_tk")) {
-            loadAccounts();
-        }
+        loadAccounts();
 
         addButton.addActionListener(e -> {
 //            JOptionPane.showMessageDialog(this, "Chức năng thêm nhân viên chưa được triển khai!");
@@ -180,8 +171,11 @@ public class GUI_Account extends JPanel {
         });
 
         deleteButton.addActionListener(e -> {
-            AccountDAO.deleteAccount(accountChoosing.getUsername());
-            loadAccounts();
+            if (helped.confirmDelete("Bạn có chắc muốn xóa tài khoản này?")) {
+                AccountDAO.deleteAccount(accountChoosing.getUsername());
+                loadAccounts();
+            }
+
         });
 
         searchField.setSearchListener(e -> {
@@ -193,7 +187,7 @@ public class GUI_Account extends JPanel {
     }
 
     // Phương thức tải danh sách tài khoản từ database lên bảng
-    private void loadAccounts() {
+    public void loadAccounts() {
         List<AccountDTO> accounts = AccountDAO.getAllAccounts(); // Lấy danh sách tài khoản
         tableModel.setRowCount(0); // Xóa dữ liệu cũ trước khi cập nhật
         int index = 1;
@@ -205,18 +199,18 @@ public class GUI_Account extends JPanel {
     }
 
     private void capNhatBangTaiKhoan(List<AccountDTO> accounts) {
-    tableModel.setRowCount(0); // Xóa dữ liệu cũ
-    int index = 1;
-    for (AccountDTO acc : accounts) {
-        tableModel.addRow(new Object[]{
-            index++,
-            acc.getFullname(),
-            acc.getUsername(),
-            acc.getPassword(),
-            acc.getPermission().getName()
-        });
+        tableModel.setRowCount(0); // Xóa dữ liệu cũ
+        int index = 1;
+        for (AccountDTO acc : accounts) {
+            tableModel.addRow(new Object[]{
+                index++,
+                acc.getFullname(),
+                acc.getUsername(),
+                acc.getPassword(),
+                acc.getPermission().getName()
+            });
+        }
     }
-}
 
 //    public static void main(String[] args) {
 //        SwingUtilities.invokeLater(() -> {
