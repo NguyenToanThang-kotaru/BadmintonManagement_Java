@@ -26,11 +26,9 @@ public class GUI_Import extends JPanel {
     private final JLabel totalMoneyLabel;
     private final JLabel receiptDateLabel;
     private ImportDTO selectedImport;
-    private GUI_Product product;
 
-    public GUI_Import(AccountDTO a, GUI_Product product) {
+    public GUI_Import(AccountDTO a) {
         this.importBUS = new ImportBUS();
-        this.product = product;
         String currentUsername = GUI_Login.getCurrentUsername();
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
