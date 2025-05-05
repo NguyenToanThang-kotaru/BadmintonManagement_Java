@@ -150,12 +150,15 @@ public class GuaranteeDAO {
     public static ArrayList<GuaranteeDTO> searchGuarantees(String keyword) {
         ArrayList<GuaranteeDTO> guarantees = new ArrayList<>();
 
-        String query = "SELECT * FROM bao_hanh WHERE ma_bao_hanh LIKE ? OR ma_serial LIKE ?";
+        String query = "SELECT * FROM bao_hanh WHERE ma_bao_hanh LIKE ? OR ma_serial LIKE ? OR ly_do_bao_hanh LIKE ? OR thoi_gian_bao_hanh LIKE ? OR trang_thai LIKE ?";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
             String searchKeyword = "%" + keyword + "%";
             stmt.setString(1, searchKeyword);
             stmt.setString(2, searchKeyword);
+            stmt.setString(3, searchKeyword);
+            stmt.setString(4, searchKeyword);
+            stmt.setString(5, searchKeyword);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {

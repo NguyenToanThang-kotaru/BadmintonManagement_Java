@@ -204,6 +204,7 @@ public class GUI_Guarantee extends JPanel {
                 guarantee.getBaohanhID(),
                 guarantee.getSerialID(),
                 guarantee.getLydo(),
+                guarantee.getTGBH(),
                 guarantee.gettrangthai()
             });
         }
