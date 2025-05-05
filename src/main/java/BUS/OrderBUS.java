@@ -7,6 +7,10 @@ import java.util.ArrayList;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -14,6 +18,9 @@ import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import Connection.DatabaseConnection;
+
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Cell;
 
@@ -57,53 +64,52 @@ public class OrderBUS {
     public void getOrder(String mahd) {
         dao.getOrder(mahd);
     }
-    public boolean exportToExcel(String filePath) {
-    Workbook workbook = new XSSFWorkbook();
-    Sheet sheet = workbook.createSheet("Danh sách hóa đơn");
 
-    try {
+
+
+    public boolean exportToExcel(String filePath) {
+    try (Connection conn = DatabaseConnection.getConnection();
+         Workbook workbook = new XSSFWorkbook()) {
+        Sheet sheet = workbook.createSheet("DanhSachHoaDon");
+        
+        // Tạo dòng tiêu đề
         Row headerRow = sheet.createRow(0);
-        String[] columns = {"Mã HĐ", "Mã NV", "Mã KH", "Tổng Tiền", "Ngày Xuất", "Tổng Lợi Nhuận", "Trạng Thái"};
+        String[] columns = {"ma_hoa_don", "ma_nhan_vien", "ma_khach_hang", "tong_tien", "ngay_xuat", "is_deleted", "tong_loi_nhuan"};
         for (int i = 0; i < columns.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(columns[i]);
-            CellStyle headerStyle = workbook.createCellStyle();
-            Font font = workbook.createFont();
-            font.setBold(true);
-            headerStyle.setFont(font);
-            cell.setCellStyle(headerStyle);
         }
 
-        List<OrderDTO> orders = getAllOrder();
+        // Lấy dữ liệu từ database
+        String sql = "SELECT * FROM hoa_don";
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        ResultSet rs = stmt.executeQuery();
+        
         int rowNum = 1;
-        for (OrderDTO o : orders) {
+        while (rs.next()) {
             Row row = sheet.createRow(rowNum++);
-            row.createCell(0).setCellValue(o.getorderID());
-            row.createCell(1).setCellValue(o.getemployeeID());
-            row.createCell(2).setCellValue(o.getcustomerID());
-            row.createCell(3).setCellValue(o.gettotalmoney());
-            row.createCell(4).setCellValue(o.getissuedate());
-            row.createCell(5).setCellValue(o.gettotalprofit());
-            row.createCell(6).setCellValue(o.getis_deleted() ? "Đã hủy" : "Đã hoàn thành");
+            row.createCell(0).setCellValue(rs.getString("ma_hoa_don"));
+            row.createCell(1).setCellValue(rs.getString("ma_nhan_vien"));
+            row.createCell(2).setCellValue(rs.getString("ma_khach_hang"));
+            row.createCell(3).setCellValue(rs.getInt("tong_tien"));
+            row.createCell(4).setCellValue(rs.getString("ngay_xuat"));
+            row.createCell(5).setCellValue(rs.getInt("is_deleted"));
+            row.createCell(6).setCellValue(rs.getInt("tong_loi_nhuan"));
         }
 
+        // Tự động điều chỉnh kích thước cột
         for (int i = 0; i < columns.length; i++) {
             sheet.autoSizeColumn(i);
         }
 
+        // Ghi vào file
         try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
             workbook.write(fileOut);
-            return true;
         }
-    } catch (IOException ex) {
-        ex.printStackTrace();
+        return true;
+    } catch (SQLException | IOException e) {
+        e.printStackTrace();
         return false;
-    } finally {
-        try {
-            workbook.close();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
     }
 }
 }

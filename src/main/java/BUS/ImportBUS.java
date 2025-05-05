@@ -60,50 +60,49 @@ public class ImportBUS {
         }
         return total;
     }
+    
+    
     public boolean exportToExcel(String filePath) {
-    Workbook workbook = new XSSFWorkbook();
-    Sheet sheet = workbook.createSheet("Danh sách phiếu nhập");
-
-    try {
-        Row headerRow = sheet.createRow(0);
-        String[] columns = {"Mã PN", "Mã NV", "Tổng Tiền", "Ngày Nhập"};
-        for (int i = 0; i < columns.length; i++) {
-            Cell cell = headerRow.createCell(i);
-            cell.setCellValue(columns[i]);
-            CellStyle headerStyle = workbook.createCellStyle();
-            Font font = workbook.createFont();
-            font.setBold(true);
-            headerStyle.setFont(font);
-            cell.setCellStyle(headerStyle);
-        }
-
-        List<ImportDTO> imports = getAllImport();
-        int rowNum = 1;
-        for (ImportDTO imp : imports) {
-            Row row = sheet.createRow(rowNum++);
-            row.createCell(0).setCellValue(imp.getimportID());
-            row.createCell(1).setCellValue(imp.getemployeeID());
-            row.createCell(2).setCellValue(calculateImportTotal(imp.getimportID()));
-            row.createCell(3).setCellValue(imp.getreceiptdate());
-        }
-
-        for (int i = 0; i < columns.length; i++) {
-            sheet.autoSizeColumn(i);
-        }
-
-        try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
-            workbook.write(fileOut);
+        try (Connection conn = DatabaseConnection.getConnection();
+             Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("DanhSachPhieuNhap");
+            
+            // Tạo dòng tiêu đề
+            Row headerRow = sheet.createRow(0);
+            String[] columns = {"ma_nhap_hang", "ma_nhan_vien", "tong_tien", "ngay_nhap", "is_deleted"};
+            for (int i = 0; i < columns.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(columns[i]);
+            }
+    
+            // Lấy dữ liệu từ database
+            String sql = "SELECT * FROM nhap_hang";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
+            
+            int rowNum = 1;
+            while (rs.next()) {
+                Row row = sheet.createRow(rowNum++);
+                row.createCell(0).setCellValue(rs.getString("ma_nhap_hang"));
+                row.createCell(1).setCellValue(rs.getString("ma_nhan_vien"));
+                row.createCell(2).setCellValue(rs.getInt("tong_tien"));
+                row.createCell(3).setCellValue(rs.getString("ngay_nhap"));
+                row.createCell(4).setCellValue(rs.getInt("is_deleted"));
+            }
+    
+            // Tự động điều chỉnh kích thước cột
+            for (int i = 0; i < columns.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+    
+            // Ghi vào file
+            try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
+                workbook.write(fileOut);
+            }
             return true;
-        }
-    } catch (IOException ex) {
-        ex.printStackTrace();
-        return false;
-    } finally {
-        try {
-            workbook.close();
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 }
-}   

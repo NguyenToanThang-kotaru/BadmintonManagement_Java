@@ -19,7 +19,7 @@ public class GUI_Customer extends JPanel {
     private JPanel topPanel, midPanel, botPanel;
     private JTable customerTable;
     private DefaultTableModel tableModel;
-    private CustomButton editButton, deleteButton, addButton;
+    private CustomButton editButton, deleteButton, addButton, importExcelButton;
     private CustomSearch searchField;
     private CustomScrollPane scroll;
     private CustomerBUS customerBUS;
@@ -32,7 +32,7 @@ public class GUI_Customer extends JPanel {
         setBorder(new EmptyBorder(10, 10, 10, 10));
         setBackground(new Color(200, 200, 200));
 
-        // ========== PANEL TRÊN CÙNG (Thanh tìm kiếm & nút thêm) ==========
+        // ========== PANEL TRÊN CÙNG (Thanh tìm kiếm & các nút) ==========
         topPanel = new JPanel(new BorderLayout(10, 10));
         topPanel.setPreferredSize(new Dimension(0, 60));
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -42,9 +42,18 @@ public class GUI_Customer extends JPanel {
         searchField.setBackground(Color.WHITE);
         topPanel.add(searchField, BorderLayout.CENTER);
 
+        JPanel buttonPanelTop = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        buttonPanelTop.setOpaque(false);
+
+        importExcelButton = new CustomButton("Nhập Excel");
+        importExcelButton.setPreferredSize(new Dimension(120, 30));
+        buttonPanelTop.add(importExcelButton);
+
         CustomButton exportExcelButton = new CustomButton("Xuất Excel");
         exportExcelButton.setPreferredSize(new Dimension(120, 30));
-        topPanel.add(exportExcelButton, BorderLayout.WEST);
+        buttonPanelTop.add(exportExcelButton);
+
+        topPanel.add(buttonPanelTop, BorderLayout.WEST);
 
         addButton = new CustomButton("+ Thêm Khách Hàng"); // Nút thêm khách hàng 
         topPanel.add(addButton, BorderLayout.EAST);
@@ -92,6 +101,7 @@ public class GUI_Customer extends JPanel {
         gbc.gridx = 1;
         JLabel phoneLabel = new JLabel("");
         botPanel.add(phoneLabel, gbc);
+
         // ========== PANEL BUTTON ==========
         JPanel buttonPanel = new JPanel(new BorderLayout());
         buttonPanel.setOpaque(false);
@@ -103,11 +113,6 @@ public class GUI_Customer extends JPanel {
         editButton = new CustomButton("Sửa");
         editButton.setCustomColor(new Color(0, 230, 0));
         buttonPanel.add(editButton, BorderLayout.EAST);
-
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
 
         customerTable.getSelectionModel().addListSelectionListener(e -> {
             int selectedRow = customerTable.getSelectedRow();
@@ -124,6 +129,31 @@ public class GUI_Customer extends JPanel {
             }
         });
         
+        importExcelButton.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Chọn file Excel để nhập");
+            fileChooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
+                public boolean accept(File f) {
+                    return f.getName().toLowerCase().endsWith(".xlsx") || f.isDirectory();
+                }
+                public String getDescription() {
+                    return "Excel Files (*.xlsx)";
+                }
+            });
+            int userSelection = fileChooser.showOpenDialog(this);
+        
+            if (userSelection == JFileChooser.APPROVE_OPTION) {
+                File fileToImport = fileChooser.getSelectedFile();
+                boolean success = customerBUS.importCustomersFromExcel(fileToImport);
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Nhập file Excel thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                    loadCustomer();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Lỗi khi nhập file Excel!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
         exportExcelButton.addActionListener(e -> {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setDialogTitle("Chọn nơi lưu file Excel");
@@ -152,7 +182,6 @@ public class GUI_Customer extends JPanel {
         loadCustomer();
 
         addButton.addActionListener(e -> {
-//            
             Form_Customer GFC = new Form_Customer(this, null);
             GFC.setVisible(true);
         });
@@ -164,18 +193,18 @@ public class GUI_Customer extends JPanel {
 
         deleteButton.addActionListener(e -> {
             int selectedRow = customerTable.getSelectedRow();
-
-            String customerID = (String) customerTable.getValueAt(selectedRow, 0);
-
-            int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn xóa khách hàng này?", "Xác nhận xóa", JOptionPane.YES_NO_OPTION);
-            if (confirm == JOptionPane.YES_OPTION) {
-                if (customerBUS.deleteCustomer(customerID)) {
-                    JOptionPane.showMessageDialog(this, "Xóa thành công!");
-                    loadCustomer();
-                } else {
-                    JOptionPane.showMessageDialog(this, "Xóa thất bại, vui lòng thử lại!");
+            if (selectedRow != -1) {
+                String customerID = (String) customerTable.getValueAt(selectedRow, 1);
+                int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn xóa khách hàng này?", "Xác nhận xóa", JOptionPane.YES_NO_OPTION);
+                if (confirm == JOptionPane.YES_OPTION) {
+                    if (customerBUS.deleteCustomer(customerID)) {
+                        JOptionPane.showMessageDialog(this, "Xóa thành công!");
+                        loadCustomer();
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Xóa thất bại, vui lòng thử lại!");
+                    }
+                    System.out.println("Đã xóa khách hàng");
                 }
-                System.out.println("Da xo customer");
             }
         });
 
@@ -187,21 +216,17 @@ public class GUI_Customer extends JPanel {
                 loadCustomer(); // Nếu ô tìm kiếm trống, load lại toàn bộ khách hàng
             }
         });
-        ArrayList<ActionDTO> actions = ActionBUS.getPermissionActions(a, "Quản lý khách hàng");
 
+        ArrayList<ActionDTO> actions = ActionBUS.getPermissionActions(a, "Quản lý khách hàng");
         boolean canAdd = false, canEdit = false, canDelete = false, canWatch = false;
 
         if (actions != null) {
             for (ActionDTO action : actions) {
                 switch (action.getName()) {
-                    case "Thêm" ->
-                        canAdd = true;
-                    case "Sửa" ->
-                        canEdit = true;
-                    case "Xóa" ->
-                        canDelete = true;
-                    case "Xem" ->
-                        canWatch = true;
+                    case "Thêm" -> canAdd = true;
+                    case "Sửa" -> canEdit = true;
+                    case "Xóa" -> canDelete = true;
+                    case "Xem" -> canWatch = true;
                 }
             }
         }
@@ -210,9 +235,10 @@ public class GUI_Customer extends JPanel {
         editButton.setVisible(canEdit);
         deleteButton.setVisible(canDelete);
         scroll.setVisible(canWatch);
+        importExcelButton.setVisible(canAdd); // Quyền nhập Excel tương ứng với quyền Thêm
     }
 
-    private void loadCustomer() {
+    public void loadCustomer() {
         List<CustomerDTO> customer = customerBUS.getAllCustomer();
         tableModel.setRowCount(0);
         int index = 1;
@@ -224,8 +250,9 @@ public class GUI_Customer extends JPanel {
     private void searchCustomer(String keyword) {
         List<CustomerDTO> customers = customerBUS.searchCustomer(keyword);
         tableModel.setRowCount(0);
+        int index = 1;
         for (CustomerDTO ctm : customers) {
-            tableModel.addRow(new Object[]{ctm.getcustomerID(), ctm.getFullName(), ctm.getPhone()});
+            tableModel.addRow(new Object[]{index++, ctm.getcustomerID(), ctm.getFullName(), ctm.getPhone()});
         }
     }
 }

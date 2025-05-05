@@ -25,8 +25,14 @@ public class GUI_Product extends JPanel {
     private CustomButton fixButton, saveButton, deleteButton, addButton, ShowSEButton, reloadButton;
     private CustomSearch searchField;
     private ProductDTO productChoosing;
+    private static GUI_Product instance;
+    
+    public static GUI_Product getInstance() {
+        return instance;
+    }
 
     public GUI_Product(AccountDTO a) {
+        instance = this;
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(new EmptyBorder(10, 10, 10, 10));
         setBackground(new Color(200, 200, 200));

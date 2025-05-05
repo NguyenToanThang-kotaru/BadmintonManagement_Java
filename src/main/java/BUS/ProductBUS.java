@@ -6,6 +6,10 @@ import DTO.ProductDTO;
 import java.util.List;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
@@ -15,6 +19,9 @@ import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import Connection.DatabaseConnection;
+
 import org.apache.poi.ss.usermodel.Row;
 
 public class ProductBUS {
@@ -212,50 +219,56 @@ public class ProductBUS {
         ProductDAO dao = new ProductDAO();
         dao.unmarkSerialsAsUsed(serials);
     }
-    public boolean exportToExcel(String filePath) {
-    Workbook workbook = new XSSFWorkbook();
-    Sheet sheet = workbook.createSheet("Danh sách sản phẩm");
 
-    try {
+
+    public boolean exportToExcel(String filePath) {
+    try (Connection conn = DatabaseConnection.getConnection();
+         Workbook workbook = new XSSFWorkbook()) {
+        Sheet sheet = workbook.createSheet("DanhSachSanPham");
+        
+        // Tạo dòng tiêu đề
         Row headerRow = sheet.createRow(0);
-        String[] columns = {"Mã Sản Phẩm", "Tên Sản Phẩm", "Giá", "Số lượng"};
+        String[] columns = {"ma_san_pham", "ten_san_pham", "gia", "so_luong", "ma_nha_cung_cap", "thong_so_ki_thuat", "ma_loai", "hinh_anh", "is_deleted", "gia_goc", "khuyen_mai", "thoi_gian_bao_hanh"};
         for (int i = 0; i < columns.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(columns[i]);
-            CellStyle headerStyle = workbook.createCellStyle();
-            Font font = workbook.createFont();
-            font.setBold(true);
-            headerStyle.setFont(font);
-            cell.setCellStyle(headerStyle);
         }
 
-        List<ProductDTO> products = getAllProducts();
+        // Lấy dữ liệu từ database
+        String sql = "SELECT * FROM san_pham";
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        ResultSet rs = stmt.executeQuery();
+        
         int rowNum = 1;
-        for (ProductDTO p : products) {
+        while (rs.next()) {
             Row row = sheet.createRow(rowNum++);
-            row.createCell(0).setCellValue(p.getProductID());
-            row.createCell(1).setCellValue(p.getProductName());
-            row.createCell(2).setCellValue(p.getGia());
-            row.createCell(3).setCellValue(p.getSoluong());
+            row.createCell(0).setCellValue(rs.getString("ma_san_pham"));
+            row.createCell(1).setCellValue(rs.getString("ten_san_pham"));
+            row.createCell(2).setCellValue(rs.getInt("gia"));
+            row.createCell(3).setCellValue(rs.getInt("so_luong"));
+            row.createCell(4).setCellValue(rs.getString("ma_nha_cung_cap"));
+            row.createCell(5).setCellValue(rs.getString("thong_so_ki_thuat"));
+            row.createCell(6).setCellValue(rs.getString("ma_loai"));
+            row.createCell(7).setCellValue(rs.getString("hinh_anh"));
+            row.createCell(8).setCellValue(rs.getInt("is_deleted"));
+            row.createCell(9).setCellValue(rs.getInt("gia_goc"));
+            row.createCell(10).setCellValue(rs.getString("khuyen_mai"));
+            row.createCell(11).setCellValue(rs.getInt("thoi_gian_bao_hanh"));
         }
 
+        // Tự động điều chỉnh kích thước cột
         for (int i = 0; i < columns.length; i++) {
             sheet.autoSizeColumn(i);
         }
 
+        // Ghi vào file
         try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
             workbook.write(fileOut);
-            return true;
         }
-    } catch (IOException ex) {
-        ex.printStackTrace();
+        return true;
+    } catch (SQLException | IOException e) {
+        e.printStackTrace();
         return false;
-    } finally {
-        try {
-            workbook.close();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
     }
 }
 }
