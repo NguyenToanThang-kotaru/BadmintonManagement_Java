@@ -10,6 +10,8 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.io.File;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +45,10 @@ public class GUI_Import extends JPanel {
         searchField.setBackground(Color.WHITE);
         searchField.setSearchListener(e -> searchImport());
         topPanel.add(searchField, BorderLayout.CENTER);
+
+        CustomButton exportExcelButton = new CustomButton("Xuất Excel");
+        exportExcelButton.setPreferredSize(new Dimension(120, 30));
+        topPanel.add(exportExcelButton, BorderLayout.WEST);
 
         CustomButton addButton = new CustomButton("+ Thêm Phiếu Nhập");
         addButton.addActionListener(e -> {
@@ -153,6 +159,24 @@ public class GUI_Import extends JPanel {
                 receiptDateLabel.setText(receiptDate);
             }
         });
+        exportExcelButton.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Chọn nơi lưu file Excel");
+            fileChooser.setSelectedFile(new File("DanhSachPhieuNhap.xlsx"));
+            int userSelection = fileChooser.showSaveDialog(this);
+        
+            if (userSelection == JFileChooser.APPROVE_OPTION) {
+                File fileToSave = fileChooser.getSelectedFile();
+                String filePath = fileToSave.getAbsolutePath();
+                boolean success = importBUS.exportToExcel(filePath);
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Xuất file Excel thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Lỗi khi xuất file Excel!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
         ArrayList<ActionDTO> actions = ActionBUS.getPermissionActions(a, "Quản lý hóa đơn nhập");
 
         boolean canAdd = false, canEdit = false, canDelete = false, canWatch = false;
@@ -175,6 +199,7 @@ public class GUI_Import extends JPanel {
         addButton.setVisible(canAdd);
         deleteButton.setVisible(canDelete);
     }
+    
 
     // Tải danh sách phiếu nhập vào bảng
     public void loadImport() {
@@ -191,6 +216,7 @@ public class GUI_Import extends JPanel {
         }
     }
 
+    
     // Tìm kiếm phiếu nhập theo từ khóa
     private void searchImport() {
         String keyword = searchField.getText().trim().toLowerCase();

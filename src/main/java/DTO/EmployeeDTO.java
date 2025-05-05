@@ -7,32 +7,9 @@ public class EmployeeDTO {
     private String address;
     private String phone;
     private String image;
-
-    public EmployeeDTO(EmployeeDTO a) {
-        this.employeeID = a.getEmployeeID();
-        this.fullName = a.getFullName();
-        this.address = a.getAddress();
-        this.phone = a.getPhone();
-        this.image = a.getImage();
-    }
-
-    
+    private String chucVu;
 
     public EmployeeDTO() {
-        this.employeeID = "";
-        this.fullName = "";
-        this.address = "";
-        this.phone = "";
-        this.image = "";
-
-    }
-
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
     }
 
     public EmployeeDTO(String employeeID, String fullName, String address, String phone, String image) {
@@ -41,6 +18,25 @@ public class EmployeeDTO {
         this.address = address;
         this.phone = phone;
         this.image = image;
+        this.chucVu = "Nhân viên";
+    }
+
+    public EmployeeDTO(EmployeeDTO e) {
+        this.employeeID = e.employeeID;
+        this.fullName = e.fullName;
+        this.address = e.address;
+        this.phone = e.phone;
+        this.image = e.image;
+        this.chucVu = e.chucVu;
+    }
+
+    public EmployeeDTO(String employeeID, String fullName, String address, String phone, String image, String chucVu) {
+        this.employeeID = employeeID;
+        this.fullName = fullName;
+        this.address = address;
+        this.phone = phone;
+        this.image = image;
+        this.chucVu = chucVu;
     }
 
     public String getEmployeeID() {
@@ -73,5 +69,21 @@ public class EmployeeDTO {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public String getChucVu() {
+        return chucVu;
+    }
+
+    public void setChucVu(String chucVu) {
+        this.chucVu = chucVu;
     }
 }

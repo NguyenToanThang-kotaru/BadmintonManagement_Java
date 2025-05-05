@@ -3,11 +3,22 @@ package BUS;
 import DAO.ImportDAO;
 import DTO.ImportDTO;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Sheet;
+
 import Connection.DatabaseConnection;
 
 public class ImportBUS {
@@ -49,4 +60,50 @@ public class ImportBUS {
         }
         return total;
     }
+    public boolean exportToExcel(String filePath) {
+    Workbook workbook = new XSSFWorkbook();
+    Sheet sheet = workbook.createSheet("Danh sách phiếu nhập");
+
+    try {
+        Row headerRow = sheet.createRow(0);
+        String[] columns = {"Mã PN", "Mã NV", "Tổng Tiền", "Ngày Nhập"};
+        for (int i = 0; i < columns.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(columns[i]);
+            CellStyle headerStyle = workbook.createCellStyle();
+            Font font = workbook.createFont();
+            font.setBold(true);
+            headerStyle.setFont(font);
+            cell.setCellStyle(headerStyle);
+        }
+
+        List<ImportDTO> imports = getAllImport();
+        int rowNum = 1;
+        for (ImportDTO imp : imports) {
+            Row row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(imp.getimportID());
+            row.createCell(1).setCellValue(imp.getemployeeID());
+            row.createCell(2).setCellValue(calculateImportTotal(imp.getimportID()));
+            row.createCell(3).setCellValue(imp.getreceiptdate());
+        }
+
+        for (int i = 0; i < columns.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
+            workbook.write(fileOut);
+            return true;
+        }
+    } catch (IOException ex) {
+        ex.printStackTrace();
+        return false;
+    } finally {
+        try {
+            workbook.close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+}
 }   

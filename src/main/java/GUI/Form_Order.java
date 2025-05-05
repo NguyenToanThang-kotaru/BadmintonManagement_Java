@@ -653,6 +653,12 @@ public class Form_Order extends JDialog {
             CustomerDTO newCustomer = new CustomerDTO(maKH, tenKH, sdt);
             customerBUS.addCustomer(newCustomer);
         }
+        
+        // Kiểm tra nếu chưa có sản phẩm nào được thêm vào hóa đơn
+        if (orderTableModel.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(this, "Vui lòng thêm ít nhất một sản phẩm vào hóa đơn trước khi lưu.", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
         // Tạo thông tin hóa đơn
         orderdto.setorderID(orderID);

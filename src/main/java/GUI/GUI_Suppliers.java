@@ -8,6 +8,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -41,6 +42,10 @@ public class GUI_Suppliers extends JPanel {
         searchField.setBackground(Color.WHITE);
         searchField.setSearchListener(e -> searchSuppliers());
         topPanel.add(searchField, BorderLayout.CENTER);
+
+        CustomButton exportExcelButton = new CustomButton("Xuất Excel");
+        exportExcelButton.setPreferredSize(new Dimension(120, 30));
+        topPanel.add(exportExcelButton, BorderLayout.WEST);
 
         midPanel = new JPanel(new BorderLayout());
         midPanel.setBackground(Color.WHITE);
@@ -149,6 +154,24 @@ public class GUI_Suppliers extends JPanel {
                 new GUI_Detail_Suppliers(this, supplier).setVisible(true);
             } else {
                 JOptionPane.showMessageDialog(this, "Vui lòng chọn nhà cung cấp để xem danh sách sản phẩm!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        
+        exportExcelButton.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Chọn nơi lưu file Excel");
+            fileChooser.setSelectedFile(new File("DanhSachNhaCungCap.xlsx"));
+            int userSelection = fileChooser.showSaveDialog(this);
+        
+            if (userSelection == JFileChooser.APPROVE_OPTION) {
+                File fileToSave = fileChooser.getSelectedFile();
+                String filePath = fileToSave.getAbsolutePath();
+                boolean success = suppliersBUS.exportToExcel(filePath);
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Xuất file Excel thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Lỗi khi xuất file Excel!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
         

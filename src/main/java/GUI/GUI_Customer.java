@@ -10,6 +10,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +41,10 @@ public class GUI_Customer extends JPanel {
         searchField = new CustomSearch(275, 20); // Ô nhập tìm kiếm
         searchField.setBackground(Color.WHITE);
         topPanel.add(searchField, BorderLayout.CENTER);
+
+        CustomButton exportExcelButton = new CustomButton("Xuất Excel");
+        exportExcelButton.setPreferredSize(new Dimension(120, 30));
+        topPanel.add(exportExcelButton, BorderLayout.WEST);
 
         addButton = new CustomButton("+ Thêm Khách Hàng"); // Nút thêm khách hàng 
         topPanel.add(addButton, BorderLayout.EAST);
@@ -116,6 +121,24 @@ public class GUI_Customer extends JPanel {
                 customeridLabel.setText(customerID);
                 phoneLabel.setText(sdt);
                 botPanel.add(buttonPanel, gbc);
+            }
+        });
+        
+        exportExcelButton.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Chọn nơi lưu file Excel");
+            fileChooser.setSelectedFile(new File("DanhSachKhachHang.xlsx"));
+            int userSelection = fileChooser.showSaveDialog(this);
+        
+            if (userSelection == JFileChooser.APPROVE_OPTION) {
+                File fileToSave = fileChooser.getSelectedFile();
+                String filePath = fileToSave.getAbsolutePath();
+                boolean success = customerBUS.exportToExcel(filePath);
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Xuất file Excel thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Lỗi khi xuất file Excel!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
 

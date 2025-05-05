@@ -4,8 +4,18 @@ import DAO.ProductDAO;
 import DTO.ProductDTO;
 
 import java.util.List;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.ss.usermodel.Row;
 
 public class ProductBUS {
 
@@ -30,7 +40,7 @@ public class ProductBUS {
     public static ArrayList<ProductDTO> searchProducts(String keyword) {
         return ProductDAO.searchProducts(keyword);
     }
-
+   
     public static ArrayList<String> getSerialsForProduct(String productID) {
         return ProductDAO.getSerialsForProduct(productID);
     }
@@ -202,4 +212,50 @@ public class ProductBUS {
         ProductDAO dao = new ProductDAO();
         dao.unmarkSerialsAsUsed(serials);
     }
+    public boolean exportToExcel(String filePath) {
+    Workbook workbook = new XSSFWorkbook();
+    Sheet sheet = workbook.createSheet("Danh sách sản phẩm");
+
+    try {
+        Row headerRow = sheet.createRow(0);
+        String[] columns = {"Mã Sản Phẩm", "Tên Sản Phẩm", "Giá", "Số lượng"};
+        for (int i = 0; i < columns.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(columns[i]);
+            CellStyle headerStyle = workbook.createCellStyle();
+            Font font = workbook.createFont();
+            font.setBold(true);
+            headerStyle.setFont(font);
+            cell.setCellStyle(headerStyle);
+        }
+
+        List<ProductDTO> products = getAllProducts();
+        int rowNum = 1;
+        for (ProductDTO p : products) {
+            Row row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(p.getProductID());
+            row.createCell(1).setCellValue(p.getProductName());
+            row.createCell(2).setCellValue(p.getGia());
+            row.createCell(3).setCellValue(p.getSoluong());
+        }
+
+        for (int i = 0; i < columns.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
+            workbook.write(fileOut);
+            return true;
+        }
+    } catch (IOException ex) {
+        ex.printStackTrace();
+        return false;
+    } finally {
+        try {
+            workbook.close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+}
 }
