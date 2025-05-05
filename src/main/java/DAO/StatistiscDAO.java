@@ -4,14 +4,18 @@
  */
 package DAO;
 
+
+import BUS.CustomerBUS;
 import Connection.DatabaseConnection;
 import DTO.CustomerDTO;
 import DTO.OrderDTO;
+import DTO.DetailOrderDTO;
+import DTO.ProductDTO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
+import java.sql.ResultSet;
+
 
 /**
  *
@@ -19,93 +23,82 @@ import java.util.ArrayList;
  */
 public class StatistiscDAO {
 
-//    public static int get
-    
-    public static ArrayList<CustomerDTO> getCustomerByDateRange(String fromDate, String toDate) {
-        ArrayList<CustomerDTO> list = new ArrayList<>();
-        String sql = """
-        SELECT DISTINCT kh.ma_khach_hang, kh.ten_khach_hang, kh.so_dien_thoai
-        FROM khach_hang kh
-        JOIN hoa_don hd ON kh.ma_khach_hang = hd.ma_khach_hang
-        WHERE hd.is_deleted = 0 AND hd.ngay_xuat BETWEEN ? AND ?
-    """;
+    private CustomerBUS cusBUS = new CustomerBUS();
 
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+    public ArrayList<CustomerDTO> getCustomerByDateRange(String from, String to) {
+        ArrayList<OrderDTO> orders = getOrdersByDateRange(from, to);
+        System.out.println(orders);
 
-            stmt.setString(1, fromDate);
-            stmt.setString(2, toDate);
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                String id = rs.getString("ma_khach_hang");
-                String name = rs.getString("ten_khach_hang");
-                String phone = rs.getString("so_dien_thoai");
-
-                CustomerDTO customer = new CustomerDTO(id, name, phone);
-                list.add(customer);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        ArrayList<CustomerDTO> cus = new ArrayList<CustomerDTO>();
+        for (OrderDTO ord : orders) {
+            cus.add(cusBUS.getCustomerByID(ord.getcustomerID()));
         }
-
-        return list;
+        System.out.println(cus);
+        return cus;
     }
 
-    public static ArrayList<OrderDTO> getOrdersByDateRange(String fromDate, String toDate) {
-        ArrayList<OrderDTO> orderList = new ArrayList<>();
-        Connection conn = null;
-        PreparedStatement pst = null;
-        ResultSet rs = null;
+    public static ArrayList<OrderDTO> getOrdersByDateRange(String from, String to) {
+        ArrayList<OrderDTO> orders = new ArrayList<>();
+        System.out.println(from);
+        System.out.println(to);
+        String query = "SELECT * FROM hoa_don WHERE is_deleted = 0 AND DATE(ngay_xuat) BETWEEN ? AND ?";
 
-        try {
-            // Kết nối database
-            conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            // Câu truy vấn SQL (điều chỉnh theo cấu trúc bảng của bạn)
-            String sql = "SELECT hd.ma_hoa_don, hd.ngay_xuat, hd.tong_tien, hd.tong_loi_nhuan, "
-                    + "hd.ma_khach_hang, hd.ma_nhan_vien, hd.is_deleted "
-                    + "FROM hoa_don hd "
-                    + "WHERE hd.ngay_xuat BETWEEN ? AND ? "
-                    + "AND hd.is_deleted = 0 "
-                    + "ORDER BY hd.ngay_xuat DESC";
+            // Thiết lập tham số cho câu truy vấn
+            stmt.setString(1, from); // Ngày bắt đầu
+            stmt.setString(2, to);   // Ngày kết thúc
 
-            pst = conn.prepareStatement(sql);
-            pst.setString(1, fromDate);
-            pst.setString(2, toDate);
-
-            rs = pst.executeQuery();
-
-            // Duyệt kết quả và thêm vào danh sách
-            while (rs.next()) {
-                OrderDTO order = new OrderDTO();
-                order.setorderID(rs.getString("ma_hoa_don"));
-                order.setissuedate(rs.getString("ngay_xuat"));
-                order.settotalmoney(rs.getString("tong_tien"));
-                order.settotalprofit(rs.getString("tong_loi_nhuan"));
-                order.setcustomerID(rs.getString("ma_khach_hang"));
-                order.setemployeeID(rs.getString("ma_nhan_vien"));
-                orderList.add(order);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    orders.add(new OrderDTO(
+                            rs.getString("ma_hoa_don"),
+                            rs.getString("ma_nhan_vien"),
+                            rs.getString("ma_khach_hang"),
+                            rs.getString("tong_tien"),
+                            rs.getString("ngay_xuat"),
+                            rs.getString("tong_loi_nhuan"),
+                            rs.getBoolean("is_deleted")
+                    ));
+                }
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-            System.err.println("Lỗi khi lấy danh sách hóa đơn: " + e.getMessage());
-        } finally {
-            // Đóng các kết nối
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (pst != null) {
-                    pst.close();
-                }
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
+        }
+        return orders;
+    }
+    
+    public ArrayList<Object[]> getProductStatistics() {
+        ArrayList<Object[]> result = new ArrayList<>();
+
+        String query = """
+            SELECT sp.ma_san_pham, sp.ten_san_pham, sp.so_luong, SUM(cthd.so_luong) AS tong_so_luong_ban, SUM(cthd.loi_nhuan) AS tong_loi_nhuan
+            FROM chi_tiet_hoa_don cthd
+            JOIN san_pham sp ON cthd.ma_san_pham = sp.ma_san_pham
+            JOIN hoa_don hd ON cthd.ma_hoa_don = hd.ma_hoa_don
+            WHERE hd.is_deleted = 0
+            GROUP BY sp.ma_san_pham, sp.ten_san_pham, sp.so_luong """;
+
+        try (Connection conn = DatabaseConnection.getConnection(); 
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                ProductDTO product = new ProductDTO();
+                product.setProductID(rs.getString("ma_san_pham"));
+                product.setProductName(rs.getString("ten_san_pham"));
+                product.setSoluong(rs.getString("so_luong"));
+
+                int soLuongBan = rs.getInt("tong_so_luong_ban");
+                int loiNhuan = rs.getInt("tong_loi_nhuan");
+
+                result.add(new Object[] { product, soLuongBan, loiNhuan });
             }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        return orderList;
+        return result;
     }
 }

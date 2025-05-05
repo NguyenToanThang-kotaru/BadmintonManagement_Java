@@ -3,6 +3,7 @@ package GUI;
 import BUS.ActionBUS;
 import DAO.GuaranteeDAO;
 import DTO.GuaranteeDTO;
+import BUS.GuaranteeBUS;
 
 import BUS.GuaranteeBUS;
 import DTO.AccountDTO;
@@ -213,6 +214,18 @@ public class GUI_Guarantee extends JPanel {
             });
         }
 
+    }
+
+    private void capNhatBangBaoHanh(ArrayList<GuaranteeDTO> guarantees) {
+        tableModel.setRowCount(0); // Xóa dữ liệu cũ
+        for (GuaranteeDTO guarantee : guarantees) {
+            tableModel.addRow(new Object[]{
+                guarantee.getBaohanhID(),
+                guarantee.getSerialID(),
+                guarantee.getLydo(),
+                guarantee.gettrangthai()
+            });
+        }
     }
 //
 

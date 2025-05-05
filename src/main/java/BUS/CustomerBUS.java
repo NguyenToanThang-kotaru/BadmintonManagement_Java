@@ -2,6 +2,7 @@ package BUS;
 
 import DAO.CustomerDAO;
 import DTO.CustomerDTO;
+import java.util.ArrayList;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,7 +22,7 @@ import Connection.DatabaseConnection;
 
 public class CustomerBUS {
 
-    public List<CustomerDTO> getAllCustomer() {
+    public ArrayList<CustomerDTO> getAllCustomer() {
         return CustomerDAO.getAllCustomer();
     }
 

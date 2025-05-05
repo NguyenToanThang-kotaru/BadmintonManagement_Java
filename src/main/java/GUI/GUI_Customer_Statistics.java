@@ -1,16 +1,29 @@
 package GUI;
 
+import BUS.CustomerBUS;
+import BUS.OrderBUS;
+import BUS.StatistiscBUS;
+import DTO.CustomerDTO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.util.Date;
+import com.toedter.calendar.JDateChooser;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import javax.swing.table.DefaultTableModel;
 
 public class GUI_Customer_Statistics extends JPanel {
 
     private JPanel topPanel, midPanel, botPanel;
     private CustomTable customerStatsTable;
-    private JComboBox<String> customerFilterCombo;
-    private JSpinner limitSpinner;
     private CustomButton filterButton, exportButton;
+    private JDateChooser fromDateChooser, toDateChooser;
+    private JLabel totalCustomerLabel, totalInvoiceLabel, totalRevenueLabel;
+    private CustomerBUS customerBUS = new CustomerBUS();
+    private OrderBUS orderBUS = new OrderBUS();
+    private StatistiscBUS statBUS = new StatistiscBUS();
+    private DefaultTableModel tableModel;
 
     public GUI_Customer_Statistics() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -26,28 +39,27 @@ public class GUI_Customer_Statistics extends JPanel {
         JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         filterPanel.setOpaque(false);
 
-        // Combobox kiểu thống kê
-        customerFilterCombo = new CustomCombobox<>(new String[]{"Mua nhiều nhất", "Mua ít nhất"});
-        customerFilterCombo.setPreferredSize(new Dimension(150, 30));
+        // JDateChooser lọc theo thời gian
+        fromDateChooser = new JDateChooser();
+        fromDateChooser.setDateFormatString("yyyy-MM-dd");
+        fromDateChooser.setPreferredSize(new Dimension(150, 30));
 
-        // Spinner chọn số lượng khách
-        SpinnerNumberModel spinnerModel = new SpinnerNumberModel(5, 1, 100, 1);
-        limitSpinner = new JSpinner(spinnerModel);
-        limitSpinner.setPreferredSize(new Dimension(60, 30));
+        toDateChooser = new JDateChooser();
+        toDateChooser.setDateFormatString("yyyy-MM-dd");
+        toDateChooser.setPreferredSize(new Dimension(150, 30));
 
         filterButton = new CustomButton("Áp dụng");
         filterButton.setPreferredSize(new Dimension(100, 30));
 
-        filterPanel.add(new JLabel("Thống kê:"));
-        filterPanel.add(customerFilterCombo);
-        filterPanel.add(new JLabel("Hiển thị:"));
-        filterPanel.add(limitSpinner);
-        filterPanel.add(new JLabel("khách hàng"));
+        filterPanel.add(new JLabel("Từ ngày:"));
+        filterPanel.add(fromDateChooser);
+        filterPanel.add(new JLabel("Đến ngày:"));
+        filterPanel.add(toDateChooser);
         filterPanel.add(filterButton);
 
         topPanel.add(filterPanel, BorderLayout.CENTER);
 
-        exportButton = new CustomButton("Xuất báo cáo");
+        exportButton = new CustomButton("Reload");
         exportButton.setPreferredSize(new Dimension(150, 30));
         topPanel.add(exportButton, BorderLayout.EAST);
 
@@ -57,7 +69,7 @@ public class GUI_Customer_Statistics extends JPanel {
 
         String[] columnNames = {"Mã KH", "Tên khách hàng", "Số hóa đơn", "Tổng tiền đã mua"};
         customerStatsTable = new CustomTable(columnNames);
-
+        tableModel = customerStatsTable.getTableModel();
         JScrollPane scrollPane = new CustomScrollPane(customerStatsTable);
         midPanel.add(scrollPane, BorderLayout.CENTER);
 
@@ -74,21 +86,21 @@ public class GUI_Customer_Statistics extends JPanel {
         gbc.gridy = 0;
         botPanel.add(new JLabel("Tổng khách hàng:"), gbc);
         gbc.gridx = 1;
-        JLabel totalCustomerLabel = new JLabel("0");
+        totalCustomerLabel = new JLabel("0");
         botPanel.add(totalCustomerLabel, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 1;
         botPanel.add(new JLabel("Tổng số hóa đơn:"), gbc);
         gbc.gridx = 1;
-        JLabel totalInvoiceLabel = new JLabel("0");
+        totalInvoiceLabel = new JLabel("0");
         botPanel.add(totalInvoiceLabel, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 2;
         botPanel.add(new JLabel("Tổng doanh thu:"), gbc);
         gbc.gridx = 1;
-        JLabel totalRevenueLabel = new JLabel("0 VND");
+        totalRevenueLabel = new JLabel("0 VND");
         botPanel.add(totalRevenueLabel, gbc);
 
         // Thêm các panel vào giao diện chính
@@ -100,26 +112,79 @@ public class GUI_Customer_Statistics extends JPanel {
 
         // Load dữ liệu mẫu
         loadSampleData();
+
+        // Sự kiện lọc
+        filterButton.addActionListener(e -> {
+            Date from = fromDateChooser.getDate();
+            Date to = toDateChooser.getDate();
+            System.out.println(from);
+            Date currentDate = new Date();
+            if (from == null || to == null) {
+                JOptionPane.showMessageDialog(null, "Ngày bắt đầu hoặc ngày kết thúc không được để trống");
+                return;
+            }
+            if (from.after(to)) {
+                JOptionPane.showMessageDialog(null, "Ngày bắt đầu phải trước hoặc bằng ngày kết thúc");
+                return;
+            }
+            if (from.after(currentDate) || to.after(currentDate)) {
+                JOptionPane.showMessageDialog(null, "Ngày bắt đầu hoặc ngày kết thúc phải trước ngày hiện tại");
+                return;
+            }
+            filterDataByDateRange(from, to);
+
+        });
+        exportButton.addActionListener(e -> {
+            fromDateChooser.setDate(null);
+            toDateChooser.setDate(null);
+            loadSampleData();
+        });
+    }
+
+    private void filterDataByDateRange(Date fromDate, Date toDate) {
+        String fromDateString = new SimpleDateFormat("yyyy-MM-dd").format(fromDate);
+        String toDateString = new SimpleDateFormat("yyyy-MM-dd").format(toDate);
+        // TODO: Gọi BUS xử lý thống kê trong khoảng thời gian
+        ArrayList<CustomerDTO> customer = statBUS.getCustomerByDateRange(fromDateString, toDateString); // Tạm thời dùng lại dữ liệu mẫu
+        tableModel.setRowCount(0);
+        int index = 0;
+        int totalInvoice = 0;
+        long totalSpent = 0;
+        for (CustomerDTO ctm : customer) {
+            tableModel.addRow(new Object[]{ctm.getcustomerID(), ctm.getFullName(),
+                orderBUS.getQuantityOrderForCus(ctm),
+                Utils.formatCurrencyLong(orderBUS.getTotalSpentByCustomer(ctm))});
+            totalInvoice += orderBUS.getQuantityOrderForCus(ctm);
+            totalSpent += orderBUS.getTotalSpentByCustomer(ctm);
+            index++;
+        }
+
+        updateSummary(index, totalInvoice, Utils.formatCurrencyLong(totalSpent));
     }
 
     private void loadSampleData() {
         customerStatsTable.clearTable();
+        ArrayList<CustomerDTO> customer = customerBUS.getAllCustomer();
+        tableModel.setRowCount(0);
+        int index = 0;
+        int totalInvoice = 0;
+        long totalSpent = 0;
+        for (CustomerDTO ctm : customer) {
+            tableModel.addRow(new Object[]{ctm.getcustomerID(), ctm.getFullName(),
+                orderBUS.getQuantityOrderForCus(ctm),
+                Utils.formatCurrencyLong(orderBUS.getTotalSpentByCustomer(ctm))});
+            totalInvoice += orderBUS.getQuantityOrderForCus(ctm);
+            totalSpent += orderBUS.getTotalSpentByCustomer(ctm);
+            index++;
+        }
 
-        customerStatsTable.addRow(new Object[]{"KH001", "Nguyễn Văn A", 12, "25,000,000 VND"});
-        customerStatsTable.addRow(new Object[]{"KH002", "Trần Thị B", 8, "15,000,000 VND"});
-        customerStatsTable.addRow(new Object[]{"KH003", "Lê Văn C", 3, "5,000,000 VND"});
-
-        updateSummary(3, 23, "45,000,000 VND");
+        updateSummary(index, totalInvoice, Utils.formatCurrencyLong(totalSpent));
     }
 
     private void updateSummary(int totalCustomers, int totalInvoices, String totalRevenue) {
-        for (Component comp : botPanel.getComponents()) {
-            if (comp instanceof JLabel label) {
-                switch (label.getText()) {
-                    case "0" -> label.setText(String.valueOf(totalCustomers));
-                    case "0 VND" -> label.setText(totalRevenue);
-                }
-            }
-        }
+        totalCustomerLabel.setText(String.valueOf(totalCustomers));
+        totalInvoiceLabel.setText(String.valueOf(totalInvoices));
+
+        totalRevenueLabel.setText(String.valueOf(totalRevenue));
     }
 }
