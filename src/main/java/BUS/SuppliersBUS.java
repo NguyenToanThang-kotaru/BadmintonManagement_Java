@@ -118,50 +118,50 @@ public class SuppliersBUS {
       public static ArrayList<String> getAllNCCNames() {
           return SuppliersDAO.getAllNCCNames();
       }
-      public boolean exportToExcel(String filePath) {
-    Workbook workbook = new XSSFWorkbook();
-    Sheet sheet = workbook.createSheet("Danh sách nhà cung cấp");
 
-    try {
-        Row headerRow = sheet.createRow(0);
-        String[] columns = {"Mã NCC", "Tên NCC", "Địa chỉ", "SĐT"};
-        for (int i = 0; i < columns.length; i++) {
-            Cell cell = headerRow.createCell(i);
-            cell.setCellValue(columns[i]);
-            CellStyle headerStyle = workbook.createCellStyle();
-            Font font = workbook.createFont();
-            font.setBold(true);
-            headerStyle.setFont(font);
-            cell.setCellStyle(headerStyle);
-        }
 
-        List<SuppliersDTO> suppliers = getAllSuppliers();
-        int rowNum = 1;
-        for (SuppliersDTO s : suppliers) {
-            Row row = sheet.createRow(rowNum++);
-            row.createCell(0).setCellValue(s.getsuppliersID());
-            row.createCell(1).setCellValue(s.getfullname());
-            row.createCell(2).setCellValue(s.getaddress());
-            row.createCell(3).setCellValue(s.getphone());
-        }
 
-        for (int i = 0; i < columns.length; i++) {
-            sheet.autoSizeColumn(i);
-        }
-
-        try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
-            workbook.write(fileOut);
+    public boolean exportToExcel(String filePath) {
+        try (Connection conn = DatabaseConnection.getConnection();
+             Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("DanhSachNhaCungCap");
+            
+            // Tạo dòng tiêu đề
+            Row headerRow = sheet.createRow(0);
+            String[] columns = {"ma_nha_cung_cap", "ten_nha_cung_cap", "dia_chi", "so_dien_thoai", "is_deleted"};
+            for (int i = 0; i < columns.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(columns[i]);
+            }
+    
+            // Lấy dữ liệu từ database
+            String sql = "SELECT * FROM nha_cung_cap";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
+            
+            int rowNum = 1;
+            while (rs.next()) {
+                Row row = sheet.createRow(rowNum++);
+                row.createCell(0).setCellValue(rs.getString("ma_nha_cung_cap"));
+                row.createCell(1).setCellValue(rs.getString("ten_nha_cung_cap"));
+                row.createCell(2).setCellValue(rs.getString("dia_chi"));
+                row.createCell(3).setCellValue(rs.getString("so_dien_thoai"));
+                row.createCell(4).setCellValue(rs.getInt("is_deleted"));
+            }
+    
+            // Tự động điều chỉnh kích thước cột
+            for (int i = 0; i < columns.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+    
+            // Ghi vào file
+            try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
+                workbook.write(fileOut);
+            }
             return true;
-        }
-    } catch (IOException ex) {
-        ex.printStackTrace();
-        return false;
-    } finally {
-        try {
-            workbook.close();
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
+            return false;
         }
     }
-}
 }

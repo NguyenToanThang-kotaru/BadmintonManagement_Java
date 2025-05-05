@@ -1,4 +1,4 @@
-    package GUI;
+package GUI;
 
 import BUS.ActionBUS;
 import BUS.EmployeeBUS;
@@ -15,29 +15,18 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
-import java.io.FileOutputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.awt.Color;
-
 public class GUI_Employee extends JPanel {
 
     private JPanel topPanel, midPanel, botPanel;
     private JTable employeeTable;
     private DefaultTableModel tableModel;
-    private CustomButton editButton, deleteButton, addButton, reloadButton, importExcelButton;
+    private CustomButton editButton, deleteButton, addButton, reloadButton, importExcelButton, exportExcelButton;
     private CustomSearch searchField;
     private EmployeeBUS employeeBUS;
     private EmployeeDTO employeeChoosing;
 
     public GUI_Employee(AccountDTO a) {
-
         employeeBUS = new EmployeeBUS();
-
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(new EmptyBorder(10, 10, 10, 10));
         setBackground(new Color(200, 200, 200));
@@ -48,44 +37,31 @@ public class GUI_Employee extends JPanel {
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         topPanel.setBackground(Color.WHITE);
 
-        // Panel chứa thanh tìm kiếm
-        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
-        searchPanel.setBackground(Color.WHITE);
-        searchField = new CustomSearch(250, 30); // Ô nhập tìm kiếm
+        // Thanh tìm kiếm ở giữa
+        searchField = new CustomSearch(250, 30);
         searchField.setBackground(Color.WHITE);
-        searchPanel.add(searchField);
-        topPanel.add(searchPanel, BorderLayout.CENTER);
+        topPanel.add(searchField, BorderLayout.CENTER);
 
-        // Panel chứa 2 nút với BorderLayout
-        JPanel buttonPanelWest = new JPanel(new BorderLayout(5, 0));
-        buttonPanelWest.setBackground(Color.WHITE);
-        buttonPanelWest.setMaximumSize(new Dimension(250, 30));
-
+        // Panel chứa nút Nhập và Xuất Excel ở WEST
+        JPanel westButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        westButtonPanel.setBackground(Color.WHITE);
         importExcelButton = new CustomButton("Nhập Excel");
         importExcelButton.setPreferredSize(new Dimension(120, 30));
-        buttonPanelWest.add(importExcelButton, BorderLayout.WEST);
-
-        CustomButton exportExcelButton = new CustomButton("Xuất Excel");
+        westButtonPanel.add(importExcelButton);
+        exportExcelButton = new CustomButton("Xuất Excel");
         exportExcelButton.setPreferredSize(new Dimension(120, 30));
-        buttonPanelWest.add(exportExcelButton, BorderLayout.EAST);
+        westButtonPanel.add(exportExcelButton);
+        topPanel.add(westButtonPanel, BorderLayout.WEST);
 
-        topPanel.add(buttonPanelWest, BorderLayout.WEST);
-
-        // Panel chứa nút Tải Lại và Thêm Nhân Viên ở EAST
-        JPanel eastButtonPanel = new JPanel(new BorderLayout( 5, 0));
+        // Panel chứa nút Tải Lại và Thêm NV ở EAST
+        JPanel eastButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
         eastButtonPanel.setBackground(Color.WHITE);
-        eastButtonPanel.setMaximumSize(new Dimension(250, 30));
         reloadButton = new CustomButton("Tải Lại");
-        reloadButton.setPreferredSize(new Dimension(120, 30)); 
-        eastButtonPanel.add(reloadButton, BorderLayout.WEST);
-
+        reloadButton.setPreferredSize(new Dimension(120, 30));
+        eastButtonPanel.add(reloadButton);
         addButton = new CustomButton("+ Thêm NV");
         addButton.setPreferredSize(new Dimension(120, 30));
-
-        topPanel.add(searchField, BorderLayout.CENTER);
-        topPanel.add(reloadButton, BorderLayout.WEST);
-        topPanel.add(addButton, BorderLayout.EAST);
-
+        eastButtonPanel.add(addButton);
         topPanel.add(eastButtonPanel, BorderLayout.EAST);
 
         // ========== BẢNG HIỂN THỊ DANH SÁCH NHÂN VIÊN ==========
@@ -93,33 +69,31 @@ public class GUI_Employee extends JPanel {
         midPanel.setBackground(Color.WHITE);
         midPanel.setMinimumSize(new Dimension(600, 200));
         midPanel.setPreferredSize(new Dimension(600, 200));
-        // Định nghĩa tiêu đề cột
         String[] columnNames = {"STT", "Họ Tên", "Địa Chỉ", "SĐT"};
         CustomTable customTable = new CustomTable(columnNames);
         employeeTable = customTable.getEmployeeTable();
         tableModel = customTable.getTableModel();
         CustomScrollPane scrollPane = new CustomScrollPane(employeeTable);
-        midPanel.add(scrollPane,BorderLayout.CENTER);
+        midPanel.add(scrollPane, BorderLayout.CENTER);
 
         // ========== PANEL CHI TIẾT NHÂN VIÊN ==========
-        botPanel = new JPanel(new BorderLayout(20, 0)); // Khoảng cách giữa 2 phần
+        botPanel = new JPanel(new BorderLayout(20, 0));
         botPanel.setBackground(Color.WHITE);
         botPanel.setBorder(BorderFactory.createTitledBorder("Chi tiết nhân viên"));
 
-        //Phần trái
+        // Phần trái
         JPanel leftPanel = new JPanel(null);
         leftPanel.setPreferredSize(new Dimension(310, 290));
         leftPanel.setBackground(Color.WHITE);
-
         JLabel imageLabel = new JLabel();
         imageLabel.setBounds(30, 10, 210, 190);
         imageLabel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
         leftPanel.add(imageLabel);
 
         // Phần phải
-        JPanel righPanel = new JPanel();
-        righPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
-        righPanel.setBackground(Color.WHITE);
+        JPanel rightPanel = new JPanel();
+        rightPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+        rightPanel.setBackground(Color.WHITE);
         JPanel infoPanel = new JPanel(new GridBagLayout());
         infoPanel.setBackground(Color.WHITE);
 
@@ -127,7 +101,6 @@ public class GUI_Employee extends JPanel {
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
 
-        // Nhãn hiển thị thông tin nhân viên
         gbc.gridx = 0;
         gbc.gridy = 0;
         infoPanel.add(new JLabel("Tên Nhân Viên: "), gbc);
@@ -139,8 +112,8 @@ public class GUI_Employee extends JPanel {
         gbc.gridy = 1;
         infoPanel.add(new JLabel("Mã Nhân Viên: "), gbc);
         gbc.gridx = 1;
-        JLabel employeeidLabel = new JLabel("");
-        infoPanel.add(employeeidLabel, gbc);
+        JLabel employeeIdLabel = new JLabel("");
+        infoPanel.add(employeeIdLabel, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 3;
@@ -159,14 +132,11 @@ public class GUI_Employee extends JPanel {
         // ========== PANEL BUTTON ==========
         JPanel buttonPanel = new JPanel(new BorderLayout());
         buttonPanel.setOpaque(false);
-
         deleteButton = new CustomButton("Xóa");
         deleteButton.setCustomColor(new Color(220, 0, 0));
         buttonPanel.add(deleteButton, BorderLayout.WEST);
-
         editButton = new CustomButton("Sửa");
         editButton.setCustomColor(new Color(0, 230, 0));
-
         buttonPanel.add(editButton, BorderLayout.EAST);
 
         gbc.gridx = 0;
@@ -174,9 +144,9 @@ public class GUI_Employee extends JPanel {
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        righPanel.add(infoPanel);
+        rightPanel.add(infoPanel);
         botPanel.add(leftPanel, BorderLayout.WEST);
-        botPanel.add(righPanel, BorderLayout.CENTER);
+        botPanel.add(rightPanel, BorderLayout.CENTER);
 
         employeeTable.getSelectionModel().addListSelectionListener(e -> {
             int selectedRow = employeeTable.getSelectedRow();
@@ -185,20 +155,17 @@ public class GUI_Employee extends JPanel {
                 String diaChi = (String) employeeTable.getValueAt(selectedRow, 2);
                 String sdt = (String) employeeTable.getValueAt(selectedRow, 3);
                 employeeChoosing = EmployeeDAO.getEmployee(sdt);
-                // Hiển thị dữ liệu trên giao diện
                 employeeLabel.setText(hoten);
-                employeeidLabel.setText(employeeChoosing.getEmployeeID());
+                employeeIdLabel.setText(employeeChoosing.getEmployeeID());
                 addressLabel.setText(diaChi);
                 phoneLabel.setText(sdt);
                 infoPanel.add(buttonPanel, gbc);
 
                 String employeeImg = employeeChoosing.getImage();
-                String imagePath = "images/Avatar.png"; // Đường dẫn mặc định
-
+                String imagePath = "images/Avatar.png";
                 if (employeeImg != null && !employeeImg.isEmpty()) {
                     String tempPath = "images/" + employeeImg;
                     File imageFile = new File(tempPath);
-                    System.out.println(imageFile);
                     if (imageFile.exists()) {
                         imagePath = tempPath;
                     }
@@ -215,18 +182,16 @@ public class GUI_Employee extends JPanel {
         });
 
         deleteButton.addActionListener(e -> {
-
-            if (helped.confirmDelete("Bạn có chắc muốn xóa nhân viên này?") == true) {
-                if (deleteEmployee(employeeChoosing.getEmployeeID(), employeeChoosing.getImage()) == true) {
+            if (helped.confirmDelete("Bạn có chắc muốn xóa nhân viên này?")) {
+                if (deleteEmployee(employeeChoosing.getEmployeeID(), employeeChoosing.getImage())) {
                     loadEmployees();
                     tableModel.fireTableDataChanged();
                     employeeLabel.setText("Chọn nhân viên");
-                    employeeidLabel.setText("");
+                    employeeIdLabel.setText("");
                     addressLabel.setText("");
                     phoneLabel.setText("");
                     String employeeImg = employeeChoosing.getImage();
                     String imagePath = "images/Avatar.png";
-
                     if (employeeImg != null && !employeeImg.isEmpty()) {
                         String tempPath = "images/" + employeeImg;
                         File imageFile = new File(tempPath);
@@ -237,7 +202,6 @@ public class GUI_Employee extends JPanel {
                     ImageIcon employeeIcon = new ImageIcon(imagePath);
                     Image img = employeeIcon.getImage().getScaledInstance(220, 220, Image.SCALE_SMOOTH);
                     imageLabel.setIcon(new ImageIcon(img));
-
                 }
             }
         });
@@ -257,7 +221,7 @@ public class GUI_Employee extends JPanel {
             if (!keyword.isEmpty()) {
                 searchEmployee(keyword);
             } else {
-                loadEmployees(); // Nếu ô tìm kiếm trống, load lại toàn bộ khách hàng
+                loadEmployees();
             }
         });
 
@@ -266,11 +230,9 @@ public class GUI_Employee extends JPanel {
             fileChooser.setDialogTitle("Chọn nơi lưu file Excel");
             fileChooser.setSelectedFile(new File("DanhSachNhanVien.xlsx"));
             int userSelection = fileChooser.showSaveDialog(this);
-        
             if (userSelection == JFileChooser.APPROVE_OPTION) {
                 File fileToSave = fileChooser.getSelectedFile();
                 String filePath = fileToSave.getAbsolutePath();
-                // Gọi phương thức exportToExcel từ EmployeeBUS
                 boolean success = employeeBUS.exportToExcel(filePath);
                 if (success) {
                     JOptionPane.showMessageDialog(this, "Xuất file Excel thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
@@ -279,19 +241,19 @@ public class GUI_Employee extends JPanel {
                 }
             }
         });
+
         importExcelButton.addActionListener(e -> {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setDialogTitle("Chọn file Excel để nhập");
             fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Excel files", "xlsx", "xls"));
             int userSelection = fileChooser.showOpenDialog(this);
-
             if (userSelection == JFileChooser.APPROVE_OPTION) {
                 File fileToImport = fileChooser.getSelectedFile();
                 try {
                     boolean success = employeeBUS.importEmployeesFromExcel(fileToImport);
                     if (success) {
                         JOptionPane.showMessageDialog(this, "Nhập dữ liệu từ Excel thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-                        loadEmployees(); // Cập nhật lại bảng sau khi nhập
+                        loadEmployees();
                         tableModel.fireTableDataChanged();
                     } else {
                         JOptionPane.showMessageDialog(this, "Nhập dữ liệu từ Excel thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
@@ -303,7 +265,6 @@ public class GUI_Employee extends JPanel {
             }
         });
 
-        // Thêm các panel vào giao diện chính
         add(topPanel);
         add(Box.createVerticalStrut(5));
         add(midPanel);
@@ -312,34 +273,27 @@ public class GUI_Employee extends JPanel {
 
         loadEmployees();
         ArrayList<ActionDTO> actions = ActionBUS.getPermissionActions(a, "Quản lý nhân viên");
-
         boolean canAdd = false, canEdit = false, canDelete = false, canWatch = false;
-
         if (actions != null) {
             for (ActionDTO action : actions) {
                 switch (action.getName()) {
-                    case "Thêm" ->
-                        canAdd = true;
-                    case "Sửa" ->
-                        canEdit = true;
-                    case "Xóa" ->
-                        canDelete = true;
-                    case "Xem" ->
-                        canWatch = true;
+                    case "Thêm" -> canAdd = true;
+                    case "Sửa" -> canEdit = true;
+                    case "Xóa" -> canDelete = true;
+                    case "Xem" -> canWatch = true;
                 }
             }
         }
-
 
         addButton.setVisible(canAdd);
         editButton.setVisible(canEdit);
         deleteButton.setVisible(canDelete);
         scrollPane.setVisible(canWatch);
-        reloadButton.setVisible(false);
+        reloadButton.setVisible(true);
     }
 
-    private Boolean deleteEmployee(String EmployeeID, String employeeImg) {
-        if (EmployeeDAO.deleteEmployee(EmployeeID) == true) {
+    private Boolean deleteEmployee(String employeeID, String employeeImg) {
+        if (EmployeeDAO.deleteEmployee(employeeID)) {
             String imagePath = "images/" + employeeImg;
             File imageFile = new File(imagePath);
             if (imageFile.exists()) {
@@ -349,7 +303,7 @@ public class GUI_Employee extends JPanel {
                     System.out.println("Không thể xóa ảnh của nhân viên.");
                 }
             }
-            JOptionPane.showMessageDialog(this, "Xoá nhân viên thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Xóa nhân viên thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
             return true;
         } else {
             JOptionPane.showMessageDialog(this, "Xóa nhân viên thất bại!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
@@ -363,20 +317,25 @@ public class GUI_Employee extends JPanel {
         int index = 1;
         for (EmployeeDTO emp : employees) {
             tableModel.addRow(new Object[]{
-                index++,
-                emp.getFullName(),
-                emp.getAddress(),
-                emp.getPhone(),
-                emp.getImage()
+                    index++,
+                    emp.getFullName(),
+                    emp.getAddress(),
+                    emp.getPhone()
             });
         }
     }
 
     private void searchEmployee(String keyword) {
-        List<EmployeeDTO> employee = employeeBUS.searchEmployee(keyword);
+        List<EmployeeDTO> employees = employeeBUS.searchEmployee(keyword);
         tableModel.setRowCount(0);
-        for (EmployeeDTO emp : employee) {
-            tableModel.addRow(new Object[]{emp.getEmployeeID(), emp.getFullName(), emp.getAddress(), emp.getPhone(), emp.getImage()});
+        int index = 1;
+        for (EmployeeDTO emp : employees) {
+            tableModel.addRow(new Object[]{
+                    index++,
+                    emp.getFullName(),
+                    emp.getAddress(),
+                    emp.getPhone()
+            });
         }
     }
 }

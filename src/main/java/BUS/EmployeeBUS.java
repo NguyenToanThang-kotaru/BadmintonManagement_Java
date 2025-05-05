@@ -9,9 +9,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import Connection.DatabaseConnection;
+
 import javax.swing.JOptionPane;
 
 public class EmployeeBUS {
@@ -28,33 +35,29 @@ public class EmployeeBUS {
 
     public EmployeeDTO getEmployeeByID(String employeeID) {
         for (EmployeeDTO emp : employeeList) {
-            if (emp.getEmployeeID() == employeeID) {
+            if (emp.getEmployeeID().equals(employeeID)) {
                 return emp;
             }
         }
-        return null; // Không tìm thấy
+        return null;
     }
 
     public boolean updateEmployee(EmployeeDTO employee) {
         for (int i = 0; i < employeeList.size(); i++) {
-            if (employeeList.get(i).getEmployeeID() == employee.getEmployeeID()) {
+            if (employeeList.get(i).getEmployeeID().equals(employee.getEmployeeID())) {
                 employeeList.set(i, employee);
                 EmployeeDAO dao = new EmployeeDAO();
                 try {
-                    dao.updateEmployee(employee); // Cập nhật trong DB
-
-                    // Cập nhật lại danh sách nhân viên từ DB sau khi sửa
-
+                    dao.updateEmployee(employee);
                     this.employeeList = EmployeeDAO.getAllEmployees();
-
-                    return true; // Cập nhật thành công
+                    return true;
                 } catch (Exception e) {
                     System.err.println("❌ Lỗi khi cập nhật nhân viên: " + e.getMessage());
-                    return false; // Lỗi khi cập nhật
+                    return false;
                 }
             }
         }
-        return false; // Không tìm thấy nhân viên để cập nhật
+        return false;
     }
 
     public String getEmployeeNameByID(String employeeID) {
@@ -71,7 +74,8 @@ public class EmployeeBUS {
 
     public boolean importEmployeesFromExcel(File file) {
         List<EmployeeDTO> employeesToImport = new ArrayList<>();
-        DataFormatter dataFormatter = new DataFormatter(); // Dùng DataFormatter để đọc đúng định dạng
+        List<Integer> isDeletedList = new ArrayList<>();
+        DataFormatter dataFormatter = new DataFormatter();
         try (FileInputStream fis = new FileInputStream(file);
              Workbook workbook = new XSSFWorkbook(fis)) {
             Sheet sheet = workbook.getSheetAt(0);
@@ -79,38 +83,59 @@ public class EmployeeBUS {
                 Row row = sheet.getRow(rowIndex);
                 if (row == null) continue;
                 EmployeeDTO employee = new EmployeeDTO();
-    
-                // Đọc các cột từ Excel
-                Cell fullNameCell = row.getCell(1);
-                Cell addressCell = row.getCell(2);
-                Cell phoneCell = row.getCell(3);
-                Cell chucVuCell = row.getCell(4); // Đọc cột chức vụ (nếu có)
-    
+
+                // Đọc các cột từ Excel theo cấu trúc bảng nhan_vien
+                Cell tenNhanVienCell = row.getCell(1);
+                Cell diaChiCell = row.getCell(2);
+                Cell soDienThoaiCell = row.getCell(3);
+                Cell isDeletedCell = row.getCell(5);
+                Cell chucVuCell = row.getCell(6);
+
                 // Gán giá trị cho EmployeeDTO
-                employee.setFullName(fullNameCell != null ? dataFormatter.formatCellValue(fullNameCell).trim() : "");
-                employee.setAddress(addressCell != null ? dataFormatter.formatCellValue(addressCell).trim() : "");
-                employee.setPhone(phoneCell != null ? dataFormatter.formatCellValue(phoneCell).trim() : "");
-                employee.setImage("");
-    
-                // Xử lý cột chuc_vu
-                String chucVu = chucVuCell != null ? dataFormatter.formatCellValue(chucVuCell).trim() : "";
-                employee.setChucVu(chucVu); // Gán chuỗi rỗng nếu chuc_vu trống hoặc không có
-    
+                employee.setFullName(tenNhanVienCell != null ? dataFormatter.formatCellValue(tenNhanVienCell).trim() : "");
+                employee.setAddress(diaChiCell != null ? dataFormatter.formatCellValue(diaChiCell).trim() : "");
+                String phone = soDienThoaiCell != null ? dataFormatter.formatCellValue(soDienThoaiCell).trim() : "";
+                employee.setPhone(phone);
+                employee.setImage(""); // Đặt hinh_anh là chuỗi rỗng
+                employee.setChucVu(chucVuCell != null ? dataFormatter.formatCellValue(chucVuCell).trim() : "");
+
+                // Xử lý is_deleted
+                int isDeleted = 0; // Mặc định là 0
+                if (isDeletedCell != null) {
+                    String isDeletedStr = dataFormatter.formatCellValue(isDeletedCell).trim();
+                    try {
+                        isDeleted = Integer.parseInt(isDeletedStr);
+                        if (isDeleted != 0 && isDeleted != 1) {
+                            isDeleted = 0; // Nếu giá trị không hợp lệ, đặt về 0
+                            System.out.println("Giá trị is_deleted không hợp lệ tại dòng " + (rowIndex + 1) + ", đặt mặc định là 0.");
+                        }
+                    } catch (NumberFormatException e) {
+                        System.out.println("Giá trị is_deleted không phải số tại dòng " + (rowIndex + 1) + ", đặt mặc định là 0.");
+                    }
+                }
+                isDeletedList.add(isDeleted);
+
                 // Kiểm tra dữ liệu bắt buộc
                 if (employee.getFullName().isEmpty() || employee.getAddress().isEmpty() || employee.getPhone().isEmpty()) {
                     System.out.println("Dòng " + (rowIndex + 1) + " thiếu thông tin, bỏ qua.");
                     continue;
                 }
-    
+
+                // Kiểm tra định dạng số điện thoại (bắt đầu bằng 0, đúng 10 chữ số)
+                if (!phone.matches("^0\\d{9}$")) {
+                    System.out.println("Số điện thoại " + phone + " không hợp lệ tại dòng " + (rowIndex + 1) + ", bỏ qua.");
+                    continue;
+                }
+
                 // Kiểm tra trùng số điện thoại
                 if (EmployeeDAO.isPhoneNumberExists(employee.getPhone())) {
                     System.out.println("Số điện thoại " + employee.getPhone() + " đã tồn tại, bỏ qua dòng " + (rowIndex + 1));
                     continue;
                 }
-    
+
                 employeesToImport.add(employee);
             }
-            boolean success = EmployeeDAO.importEmployees(employeesToImport);
+            boolean success = EmployeeDAO.importEmployees(employeesToImport, isDeletedList);
             if (success) {
                 this.employeeList = EmployeeDAO.getAllEmployees();
             }
@@ -121,35 +146,35 @@ public class EmployeeBUS {
             return false;
         }
     }
-    public boolean exportToExcel(String filePath) {
-        // Tạo workbook và sheet
-        Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Danh sách nhân viên");
 
-        try {
+    public boolean exportToExcel(String filePath) {
+        try (Connection conn = DatabaseConnection.getConnection();
+             Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("DanhSachNhanVien");
+            
             // Tạo dòng tiêu đề
             Row headerRow = sheet.createRow(0);
-            String[] columns = {"STT", "Họ Tên", "Địa Chỉ", "SĐT"};
+            String[] columns = {"ma_nhan_vien", "ten_nhan_vien", "dia_chi", "so_dien_thoai", "hinh_anh", "is_deleted", "chuc_vu"};
             for (int i = 0; i < columns.length; i++) {
                 Cell cell = headerRow.createCell(i);
                 cell.setCellValue(columns[i]);
-                // Tùy chỉnh style cho tiêu đề
-                CellStyle headerStyle = workbook.createCellStyle();
-                Font font = workbook.createFont();
-                font.setBold(true);
-                headerStyle.setFont(font);
-                cell.setCellStyle(headerStyle);
             }
 
-            // Lấy dữ liệu từ EmployeeDAO
-            List<EmployeeDTO> employees = EmployeeDAO.getAllEmployees();
+            // Lấy dữ liệu từ database, bao gồm cả is_deleted = 1
+            String sql = "SELECT * FROM nhan_vien";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
+            
             int rowNum = 1;
-            for (EmployeeDTO emp : employees) {
+            while (rs.next()) {
                 Row row = sheet.createRow(rowNum++);
-                row.createCell(0).setCellValue(rowNum - 1);
-                row.createCell(1).setCellValue(emp.getFullName());
-                row.createCell(2).setCellValue(emp.getAddress());
-                row.createCell(3).setCellValue(emp.getPhone());
+                row.createCell(0).setCellValue(rs.getString("ma_nhan_vien"));
+                row.createCell(1).setCellValue(rs.getString("ten_nhan_vien"));
+                row.createCell(2).setCellValue(rs.getString("dia_chi"));
+                row.createCell(3).setCellValue(rs.getString("so_dien_thoai"));
+                row.createCell(4).setCellValue(rs.getString("hinh_anh"));
+                row.createCell(5).setCellValue(rs.getInt("is_deleted"));
+                row.createCell(6).setCellValue(rs.getString("chuc_vu"));
             }
 
             // Tự động điều chỉnh kích thước cột
@@ -157,28 +182,20 @@ public class EmployeeBUS {
                 sheet.autoSizeColumn(i);
             }
 
-            // Lưu file Excel
+            // Ghi vào file
             try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
                 workbook.write(fileOut);
-                return true;
             }
-        } catch (IOException ex) {
-            ex.printStackTrace();
+            return true;
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
             return false;
-        } finally {
-            try {
-                workbook.close();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
         }
     }
 
     public boolean validateEmployee(EmployeeDTO employee) {
         String fullName = employee.getFullName().trim();
         String phone = employee.getPhone().trim();
-        String Anh = employee.getImage();
-//        String address = employee.getAddress();
 
         // Tên không được chứa số
         if (fullName.matches(".*\\d+.*")) {
@@ -189,18 +206,10 @@ public class EmployeeBUS {
             return false;
         }
 
-        // Kiểm tra số điện thoại phải bắt đầu bằng 0 và chỉ chứa số
-        if (!phone.matches("^0\\d+$")) {
+        // Kiểm tra số điện thoại phải bắt đầu bằng 0 và đúng 10 chữ số
+        if (!phone.matches("^0\\d{9}$")) {
             JOptionPane.showMessageDialog(null,
-                    "Số điện thoại phải bắt đầu bằng số 0 và chỉ được chứa số.",
-                    "Lỗi nhập liệu",
-                    JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
-
-        if (Anh == null) {
-            JOptionPane.showMessageDialog(null,
-                    "Ảnh nhân viên không được để trống.",
+                    "Số điện thoại phải bắt đầu bằng số 0 và có đúng 10 chữ số.",
                     "Lỗi nhập liệu",
                     JOptionPane.ERROR_MESSAGE);
             return false;
@@ -208,5 +217,4 @@ public class EmployeeBUS {
 
         return true;
     }
-
 }
