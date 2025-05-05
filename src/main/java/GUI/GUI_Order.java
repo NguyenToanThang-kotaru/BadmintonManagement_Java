@@ -164,6 +164,7 @@ public class GUI_Order extends JPanel {
 
                     if (success) {
                         JOptionPane.showMessageDialog(this, "Đã xóa hóa đơn và chi tiết!");
+                        product.loadProductData();
                         loadOrder();
                     } else {
                         JOptionPane.showMessageDialog(this, "Xóa hóa đơn thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
