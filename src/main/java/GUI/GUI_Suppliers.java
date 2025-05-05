@@ -37,15 +37,28 @@ public class GUI_Suppliers extends JPanel {
         topPanel.setPreferredSize(new Dimension(0, 60));
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         topPanel.setBackground(Color.WHITE);
-
+        
         searchField = new CustomSearch(275, 20);
         searchField.setBackground(Color.WHITE);
         searchField.setSearchListener(e -> searchSuppliers());
         topPanel.add(searchField, BorderLayout.CENTER);
-
+        
+        // Panel chứa các nút bên trái (Nhập Excel + Xuất Excel)
+        JPanel leftButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        leftButtonPanel.setOpaque(false);
+        
+        CustomButton importExcelButton = new CustomButton("Nhập Excel");
+        importExcelButton.setPreferredSize(new Dimension(120, 30));
+        leftButtonPanel.add(importExcelButton);
+        
         CustomButton exportExcelButton = new CustomButton("Xuất Excel");
         exportExcelButton.setPreferredSize(new Dimension(120, 30));
-        topPanel.add(exportExcelButton, BorderLayout.WEST);
+        leftButtonPanel.add(exportExcelButton);
+        
+        topPanel.add(leftButtonPanel, BorderLayout.WEST);
+        
+        addButton = new CustomButton("+ Thêm Nhà Cung Cấp");
+        topPanel.add(addButton, BorderLayout.EAST);
 
         midPanel = new JPanel(new BorderLayout());
         midPanel.setBackground(Color.WHITE);
@@ -154,6 +167,31 @@ public class GUI_Suppliers extends JPanel {
                 new GUI_Detail_Suppliers(this, supplier).setVisible(true);
             } else {
                 JOptionPane.showMessageDialog(this, "Vui lòng chọn nhà cung cấp để xem danh sách sản phẩm!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        
+        importExcelButton.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Chọn file Excel để nhập");
+            fileChooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
+                public boolean accept(File f) {
+                    return f.getName().toLowerCase().endsWith(".xlsx") || f.isDirectory();
+                }
+                public String getDescription() {
+                    return "Excel Files (*.xlsx)";
+                }
+            });
+            int userSelection = fileChooser.showOpenDialog(this);
+        
+            if (userSelection == JFileChooser.APPROVE_OPTION) {
+                File fileToImport = fileChooser.getSelectedFile();
+                boolean success = suppliersBUS.importSuppliersFromExcel(fileToImport.getAbsolutePath());
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Nhập file Excel thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                    loadSuppliers();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Lỗi khi nhập file Excel!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
         
