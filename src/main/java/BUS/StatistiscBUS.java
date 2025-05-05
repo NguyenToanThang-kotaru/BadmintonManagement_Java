@@ -50,4 +50,8 @@ public class StatistiscBUS {
         }
         return GUI.Utils.formatCurrencyLong(totalRevenue);
     }
+    
+    public ArrayList<Object[]> getProductStatistics() {
+        return statDAO.getProductStatistics();
+    }
 }

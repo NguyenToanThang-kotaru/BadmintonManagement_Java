@@ -2,6 +2,7 @@ package GUI;
 
 import BUS.ProductBUS;
 import DTO.ProductDTO;
+import BUS.StatistiscBUS;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -126,7 +127,7 @@ public class GUI_Product_Statistics extends JPanel {
         add(botPanel);
 
         // Load dữ liệu ban đầu
-        loadProductData();
+        loadProductStatistics();
 
         // Xử lý sự kiện
 //        filterButton.addActionListener(e -> filterProducts());
@@ -200,12 +201,40 @@ public class GUI_Product_Statistics extends JPanel {
         fromDateChooser.setDate(null);
         toDateChooser.setDate(null);
         productFilterCombo.setSelectedIndex(0);
-        loadProductData();
+        loadProductStatistics();
+    }
+    
+    private void loadProductStatistics() {
+        StatistiscBUS statBUS = new StatistiscBUS();
+        ArrayList<Object[]> statistics = statBUS.getProductStatistics();
+
+        tableModel.setRowCount(0); // Xóa dữ liệu cũ
+
+        int totalSold = 0;
+        int totalRevenue = 0;
+
+        for (Object[] row : statistics) {
+            ProductDTO product = (ProductDTO) row[0];
+            int soldQuantity = (int) row[1];
+            int profit = (int) row[2];
+
+            tableModel.addRow(new Object[]{
+                product.getProductID(),
+                product.getProductName(),
+                soldQuantity,
+                product.getSoluong(),
+                Utils.formatCurrencyLong(profit)
+            });
+
+            totalSold += soldQuantity;
+            totalRevenue += profit;
+        }
+        updateSummary(statistics.size(), GUI.Utils.formatCurrencyLong(totalRevenue), totalSold);
     }
 
-    private void updateSummary(int totalProducts, String totalRevenue, int totalSold) {
+    private void updateSummary(int totalProducts, String formattedRevenue, int totalSold) {
         totalProductLabel.setText(String.valueOf(totalProducts));
-        totalRevenueLabel.setText(totalRevenue);
+        totalRevenueLabel.setText(formattedRevenue);
         totalSoldLabel.setText(String.valueOf(totalSold));
     }
 }
