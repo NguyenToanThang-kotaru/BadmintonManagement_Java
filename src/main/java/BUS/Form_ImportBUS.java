@@ -114,19 +114,17 @@ public class Form_ImportBUS {
         return saved;
     }
 
-    // Gọi từ ProductDAO
     public List<Object[]> loadAllProducts() {
         List<Object[]> products = new ArrayList<>();
         ArrayList<ProductDTO> productList = productDAO.getAllProducts();
         for (ProductDTO product : productList) {
-            // Kiểm tra xem nhà cung cấp của sản phẩm có bị xóa không
             String supplierID = product.getMaNCC();
             SuppliersDTO supplier = suppliersDAO.getSuppliers(supplierID);
             if (supplier != null && supplier.getIsDeleted() == 0) {
                 products.add(new Object[]{
                     product.getProductID(),
                     product.getProductName(),
-                    Utils.formatCurrency(Integer.parseInt(product.getGia()))
+                    Utils.formatCurrency(Integer.parseInt(product.getGiaGoc()))
                 });
             }
         }

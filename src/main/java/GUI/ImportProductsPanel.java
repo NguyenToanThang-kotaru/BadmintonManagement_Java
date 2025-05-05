@@ -7,6 +7,10 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.*;
 import java.awt.*;
 
+
+//LAYOUT BẢNG DANH SÁCH SẢN PHẨM NHẬP CỦA FORM IMPORT
+//SỬ DỤNG ĐỂ HIỂN THỊ DANH SÁCH SẢN PHẨM ĐANG ĐƯỢC NHẬP TRONG FORM IMPORT
+
 public class ImportProductsPanel extends JPanel {
     private JTable productsTable;
     private DefaultTableModel importTableModel;
@@ -32,7 +36,7 @@ public class ImportProductsPanel extends JPanel {
         columnModel.getColumn(2).setPreferredWidth(80);
         columnModel.getColumn(3).setPreferredWidth(120);
         columnModel.getColumn(4).setPreferredWidth(150);
-        columnModel.getColumn(5).setPreferredWidth(150); // Độ rộng cho cột Nhà Cung Cấp
+        columnModel.getColumn(5).setPreferredWidth(150);
         for (int i = 0; i < columnModel.getColumnCount(); i++) {
             columnModel.getColumn(i).setCellRenderer(centerRenderer);
         }
