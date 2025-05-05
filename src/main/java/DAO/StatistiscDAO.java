@@ -77,8 +77,7 @@ public class StatistiscDAO {
             JOIN san_pham sp ON cthd.ma_san_pham = sp.ma_san_pham
             JOIN hoa_don hd ON cthd.ma_hoa_don = hd.ma_hoa_don
             WHERE hd.is_deleted = 0
-            GROUP BY sp.ma_san_pham, sp.ten_san_pham, sp.so_luong
-        """;
+            GROUP BY sp.ma_san_pham, sp.ten_san_pham, sp.so_luong """;
 
         try (Connection conn = DatabaseConnection.getConnection(); 
              PreparedStatement stmt = conn.prepareStatement(query);
