@@ -158,6 +158,7 @@ public class GUI_Order extends JPanel {
                     // 2. Xóa chi tiết hóa đơn
                     DetailOrderBUS detailBUS = new DetailOrderBUS();
                     detailBUS.deleteByOrderID(orderID);
+                    orderBUS.rollbackCanceledOrder(orderID);
 
                     if (success) {
                         JOptionPane.showMessageDialog(this, "Đã xóa hóa đơn và chi tiết!");

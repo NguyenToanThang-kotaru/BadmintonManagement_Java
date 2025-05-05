@@ -9,6 +9,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class OrderDAO {
 
@@ -247,5 +249,50 @@ public class OrderDAO {
             e.printStackTrace();
         }
         return orders;
+    }
+    
+    public static void restoreProductsFromCanceledOrder(String OrderID) {
+        String query = """
+            SELECT ma_san_pham, ma_serial
+            FROM chi_tiet_hoa_don
+            WHERE ma_hoa_don = ? AND is_deleted = 1
+        """;
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, OrderID);
+            ResultSet rs = stmt.executeQuery();
+
+            HashMap<String, Integer> quantityMap = new HashMap<>();
+
+            while (rs.next()) {
+                String maSanPham = rs.getString("ma_san_pham");
+                String maSerial = rs.getString("ma_serial");
+
+                // Đặt lại is_deleted = 0 trong danh_sach_san_pham
+                try (PreparedStatement updateSerial = conn.prepareStatement(
+                        "UPDATE danh_sach_san_pham SET is_deleted = 0 WHERE ma_serial = ?")) {
+                    updateSerial.setString(1, maSerial);
+                    updateSerial.executeUpdate();
+                }
+
+                // Tính lại số lượng
+                quantityMap.put(maSanPham, quantityMap.getOrDefault(maSanPham, 0) + 1);
+            }
+
+            // Cộng lại số lượng tồn sản phẩm
+            for (Map.Entry<String, Integer> entry : quantityMap.entrySet()) {
+                try (PreparedStatement updateProduct = conn.prepareStatement(
+                        "UPDATE san_pham SET so_luong = so_luong + ? WHERE ma_san_pham = ?")) {
+                    updateProduct.setInt(1, entry.getValue());
+                    updateProduct.setString(2, entry.getKey());
+                    updateProduct.executeUpdate();
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

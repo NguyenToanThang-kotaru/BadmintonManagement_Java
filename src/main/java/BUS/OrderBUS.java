@@ -70,53 +70,58 @@ public class OrderBUS {
     public void getOrder(String mahd) {
         dao.getOrder(mahd);
     }
+    
+    public void rollbackCanceledOrder(String OrderID) {
+        OrderDAO.restoreProductsFromCanceledOrder(OrderID);
+    }
+    
     public boolean exportToExcel(String filePath) {
-    Workbook workbook = new XSSFWorkbook();
-    Sheet sheet = workbook.createSheet("Danh sách hóa đơn");
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Danh sách hóa đơn");
 
-    try {
-        Row headerRow = sheet.createRow(0);
-        String[] columns = {"Mã HĐ", "Mã NV", "Mã KH", "Tổng Tiền", "Ngày Xuất", "Tổng Lợi Nhuận", "Trạng Thái"};
-        for (int i = 0; i < columns.length; i++) {
-            Cell cell = headerRow.createCell(i);
-            cell.setCellValue(columns[i]);
-            CellStyle headerStyle = workbook.createCellStyle();
-            Font font = workbook.createFont();
-            font.setBold(true);
-            headerStyle.setFont(font);
-            cell.setCellStyle(headerStyle);
-        }
-
-        List<OrderDTO> orders = getAllOrder();
-        int rowNum = 1;
-        for (OrderDTO o : orders) {
-            Row row = sheet.createRow(rowNum++);
-            row.createCell(0).setCellValue(o.getorderID());
-            row.createCell(1).setCellValue(o.getemployeeID());
-            row.createCell(2).setCellValue(o.getcustomerID());
-            row.createCell(3).setCellValue(o.gettotalmoney());
-            row.createCell(4).setCellValue(o.getissuedate());
-            row.createCell(5).setCellValue(o.gettotalprofit());
-            row.createCell(6).setCellValue(o.getis_deleted() ? "Đã hủy" : "Đã hoàn thành");
-        }
-
-        for (int i = 0; i < columns.length; i++) {
-            sheet.autoSizeColumn(i);
-        }
-
-        try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
-            workbook.write(fileOut);
-            return true;
-        }
-    } catch (IOException ex) {
-        ex.printStackTrace();
-        return false;
-    } finally {
         try {
-            workbook.close();
+            Row headerRow = sheet.createRow(0);
+            String[] columns = {"Mã HĐ", "Mã NV", "Mã KH", "Tổng Tiền", "Ngày Xuất", "Tổng Lợi Nhuận", "Trạng Thái"};
+            for (int i = 0; i < columns.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(columns[i]);
+                CellStyle headerStyle = workbook.createCellStyle();
+                Font font = workbook.createFont();
+                font.setBold(true);
+                headerStyle.setFont(font);
+                cell.setCellStyle(headerStyle);
+            }
+
+            List<OrderDTO> orders = getAllOrder();
+            int rowNum = 1;
+            for (OrderDTO o : orders) {
+                Row row = sheet.createRow(rowNum++);
+                row.createCell(0).setCellValue(o.getorderID());
+                row.createCell(1).setCellValue(o.getemployeeID());
+                row.createCell(2).setCellValue(o.getcustomerID());
+                row.createCell(3).setCellValue(o.gettotalmoney());
+                row.createCell(4).setCellValue(o.getissuedate());
+                row.createCell(5).setCellValue(o.gettotalprofit());
+                row.createCell(6).setCellValue(o.getis_deleted() ? "Đã hủy" : "Đã hoàn thành");
+            }
+
+            for (int i = 0; i < columns.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
+                workbook.write(fileOut);
+                return true;
+            }
         } catch (IOException ex) {
             ex.printStackTrace();
+            return false;
+        } finally {
+            try {
+                workbook.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
     }
-}
 }
