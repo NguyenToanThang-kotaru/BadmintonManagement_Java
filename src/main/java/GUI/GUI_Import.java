@@ -26,9 +26,11 @@ public class GUI_Import extends JPanel {
     private final JLabel totalMoneyLabel;
     private final JLabel receiptDateLabel;
     private ImportDTO selectedImport;
+    private GUI_Product product;
 
-    public GUI_Import(AccountDTO a) {
+    public GUI_Import(AccountDTO a, GUI_Product product) {
         this.importBUS = new ImportBUS();
+        this.product = product;
         String currentUsername = GUI_Login.getCurrentUsername();
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -52,7 +54,7 @@ public class GUI_Import extends JPanel {
 
         CustomButton addButton = new CustomButton("+ Thêm Phiếu Nhập");
         addButton.addActionListener(e -> {
-            Form_Import form = new Form_Import(this, currentUsername);
+            Form_Import form = new Form_Import(this, currentUsername, product);
             form.setVisible(true);
         });
         topPanel.add(addButton, BorderLayout.EAST);

@@ -23,12 +23,14 @@ public class Form_Import extends JDialog {
     private String currentUser;
     private GUI_Import parentImportPanel;
     private int totalAmount = 0;
+    private GUI_Product product;
 
-    public Form_Import(GUI_Import parentImportPanel, String username) {
+    public Form_Import(GUI_Import parentImportPanel, String username, GUI_Product product) {
         super((Frame) SwingUtilities.getWindowAncestor(parentImportPanel), "Nhập Hàng Mới", true);
         this.parentImportPanel = parentImportPanel;
         this.currentUser = username;
         this.bus = new Form_ImportBUS();
+        this.product = product;
         
         initializeUI();
         loadAllProducts();
@@ -194,6 +196,7 @@ public class Form_Import extends JDialog {
                 JOptionPane.showMessageDialog(this, "Lưu phiếu nhập thành công", "Thành công", JOptionPane.INFORMATION_MESSAGE);
                 parentImportPanel.loadImport();
                 loadAllProducts();
+                product.loadProductData();
                 resetForm();
             } else {
                 JOptionPane.showMessageDialog(this, "Lỗi khi lưu phiếu nhập", "Lỗi", JOptionPane.ERROR_MESSAGE);

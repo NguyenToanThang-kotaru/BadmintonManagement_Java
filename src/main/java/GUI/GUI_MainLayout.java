@@ -54,11 +54,11 @@ public class GUI_MainLayout extends JFrame {
 
         Sidebar.productPanel = new GUI_Product(logned);
 
-        Sidebar.orderPanel = new GUI_Order(logned);
+        Sidebar.orderPanel = new GUI_Order(logned, (GUI_Product) Sidebar.productPanel);
 
         Sidebar.repairPanel = new GUI_Guarantee(logned);
 
-        Sidebar.importPanel = new GUI_Import(logned);
+        Sidebar.importPanel = new GUI_Import(logned, (GUI_Product) Sidebar.productPanel);
 
         Sidebar.employeePanel = new GUI_Employee(logned);
 

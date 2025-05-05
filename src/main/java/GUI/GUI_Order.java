@@ -21,9 +21,11 @@ public class GUI_Order extends JPanel {
     private CustomSearch searchField;
     private OrderBUS orderBUS = new OrderBUS();
     private OrderDTO order =  new OrderDTO();
+    private GUI_Product product;
 
-    public GUI_Order(AccountDTO cn) {
+    public GUI_Order(AccountDTO cn, GUI_Product product) {
         orderBUS = new OrderBUS();
+        this.product = product;
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -189,7 +191,7 @@ public class GUI_Order extends JPanel {
         });
         
         addButton.addActionListener(e -> {
-                Form_Order GFO = new Form_Order(this, null, cn);
+                Form_Order GFO = new Form_Order(this, null, cn, product);
                 GFO.setVisible(true);
         });
         

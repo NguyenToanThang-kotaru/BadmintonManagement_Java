@@ -42,15 +42,15 @@ public class Form_Order extends JDialog {
     private OrderDTO orderdto = new OrderDTO();
     private final Map<String, List<String>> usedSerialsMap = new HashMap<>();
     private final Map<String, String> productIdToUniqueKeyMap = new HashMap<>();
+    private GUI_Product product;
 
-
-
-    public Form_Order(GUI_Order parent, OrderDTO order, AccountDTO account) {
+    public Form_Order(GUI_Order parent, OrderDTO order, AccountDTO account, GUI_Product product) {
         super((Frame) SwingUtilities.getWindowAncestor(parent), order == null ? "Tạo Hóa Đơn" : "Sửa Hóa Đơn", true);
         this.orderBUS = new OrderBUS();
         this.currentOrder = order;
         this.currentAccount = account;
         this.totalAmount = 0;
+        this.product = product;
 
         setSize(1100, 750);
         setLocationRelativeTo(null);
@@ -705,10 +705,10 @@ public class Form_Order extends JDialog {
                 GuaranteeBUS.addGuarantee(detail.getserialID());
             }
         }
-
         orderBUS.updateOrder(orderdto);
         JOptionPane.showMessageDialog(this, "Lưu hóa đơn thành công!");
         parent.loadOrder();
+        product.loadProductData();
         dispose();
     }
 
