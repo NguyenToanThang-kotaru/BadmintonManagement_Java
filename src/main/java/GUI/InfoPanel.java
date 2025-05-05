@@ -9,7 +9,7 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.time.LocalDate;
 
-//LAYOUT THÔNG TIN NHẬP HÀNG CỦA FORM IMPORT
+//LAYOUT THÔNG TIN PHIẾU NHẬP HÀNG CỦA FORM IMPORT
 //SỬ DỤNG ĐỂ HIỂN THỊ THÔNG TIN PHIẾU NHẬP HÀNG TRONG FORM IMPORT
 
 public class InfoPanel extends JPanel {
