@@ -5,6 +5,7 @@ import DAO.SuppliersDAO;
 import DTO.ProductDTO;
 import DTO.SuppliersDTO;
 
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
@@ -15,8 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -164,4 +163,66 @@ public class SuppliersBUS {
             return false;
         }
     }
+    public boolean importSuppliersFromExcel(String filePath) {
+        try (FileInputStream fis = new FileInputStream(filePath);
+             Workbook workbook = new XSSFWorkbook(fis)) {
+            Sheet sheet = workbook.getSheetAt(0);
+            boolean success = true;
+    
+            for (Row row : sheet) {
+                if (row.getRowNum() == 0) continue; // Bỏ qua dòng tiêu đề
+    
+                String supplierID = getCellValueAsString(row.getCell(0));
+                String supplierName = getCellValueAsString(row.getCell(1));
+                String address = getCellValueAsString(row.getCell(2));
+                String phone = getCellValueAsString(row.getCell(3));
+                int isDeleted = (int) row.getCell(4).getNumericCellValue();
+    
+                // Validation cho số điện thoại
+                try {
+                    validatePhoneNumber(phone);
+                } catch (IllegalArgumentException e) {
+                    System.err.println("Lỗi tại dòng " + (row.getRowNum() + 1) + ": " + e.getMessage());
+                    success = false;
+                    continue; // Bỏ qua dòng không hợp lệ
+                }
+    
+                // Nếu mã nhà cung cấp rỗng, tự động sinh mã mới
+                if (supplierID == null || supplierID.trim().isEmpty()) {
+                    supplierID = generateSupplierID();
+                }
+    
+                // Gọi DAO để thêm vào database
+                suppliersDAO.insertSupplier(supplierID, supplierName, address, phone, isDeleted);
+            }
+            return success;
+        } catch (IOException | SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    private void validatePhoneNumber(String phone) {
+        if (phone == null || phone.isEmpty()) {
+            throw new IllegalArgumentException("Số điện thoại không được để trống!");
+        }
+        if (!phone.startsWith("0")) {
+            throw new IllegalArgumentException("Số điện thoại phải bắt đầu bằng số 0!");
+        }
+        if (!Pattern.matches("^[0-9]{10}$", phone)) {
+            throw new IllegalArgumentException("Số điện thoại phải có đúng 10 chữ số và chỉ chứa số!");
+        }
+    }
+
+    private String getCellValueAsString(Cell cell) {
+    if (cell == null) return "";
+    switch (cell.getCellType()) {
+        case STRING:
+            return cell.getStringCellValue();
+        case NUMERIC:
+            return String.valueOf((int) cell.getNumericCellValue());
+        default:
+            return "";
+    }
+}
+
 }

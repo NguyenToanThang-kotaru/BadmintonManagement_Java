@@ -136,4 +136,17 @@ public class SuppliersDAO {
     }
     return null;
 }
+public void insertSupplier(String supplierID, String supplierName, String address, String phone, int isDeleted) throws SQLException {
+    String query = "INSERT INTO nha_cung_cap (ma_nha_cung_cap, ten_nha_cung_cap, dia_chi, so_dien_thoai, is_deleted) VALUES (?, ?, ?, ?, ?)";
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(query)) {
+        stmt.setString(1, supplierID);
+        stmt.setString(2, supplierName);
+        stmt.setString(3, address);
+        stmt.setString(4, phone);
+        stmt.setInt(5, isDeleted);
+        stmt.executeUpdate();
+    }
+}
+
 }

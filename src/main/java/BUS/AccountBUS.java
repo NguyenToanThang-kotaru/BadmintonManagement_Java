@@ -23,6 +23,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import Connection.DatabaseConnection;
+import DAO.Permission2DAO;
 
 import org.apache.poi.ss.usermodel.Cell;
 import java.io.FileInputStream;
@@ -84,7 +85,7 @@ public class AccountBUS {
     }
 
     public static Boolean updateAccount(String username, String password, String maquyen) {
-        PermissionDTO a = new PermissionDTO(PermissionDAO.getPermissionByName(maquyen));
+        Permission2DTO a = Permission2DAO.getPermissionByName(maquyen);
         return AccountDAO.updateAccount(username, password, a.getID()) == true;
     }
 

@@ -40,25 +40,43 @@ public class GUI_Product extends JPanel {
         // ========== PANEL TRÊN CÙNG ==========    
         topPanel = new JPanel(new BorderLayout(10, 10));
         topPanel.setPreferredSize(new Dimension(0, 60));
-        topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Padding trên-dưới 10px
+        topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         topPanel.setBackground(Color.WHITE);
-        // Thanh tìm kiếm (70%)
+
+        // Thanh tìm kiếm
         searchField = new CustomSearch(250, 30);
         searchField.setFont(new Font("Arial", Font.PLAIN, 14));
         searchField.setBackground(Color.WHITE);
-//        searchField.setPreferredSize(new Dimension(0, 30));d
         topPanel.add(searchField, BorderLayout.CENTER);
-        reloadButton = new CustomButton("Tải Lại Trang");
-        topPanel.add(reloadButton, BorderLayout.WEST);
+
+        // Panel chứa các nút bên trái (Nhập Excel + Xuất Excel)
+        JPanel leftButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        leftButtonPanel.setOpaque(false);
+
+        CustomButton importExcelButton = new CustomButton("Nhập Excel");
+        importExcelButton.setPreferredSize(new Dimension(120, 30));
+        leftButtonPanel.add(importExcelButton);
 
         CustomButton exportExcelButton = new CustomButton("Xuất Excel");
         exportExcelButton.setPreferredSize(new Dimension(120, 30));
+        leftButtonPanel.add(exportExcelButton);
 
-        topPanel.add(exportExcelButton, BorderLayout.WEST);
+        topPanel.add(leftButtonPanel, BorderLayout.WEST);
+
+        // Panel chứa các nút bên phải (Tải Lại Trang + Thêm sản phẩm)
+        JPanel rightButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        rightButtonPanel.setOpaque(false);
+
+        reloadButton = new CustomButton("Tải Lại Trang");
+        reloadButton.setPreferredSize(new Dimension(120, 30));
+        rightButtonPanel.add(reloadButton);
+
         addButton = new CustomButton("+ Thêm sản phẩm");
         addButton.setFont(new Font("Arial", Font.BOLD, 14));
         addButton.setPreferredSize(new Dimension(170, 30));
-        topPanel.add(addButton, BorderLayout.EAST);
+        rightButtonPanel.add(addButton);
+
+        topPanel.add(rightButtonPanel, BorderLayout.EAST);
 //        // ========== BẢNG HIỂN THỊ ==========
         midPanel = new JPanel(new BorderLayout());
         midPanel.setBackground(Color.WHITE);
@@ -290,15 +308,46 @@ public class GUI_Product extends JPanel {
             tableModel.fireTableDataChanged();
         });
 
+        // Thêm sự kiện cho nút Nhập Excel
+        importExcelButton.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Chọn file Excel để nhập");
+            fileChooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
+                public boolean accept(File f) {
+                    return f.getName().toLowerCase().endsWith(".xlsx") || f.isDirectory();
+                }
+                public String getDescription() {
+                    return "Excel Files (*.xlsx)";
+                }
+            });
+            int userSelection = fileChooser.showOpenDialog(this);
+
+            if (userSelection == JFileChooser.APPROVE_OPTION) {
+                File fileToImport = fileChooser.getSelectedFile();
+                ProductBUS bus = new ProductBUS();
+                boolean success = bus.importProductsFromExcel(fileToImport);
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Nhập file Excel thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                    loadProductData();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Lỗi khi nhập file Excel!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        // Thêm sự kiện cho nút Xuất Excel
         exportExcelButton.addActionListener(e -> {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setDialogTitle("Chọn nơi lưu file Excel");
             fileChooser.setSelectedFile(new File("DanhSachSanPham.xlsx"));
             int userSelection = fileChooser.showSaveDialog(this);
-        
+
             if (userSelection == JFileChooser.APPROVE_OPTION) {
                 File fileToSave = fileChooser.getSelectedFile();
                 String filePath = fileToSave.getAbsolutePath();
+                if (!filePath.toLowerCase().endsWith(".xlsx")) {
+                    filePath += ".xlsx";
+                }
                 ProductBUS bus = new ProductBUS();
                 boolean success = bus.exportToExcel(filePath);
                 if (success) {
@@ -308,20 +357,6 @@ public class GUI_Product extends JPanel {
                 }
             }
         });
-
-        ShowSEButton.addActionListener(e -> {
-            int selectedRow = productTable.getSelectedRow();
-            if (selectedRow != -1) {
-                String productID = (String) productTable.getValueAt(selectedRow, 0);
-                ProductDTO product = ProductBUS.getProduct(productID);
-
-                // Hiển thị form danh sách SE
-                Form_SerialShower SEForm = new Form_SerialShower((JFrame) SwingUtilities.getWindowAncestor(this), product);
-                SEForm.setVisible(true);
-
-            }
-        });
-
         addButton.addActionListener(e -> {
             GUI_AddFormProduct addForm = new GUI_AddFormProduct((JFrame) SwingUtilities.getWindowAncestor(this), this);
             addForm.setVisible(true);
@@ -404,7 +439,8 @@ public class GUI_Product extends JPanel {
         deleteButton.setVisible(canDelete);
         scrollPane.setVisible(canWatch);
         reloadButton.setVisible(false);
-
+        importExcelButton.setVisible(canAdd);
+        exportExcelButton.setVisible(canWatch);
     }
 
 //    private void showEditForm() {

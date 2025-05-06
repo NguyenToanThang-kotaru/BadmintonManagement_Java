@@ -3,12 +3,22 @@ package DAO;
 import DTO.ProductDTO;
 
 import Connection.DatabaseConnection;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 // Lớp này dùng để kết nối database và lấy dữ liệu sản phẩm
 public class ProductDAO {
@@ -502,6 +512,137 @@ public class ProductDAO {
             stmt.executeBatch();
         } catch (SQLException e) {
             System.err.println("Lỗi mở lại serial: " + e.getMessage());
+        }
+    }
+
+    public static boolean importProductsFromExcel(File file) {
+        try (FileInputStream fis = new FileInputStream(file);
+             Workbook workbook = new XSSFWorkbook(fis);
+             Connection conn = DatabaseConnection.getConnection()) {
+            Sheet sheet = workbook.getSheetAt(0);
+            DataFormatter dataFormatter = new DataFormatter();
+            conn.setAutoCommit(false);
+
+            for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+                Row row = sheet.getRow(rowIndex);
+                if (row == null) continue;
+
+                String maSanPham = dataFormatter.formatCellValue(row.getCell(0)).trim();
+                String tenSanPham = dataFormatter.formatCellValue(row.getCell(1)).trim();
+                String gia = dataFormatter.formatCellValue(row.getCell(2)).trim();
+                String soLuong = dataFormatter.formatCellValue(row.getCell(3)).trim();
+                String maNhaCungCap = dataFormatter.formatCellValue(row.getCell(4)).trim();
+                String thongSoKyThuat = dataFormatter.formatCellValue(row.getCell(5)).trim();
+                String maLoai = dataFormatter.formatCellValue(row.getCell(6)).trim();
+                String hinhAnh = dataFormatter.formatCellValue(row.getCell(7)).trim();
+                String isDeleted = dataFormatter.formatCellValue(row.getCell(8)).trim();
+                String giaGoc = dataFormatter.formatCellValue(row.getCell(9)).trim();
+                String khuyenMai = dataFormatter.formatCellValue(row.getCell(10)).trim();
+                String thoiGianBaoHanh = dataFormatter.formatCellValue(row.getCell(11)).trim();
+
+                // Kiểm tra dữ liệu bắt buộc
+                if (tenSanPham.isEmpty() || gia.isEmpty() || soLuong.isEmpty() || maNhaCungCap.isEmpty() || maLoai.isEmpty()) {
+                    System.out.println("Dòng " + (rowIndex + 1) + " thiếu thông tin, bỏ qua.");
+                    continue;
+                }
+
+                // Kiểm tra mã loại và mã nhà cung cấp tồn tại
+                String checkLoaiSQL = "SELECT ma_loai FROM loai WHERE ma_loai = ? AND is_deleted = 0";
+                String checkNCCSQL = "SELECT ma_nha_cung_cap FROM nha_cung_cap WHERE ma_nha_cung_cap = ? AND is_deleted = 0";
+                try (PreparedStatement checkLoaiStmt = conn.prepareStatement(checkLoaiSQL);
+                     PreparedStatement checkNCCStmt = conn.prepareStatement(checkNCCSQL)) {
+                    checkLoaiStmt.setString(1, maLoai);
+                    ResultSet rsLoai = checkLoaiStmt.executeQuery();
+                    if (!rsLoai.next()) {
+                        System.out.println("Mã loại " + maLoai + " không tồn tại hoặc đã bị xóa, bỏ qua dòng " + (rowIndex + 1));
+                        continue;
+                    }
+
+                    checkNCCStmt.setString(1, maNhaCungCap);
+                    ResultSet rsNCC = checkNCCStmt.executeQuery();
+                    if (!rsNCC.next()) {
+                        System.out.println("Mã nhà cung cấp " + maNhaCungCap + " không tồn tại hoặc đã bị xóa, bỏ qua dòng " + (rowIndex + 1));
+                        continue;
+                    }
+                }
+
+                // Tạo mã sản phẩm mới nếu maSanPham trống
+                if (maSanPham.isEmpty()) {
+                    String lastIDQuery = "SELECT ma_san_pham FROM san_pham ORDER BY ma_san_pham DESC LIMIT 1";
+                    try (PreparedStatement lastIDStmt = conn.prepareStatement(lastIDQuery);
+                         ResultSet rs = lastIDStmt.executeQuery()) {
+                        if (rs.next()) {
+                            String lastID = rs.getString("ma_san_pham");
+                            int number = Integer.parseInt(lastID.substring(2)) + 1;
+                            maSanPham = String.format("SP%03d", number);
+                        } else {
+                            maSanPham = "SP001";
+                        }
+                    }
+                }
+
+                // Kiểm tra sản phẩm đã tồn tại
+                String checkExistSQL = "SELECT ma_san_pham, is_deleted FROM san_pham WHERE ma_san_pham = ?";
+                try (PreparedStatement checkStmt = conn.prepareStatement(checkExistSQL)) {
+                    checkStmt.setString(1, maSanPham);
+                    ResultSet rs = checkStmt.executeQuery();
+                    if (rs.next()) {
+                        int existingIsDeleted = rs.getInt("is_deleted");
+                        if (existingIsDeleted == 0) {
+                            System.out.println("Sản phẩm " + maSanPham + " đã tồn tại và chưa bị xóa, bỏ qua dòng " + (rowIndex + 1));
+                            continue;
+                        } else {
+                            // Cập nhật sản phẩm đã bị xóa mềm
+                            String updateSQL = "UPDATE san_pham SET ten_san_pham = ?, gia = ?, so_luong = ?, ma_nha_cung_cap = ?, thong_so_ki_thuat = ?, ma_loai = ?, hinh_anh = ?, is_deleted = ?, gia_goc = ?, khuyen_mai = ?, thoi_gian_bao_hanh = ? WHERE ma_san_pham = ?";
+                            try (PreparedStatement updateStmt = conn.prepareStatement(updateSQL)) {
+                                updateStmt.setString(1, tenSanPham);
+                                updateStmt.setDouble(2, Double.parseDouble(gia));
+                                updateStmt.setInt(3, Integer.parseInt(soLuong));
+                                updateStmt.setString(4, maNhaCungCap);
+                                updateStmt.setString(5, thongSoKyThuat);
+                                updateStmt.setString(6, maLoai);
+                                updateStmt.setString(7, hinhAnh);
+                                updateStmt.setInt(8, Integer.parseInt(isDeleted));
+                                updateStmt.setDouble(9, Double.parseDouble(giaGoc));
+                                updateStmt.setString(10, khuyenMai);
+                                updateStmt.setInt(11, Integer.parseInt(thoiGianBaoHanh));
+                                updateStmt.setString(12, maSanPham);
+                                updateStmt.executeUpdate();
+                            }
+                            continue;
+                        }
+                    }
+                }
+
+                // Thêm sản phẩm mới
+                String insertSQL = "INSERT INTO san_pham (ma_san_pham, ten_san_pham, gia, so_luong, ma_nha_cung_cap, thong_so_ki_thuat, ma_loai, hinh_anh, is_deleted, gia_goc, khuyen_mai, thoi_gian_bao_hanh) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                try (PreparedStatement insertStmt = conn.prepareStatement(insertSQL)) {
+                    insertStmt.setString(1, maSanPham);
+                    insertStmt.setString(2, tenSanPham);
+                    insertStmt.setDouble(3, Double.parseDouble(gia));
+                    insertStmt.setInt(4, Integer.parseInt(soLuong));
+                    insertStmt.setString(5, maNhaCungCap);
+                    insertStmt.setString(6, thongSoKyThuat);
+                    insertStmt.setString(7, maLoai);
+                    insertStmt.setString(8, hinhAnh);
+                    insertStmt.setInt(9, Integer.parseInt(isDeleted));
+                    insertStmt.setDouble(10, Double.parseDouble(giaGoc));
+                    insertStmt.setString(11, khuyenMai);
+                    insertStmt.setInt(12, Integer.parseInt(thoiGianBaoHanh));
+                    insertStmt.executeUpdate();
+                }
+            }
+
+            conn.commit();
+            return true;
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
+            try (Connection conn = DatabaseConnection.getConnection()) {
+                conn.rollback();
+            } catch (SQLException rollbackEx) {
+                rollbackEx.printStackTrace();
+            }
+            return false;
         }
     }
 }
