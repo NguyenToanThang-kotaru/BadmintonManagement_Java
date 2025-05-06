@@ -27,7 +27,6 @@ public class GUI_Customer extends JPanel {
 
     public GUI_Customer(AccountDTO a) {
         customerBUS = new CustomerBUS();
-
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(new EmptyBorder(10, 10, 10, 10));
         setBackground(new Color(200, 200, 200));

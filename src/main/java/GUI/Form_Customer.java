@@ -25,7 +25,7 @@ public class Form_Customer extends JDialog {
         gbc.gridy = 0;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
-
+        
         // Đổi tiêu đề form
         title = new JLabel(customer == null ? "THÊM KHÁCH HÀNG" : "SỬA KHÁCH HÀNG");
         title.setFont(new Font("Arial", Font.BOLD, 18));

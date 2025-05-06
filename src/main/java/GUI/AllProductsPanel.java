@@ -6,7 +6,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.*;
 import java.awt.*;
-import java.util.List;
 
 public class AllProductsPanel extends JPanel {
     private JTable allProductsTable;
