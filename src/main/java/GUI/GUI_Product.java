@@ -26,7 +26,7 @@ public class GUI_Product extends JPanel {
     private CustomSearch searchField;
     private ProductDTO productChoosing;
     private static GUI_Product instance;
-    
+
     public static GUI_Product getInstance() {
         return instance;
     }
@@ -303,6 +303,19 @@ public class GUI_Product extends JPanel {
             }
         });
 
+        ShowSEButton.addActionListener(e -> {
+            int selectedRow = productTable.getSelectedRow();
+            if (selectedRow != -1) {
+                String productID = (String) productTable.getValueAt(selectedRow, 0);
+                ProductDTO product = ProductBUS.getProduct(productID);
+
+                // Hiển thị form danh sách SE
+                Form_SerialShower SEForm = new Form_SerialShower((JFrame) SwingUtilities.getWindowAncestor(this), product);
+                SEForm.setVisible(true);
+
+            }
+        }); 
+
         reloadButton.addActionListener(e -> {
             loadProductData();
             tableModel.fireTableDataChanged();
@@ -316,6 +329,7 @@ public class GUI_Product extends JPanel {
                 public boolean accept(File f) {
                     return f.getName().toLowerCase().endsWith(".xlsx") || f.isDirectory();
                 }
+
                 public String getDescription() {
                     return "Excel Files (*.xlsx)";
                 }
