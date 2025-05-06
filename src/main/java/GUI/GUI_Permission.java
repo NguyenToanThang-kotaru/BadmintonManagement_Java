@@ -49,9 +49,10 @@ public class GUI_Permission extends JPanel {
 
         // ========== BẢNG HIỂN THỊ DANH SÁCH TÀI KHOẢN ==========
         midPanel = new JPanel(new BorderLayout());
+        midPanel.setPreferredSize(new Dimension(0, 780));
         midPanel.setBackground(Color.WHITE);
-        midPanel.setMinimumSize(new Dimension(600, 200));
-        midPanel.setPreferredSize(new Dimension(600, 200));
+//        midPanel.setMinimumSize(new Dimension(600, 200));
+//        midPanel.setPreferredSize(new Dimension(600, 200));
         // Định nghĩa tiêu đề cột
         String[] columnNames = {"STT", "Tên quyền", "Số lượng quyền", "Số lượng tài khoản"};
         CustomTable customTable = new CustomTable(columnNames);

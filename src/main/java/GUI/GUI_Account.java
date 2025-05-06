@@ -60,6 +60,7 @@ public class GUI_Account extends JPanel {
 
         // ========== BẢNG HIỂN THỊ DANH SÁCH TÀI KHOẢN ==========
         midPanel = new JPanel(new BorderLayout());
+        midPanel.setPreferredSize(new Dimension(0, 780));
         midPanel.setBackground(Color.WHITE);
         String[] columnNames = {"STT", "Nhân viên", "Tài khoản", "Mật khẩu", "Quyền"};
         CustomTable customTable = new CustomTable(columnNames);

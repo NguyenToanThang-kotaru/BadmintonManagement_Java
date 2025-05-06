@@ -66,9 +66,10 @@ public class GUI_Employee extends JPanel {
 
         // ========== BẢNG HIỂN THỊ DANH SÁCH NHÂN VIÊN ==========
         midPanel = new JPanel(new BorderLayout());
+        midPanel.setPreferredSize(new Dimension(0, 780));
         midPanel.setBackground(Color.WHITE);
-        midPanel.setMinimumSize(new Dimension(600, 200));
-        midPanel.setPreferredSize(new Dimension(600, 200));
+//        midPanel.setMinimumSize(new Dimension(600, 200));
+//        midPanel.setPreferredSize(new Dimension(600, 200));
         String[] columnNames = {"STT", "Họ Tên", "Địa Chỉ", "SĐT"};
         CustomTable customTable = new CustomTable(columnNames);
         employeeTable = customTable.getEmployeeTable();

@@ -52,6 +52,7 @@ public class GUI_Guarantee extends JPanel {
 
         // ========== BẢNG HIỂN THỊ ==========
         midPanel = new JPanel(new BorderLayout());
+        midPanel.setPreferredSize(new Dimension(0, 780));
         midPanel.setBackground(Color.WHITE);
         String[] columnNames = {"Mã BH", "Mã Serial", "Lý do bảo hành", "Thời gian bảo hành", "Trạng thái bảo hành"};
         CustomTable customTable = new CustomTable(columnNames);
@@ -61,8 +62,8 @@ public class GUI_Guarantee extends JPanel {
 
         CustomScrollPane scrollPane = new CustomScrollPane(warrantyTable);
         midPanel.add(scrollPane, BorderLayout.CENTER);
-        midPanel.setMinimumSize(new Dimension(600, 200));
-        midPanel.setPreferredSize(new Dimension(600, 200));
+//        midPanel.setMinimumSize(new Dimension(600, 200));
+//        midPanel.setPreferredSize(new Dimension(600, 200));
 
         // ========== PANEL CHI TIẾT ==========
         botPanel = new JPanel(new GridBagLayout());

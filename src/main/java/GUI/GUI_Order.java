@@ -49,6 +49,7 @@ public class GUI_Order extends JPanel {
 
         // ========== BẢNG HIỂN THỊ DANH SÁCH HÓA ĐƠN ==========
         midPanel = new JPanel(new BorderLayout());
+        midPanel.setPreferredSize(new Dimension(0, 780));
         midPanel.setBackground(Color.WHITE);
         
         // Định nghĩa tiêu đề cột

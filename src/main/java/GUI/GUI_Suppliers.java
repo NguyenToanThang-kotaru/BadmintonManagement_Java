@@ -65,6 +65,7 @@ public class GUI_Suppliers extends JPanel {
         topPanel.add(addButton, BorderLayout.EAST);
 
         midPanel = new JPanel(new BorderLayout());
+        midPanel.setPreferredSize(new Dimension(0, 780)); // hoặc chiều cao bạn muốn
         midPanel.setBackground(Color.WHITE);
 
         String[] columnNames = {"Mã NCC", "Tên NCC", "Địa chỉ", "SĐT"};

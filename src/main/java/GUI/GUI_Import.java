@@ -64,6 +64,7 @@ public class GUI_Import extends JPanel {
         tableModel = customTable.getTableModel();
 
         JPanel midPanel = new JPanel(new BorderLayout());
+        midPanel.setPreferredSize(new Dimension(0, 780));
         midPanel.setBackground(Color.WHITE);
         midPanel.add(new CustomScrollPane(importTable), BorderLayout.CENTER);
 

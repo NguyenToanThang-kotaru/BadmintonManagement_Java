@@ -65,6 +65,7 @@ public class GUI_Customer_Statistics extends JPanel {
 
         // ===== BẢNG HIỂN THỊ =====
         midPanel = new JPanel(new BorderLayout());
+        midPanel.setPreferredSize(new Dimension(0, 780));
         midPanel.setBackground(Color.WHITE);
 
         String[] columnNames = {"Mã KH", "Tên khách hàng", "Số hóa đơn", "Tổng tiền đã mua"};

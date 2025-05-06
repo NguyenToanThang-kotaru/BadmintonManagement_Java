@@ -60,10 +60,11 @@ public class GUI_Customer extends JPanel {
 
         // ========== BẢNG HIỂN THỊ DANH SÁCH KHÁCH HÀNG ==========
         midPanel = new JPanel(new BorderLayout());
+        midPanel.setPreferredSize(new Dimension(0, 780));
         midPanel.setBackground(Color.WHITE);
 
         // Định nghĩa tiêu đề cột
-        String[] columnNames = { "STT", "Mã KH", "Họ Tên", "SĐT"};
+        String[] columnNames = {"STT", "Mã KH", "Họ Tên", "SĐT"};
         CustomTable customTable = new CustomTable(columnNames);
         customerTable = customTable.getCustomerTable();
         tableModel = customTable.getTableModel();
@@ -114,6 +115,11 @@ public class GUI_Customer extends JPanel {
         editButton.setCustomColor(new Color(0, 230, 0));
         buttonPanel.add(editButton, BorderLayout.EAST);
 
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 2;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
         customerTable.getSelectionModel().addListSelectionListener(e -> {
             int selectedRow = customerTable.getSelectedRow();
             if (selectedRow != -1) {
@@ -128,7 +134,7 @@ public class GUI_Customer extends JPanel {
                 botPanel.add(buttonPanel, gbc);
             }
         });
-        
+
         importExcelButton.addActionListener(e -> {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setDialogTitle("Chọn file Excel để nhập");
@@ -136,12 +142,13 @@ public class GUI_Customer extends JPanel {
                 public boolean accept(File f) {
                     return f.getName().toLowerCase().endsWith(".xlsx") || f.isDirectory();
                 }
+
                 public String getDescription() {
                     return "Excel Files (*.xlsx)";
                 }
             });
             int userSelection = fileChooser.showOpenDialog(this);
-        
+
             if (userSelection == JFileChooser.APPROVE_OPTION) {
                 File fileToImport = fileChooser.getSelectedFile();
                 boolean success = customerBUS.importCustomersFromExcel(fileToImport);
@@ -159,7 +166,7 @@ public class GUI_Customer extends JPanel {
             fileChooser.setDialogTitle("Chọn nơi lưu file Excel");
             fileChooser.setSelectedFile(new File("DanhSachKhachHang.xlsx"));
             int userSelection = fileChooser.showSaveDialog(this);
-        
+
             if (userSelection == JFileChooser.APPROVE_OPTION) {
                 File fileToSave = fileChooser.getSelectedFile();
                 String filePath = fileToSave.getAbsolutePath();
@@ -223,10 +230,14 @@ public class GUI_Customer extends JPanel {
         if (actions != null) {
             for (ActionDTO action : actions) {
                 switch (action.getName()) {
-                    case "Thêm" -> canAdd = true;
-                    case "Sửa" -> canEdit = true;
-                    case "Xóa" -> canDelete = true;
-                    case "Xem" -> canWatch = true;
+                    case "Thêm" ->
+                        canAdd = true;
+                    case "Sửa" ->
+                        canEdit = true;
+                    case "Xóa" ->
+                        canDelete = true;
+                    case "Xem" ->
+                        canWatch = true;
                 }
             }
         }
