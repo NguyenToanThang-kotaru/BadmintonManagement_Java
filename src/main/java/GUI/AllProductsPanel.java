@@ -8,6 +8,9 @@ import javax.swing.table.*;
 import java.awt.*;
 import java.util.List;
 
+//LAYOUT BẢNG DANH SÁCH TẤT CẢ SẢN PHẨM CỦA FORM IMPORT
+//SỬ DỤNG ĐỂ HIỂN THỊ DANH SÁCH TẤT CẢ SẢN PHẨM TRONG CSDL ĐỂ NGƯỜI DÙNG CHỌN SẢN PHẨM NHẬP
+
 public class AllProductsPanel extends JPanel {
     private JTable allProductsTable;
     private DefaultTableModel productTableModel;
@@ -17,7 +20,7 @@ public class AllProductsPanel extends JPanel {
         setBorder(new CompoundBorder(new TitledBorder("Danh sách sản phẩm"), new EmptyBorder(5, 5, 5, 5)));
         setBackground(Color.WHITE);
 
-        String[] columns = {"Mã SP", "Tên SP", "Đơn giá"};
+        String[] columns = {"Mã SP", "Tên SP", "Giá nhập"};
         productTableModel = new DefaultTableModel(columns, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };

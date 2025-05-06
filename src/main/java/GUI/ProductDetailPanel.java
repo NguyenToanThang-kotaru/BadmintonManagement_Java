@@ -9,6 +9,10 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.*;
 
+
+//LAYOUT THÔNG TIN SẢN PHẨM ĐANG ĐƯỢC CHỌN CỦA FORM IMPORT
+//SỬ DỤNG ĐỂ HIỂN THỊ THÔNG TIN SẢN PHẨM ĐANG ĐƯỢC CHỌN TRONG FORM IMPORT
+
 public class ProductDetailPanel extends JPanel {
     private JLabel lblProductImage, lblProductId, lblProductName, lblSupplier, lblPrice, lblOriginalPrice, lblTotal;
     private JTextField txtQuantity;

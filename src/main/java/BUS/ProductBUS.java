@@ -4,6 +4,7 @@ import DAO.ProductDAO;
 import DTO.ProductDTO;
 
 import java.util.List;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
@@ -271,4 +272,7 @@ public class ProductBUS {
         return false;
     }
 }
+    public boolean importProductsFromExcel(File file) {
+    return ProductDAO.importProductsFromExcel(file);
+    }
 }

@@ -222,11 +222,24 @@ public class GUI_Import extends JPanel {
         String keyword = searchField.getText().trim().toLowerCase();
         List<ImportDTO> importList = importBUS.getAllImport();
         tableModel.setRowCount(0);
-
+    
         for (ImportDTO importDTO : importList) {
-            if (importDTO.getimportID().toLowerCase().contains(keyword)
-                    || importDTO.getemployeeID().toLowerCase().contains(keyword)) {
-                int calculatedTotal = importBUS.calculateImportTotal(importDTO.getimportID());
+            int calculatedTotal = importBUS.calculateImportTotal(importDTO.getimportID());
+            String receiptDate = importDTO.getreceiptdate().toLowerCase();
+            boolean matchesIdOrEmployee = importDTO.getimportID().toLowerCase().contains(keyword);
+            importDTO.getemployeeID().toLowerCase().contains(keyword);
+            boolean matchesDate = receiptDate.contains(keyword);
+            
+            boolean matchesTotal = false;
+            try {
+                String cleanKeyword = keyword.replaceAll("[^0-9]", "");
+                if (!cleanKeyword.isEmpty()) {
+                    long keywordTotal = Long.parseLong(cleanKeyword);
+                    matchesTotal = String.valueOf(calculatedTotal).contains(cleanKeyword);
+                }
+            } catch (NumberFormatException e) {
+            }
+            if (matchesIdOrEmployee || matchesDate || matchesTotal) {
                 tableModel.addRow(new Object[]{
                     importDTO.getimportID(),
                     importDTO.getemployeeID(),
