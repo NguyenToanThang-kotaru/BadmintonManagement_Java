@@ -193,7 +193,7 @@ public class GUI_Account extends JPanel {
 
         deleteButton.addActionListener(e -> {
             if (a.getUsername().equals(accountChoosing.getUsername())) {
-                JOptionPane.showConfirmDialog(null, "Tài khoản này đang được sử dụng vui lòng chọn tài khoản!");
+                JOptionPane.showMessageDialog(null, "Tài khoản này đang được sử dụng vui lòng chọn tài khoản!");
             } else {
                 if (helped.confirmDelete("Bạn có chắc muốn xóa tài khoản này?")) {
                     AccountDAO.deleteAccount(accountChoosing.getUsername());
