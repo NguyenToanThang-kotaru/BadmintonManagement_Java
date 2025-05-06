@@ -77,54 +77,6 @@ public class OrderBUS {
     public void getOrder(String mahd) {
         dao.getOrder(mahd);
     }
-<<<<<<< HEAD
-
-
-
-    public boolean exportToExcel(String filePath) {
-    try (Connection conn = DatabaseConnection.getConnection();
-         Workbook workbook = new XSSFWorkbook()) {
-        Sheet sheet = workbook.createSheet("DanhSachHoaDon");
-        
-        // Tạo dòng tiêu đề
-        Row headerRow = sheet.createRow(0);
-        String[] columns = {"ma_hoa_don", "ma_nhan_vien", "ma_khach_hang", "tong_tien", "ngay_xuat", "is_deleted", "tong_loi_nhuan"};
-        for (int i = 0; i < columns.length; i++) {
-            Cell cell = headerRow.createCell(i);
-            cell.setCellValue(columns[i]);
-        }
-
-        // Lấy dữ liệu từ database
-        String sql = "SELECT * FROM hoa_don";
-        PreparedStatement stmt = conn.prepareStatement(sql);
-        ResultSet rs = stmt.executeQuery();
-        
-        int rowNum = 1;
-        while (rs.next()) {
-            Row row = sheet.createRow(rowNum++);
-            row.createCell(0).setCellValue(rs.getString("ma_hoa_don"));
-            row.createCell(1).setCellValue(rs.getString("ma_nhan_vien"));
-            row.createCell(2).setCellValue(rs.getString("ma_khach_hang"));
-            row.createCell(3).setCellValue(rs.getInt("tong_tien"));
-            row.createCell(4).setCellValue(rs.getString("ngay_xuat"));
-            row.createCell(5).setCellValue(rs.getInt("is_deleted"));
-            row.createCell(6).setCellValue(rs.getInt("tong_loi_nhuan"));
-        }
-
-        // Tự động điều chỉnh kích thước cột
-        for (int i = 0; i < columns.length; i++) {
-            sheet.autoSizeColumn(i);
-        }
-
-        // Ghi vào file
-        try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
-            workbook.write(fileOut);
-        }
-        return true;
-    } catch (SQLException | IOException e) {
-        e.printStackTrace();
-        return false;
-=======
     
     public void rollbackCanceledOrder(String OrderID) {
         OrderDAO.restoreProductsFromCanceledOrder(OrderID);
@@ -178,6 +130,5 @@ public class OrderBUS {
                 ex.printStackTrace();
             }
         }
->>>>>>> 1cec68cfb93130d1a92536cfd1a975b1e03cee08
     }
 }
