@@ -102,7 +102,7 @@ public class StatistiscDAO {
     public int getTotalQuantityByProductId(String productId) {
         int totalQuantity = 0;
 
-        String query = "SELECT SUM(so_luong) AS total FROM chi_tiet_hoa_don WHERE ma_san_pham = '?' AND is_deleted = 0";
+        String query = "SELECT SUM(so_luong) AS total FROM chi_tiet_hoa_don WHERE ma_san_pham = ? AND is_deleted = 0";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
 
