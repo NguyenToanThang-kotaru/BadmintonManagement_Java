@@ -166,7 +166,11 @@ public class EmployeeDAO {
 
     public static ArrayList<EmployeeDTO> getEmployeesWithoutAccount() {
         ArrayList<EmployeeDTO> employees = new ArrayList<>();
-        String query = "SELECT * FROM nhan_vien nv LEFT JOIN tai_khoan tk ON nv.ma_nhan_vien = tk.ten_dang_nhap WHERE tk.ten_dang_nhap IS NULL AND nv.is_deleted = 0";
+        String query = "SELECT * \n"
+                + "FROM nhan_vien nv \n"
+                + "LEFT JOIN tai_khoan tk ON nv.ma_nhan_vien = tk.ten_dang_nhap \n"
+                + "WHERE tk.ten_dang_nhap IS NULL \n"
+                + "   OR nv.is_deleted = 1;";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 employees.add(new EmployeeDTO(
@@ -306,8 +310,7 @@ public class EmployeeDAO {
 
     public static boolean isPhoneNumberExists(String phone) {
         String query = "SELECT COUNT(*) FROM nhan_vien WHERE so_dien_thoai = ? AND is_deleted = 0";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, phone);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
