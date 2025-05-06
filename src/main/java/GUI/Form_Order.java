@@ -422,7 +422,7 @@ public class Form_Order extends JDialog {
                 }
                 // Update lại usedSerialsMap
                 usedSerialsMap.put(uniqueKey, serials);
-
+                
                 // Update số lượng + thành tiền
                 double price = Double.parseDouble(orderTableModel.getValueAt(selectedRow, 4).toString().replaceAll("[^0-9]", ""));
                 double khuyenMai = Double.parseDouble(product.getkhuyenMai());
@@ -705,7 +705,7 @@ public class Form_Order extends JDialog {
                 GuaranteeBUS.addGuarantee(detail.getserialID());
             }
         }
-
+        
         orderBUS.updateOrder(orderdto);
         JOptionPane.showMessageDialog(this, "Lưu hóa đơn thành công!");
         parent.loadOrder();

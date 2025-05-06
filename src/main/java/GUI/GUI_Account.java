@@ -2,9 +2,11 @@ package GUI;
 
 import DTO.AccountDTO;
 import BUS.AccountBUS;
+import BUS.ActionBUS;
 import DAO.AccountDAO;
 import DAO.Permission2DAO;
 import DAO.PermissionDAO;
+import DTO.ActionDTO;
 import DTO.Permission2DTO;
 import DTO.PermissionDTO;
 import javax.swing.*;
@@ -26,7 +28,7 @@ public class GUI_Account extends JPanel {
     private AccountDTO accountChoosing;
     private AccountDAO AccountDAO;
 
-    public GUI_Account() {
+    public GUI_Account(AccountDTO a) {
         accountBUS = new AccountBUS(); // Khởi tạo đối tượng BUS để lấy dữ liệu tài khoản
 //        System.out.println(a);
         // Cấu hình layout chính
@@ -44,9 +46,9 @@ public class GUI_Account extends JPanel {
         leftButtonPanel.setOpaque(false);
         reloadButton = new CustomButton("Tải lại trang");
         exportButton = new CustomButton("Xuất Excel");
-       
+
         topPanel.add(leftButtonPanel, BorderLayout.WEST);
-            topPanel.add(reloadButton, BorderLayout.WEST);
+        topPanel.add(reloadButton, BorderLayout.WEST);
 
         searchField = new CustomSearch(275, 20);
         searchField.setBackground(Color.WHITE);
@@ -63,8 +65,8 @@ public class GUI_Account extends JPanel {
         CustomTable customTable = new CustomTable(columnNames);
         accountTable = customTable.getAccountTable();
         tableModel = customTable.getTableModel();
-        midPanel.add(customTable, BorderLayout.CENTER);
         CustomScrollPane scrollPane = new CustomScrollPane(accountTable);
+        midPanel.add(scrollPane, BorderLayout.CENTER);
 
         // ========== PANEL CHI TIẾT TÀI KHOẢN ==========
         botPanel = new JPanel(new GridBagLayout());
@@ -138,13 +140,42 @@ public class GUI_Account extends JPanel {
 
         add(topPanel);
         add(Box.createVerticalStrut(10));
-        add(scrollPane);
+        add(midPanel);
         add(Box.createVerticalStrut(10));
         add(botPanel);
 
-
         // Tải dữ liệu tài khoản lên bảng
         loadAccounts();
+
+        ArrayList<ActionDTO> actions = ActionBUS.getPermissionActions(a, "Quản lý tài khoản");
+        boolean canAdd = false, canEdit = false, canDelete = false, canWatch = false;
+        if (actions != null) {
+            for (ActionDTO action : actions) {
+                switch (action.getName()) {
+                    case "Thêm" -> {
+                        canAdd = true;
+                        canWatch = true;
+                    }
+                    case "Sửa" -> {
+                        canEdit = true;
+                        canWatch = true;
+                    }
+                    case "Xóa" -> {
+                        canDelete = true;
+
+                        canWatch = true;
+                    }
+                    case "Xem" ->
+                        canWatch = true;
+                }
+            }
+        }
+
+        addButton.setVisible(canAdd);
+        editButton.setVisible(canEdit);
+        deleteButton.setVisible(canDelete);
+        scrollPane.setVisible(canWatch);
+        reloadButton.setVisible(true);
 
         addButton.addActionListener(e -> {
             Form_Account GFA = new Form_Account(this, null);
@@ -195,7 +226,6 @@ public class GUI_Account extends JPanel {
         });
     }
 
-
     // Phương thức tải danh sách tài khoản từ database lên bảng
     public void loadAccounts() {
         List<AccountDTO> accounts = AccountDAO.getAllAccounts(); // Lấy danh sách tài khoản
@@ -203,7 +233,7 @@ public class GUI_Account extends JPanel {
         int index = 1;
         for (AccountDTO acc : accounts) {
             tableModel.addRow(new Object[]{index++, acc.getFullname(),
-                    acc.getUsername(), acc.getPassword(), acc.getPermission().getName()});
+                acc.getUsername(), acc.getPassword(), acc.getPermission().getName()});
         }
     }
 

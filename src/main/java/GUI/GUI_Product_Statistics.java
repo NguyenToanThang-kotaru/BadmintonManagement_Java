@@ -23,7 +23,9 @@ public class GUI_Product_Statistics extends JPanel {
     private ProductBUS productBUS = new ProductBUS();
     private JLabel totalProductLabel, totalRevenueLabel, totalSoldLabel;
     private JDateChooser fromDateChooser, toDateChooser;
-
+    private ArrayList<ProductDTO> statistics;
+    private StatistiscBUS statBUS = new StatistiscBUS();
+    
     public GUI_Product_Statistics() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -204,30 +206,37 @@ public class GUI_Product_Statistics extends JPanel {
         loadProductStatistics();
     }
     
+//    private void filterCategory(String Category) {
+//        ArrayList<ProductDTO> temp = new ArrayList<ProductDTO>();
+//        for(Object[] ob: statistics){
+//            temp.add(ob[0]);
+//        }
+//        statistics = statBUS.filterProductForCate(statistics, Category)
+//    }
+    
     private void loadProductStatistics() {
-        StatistiscBUS statBUS = new StatistiscBUS();
-        ArrayList<Object[]> statistics = statBUS.getProductStatistics();
+        
+        statistics = statBUS.getProductStatistics();
 
         tableModel.setRowCount(0); // Xóa dữ liệu cũ
 
         int totalSold = 0;
         int totalRevenue = 0;
 
-        for (Object[] row : statistics) {
-            ProductDTO product = (ProductDTO) row[0];
-            int soldQuantity = (int) row[1];
-            int profit = (int) row[2];
+        for (ProductDTO row : statistics) {
 
             tableModel.addRow(new Object[]{
-                product.getProductID(),
-                product.getProductName(),
-                soldQuantity,
-                product.getSoluong(),
-                Utils.formatCurrencyLong(profit)
+                row.getProductID(),
+                row.getProductName(),
+//                soldQuantity,
+                0,
+                row.getSoluong(),
+                0
+//                Utils.formatCurrencyLong(profit)
             });
 
-            totalSold += soldQuantity;
-            totalRevenue += profit;
+//            totalSold += soldQuantity;
+//            totalRevenue += profit;
         }
         updateSummary(statistics.size(), GUI.Utils.formatCurrencyLong(totalRevenue), totalSold);
     }
@@ -235,6 +244,6 @@ public class GUI_Product_Statistics extends JPanel {
     private void updateSummary(int totalProducts, String formattedRevenue, int totalSold) {
         totalProductLabel.setText(String.valueOf(totalProducts));
         totalRevenueLabel.setText(formattedRevenue);
-        totalSoldLabel.setText(String.valueOf(totalSold));
+//        totalSoldLabel.setText(Stri ng.valueOf(totalSold));
     }
 }

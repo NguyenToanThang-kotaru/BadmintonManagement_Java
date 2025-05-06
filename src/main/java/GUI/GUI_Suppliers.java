@@ -1,7 +1,10 @@
 package GUI;
 
+import BUS.ActionBUS;
 import BUS.SuppliersBUS;
 import Connection.DatabaseConnection;
+import DTO.AccountDTO;
+import DTO.ActionDTO;
 import DTO.SuppliersDTO;
 
 import javax.swing.*;
@@ -12,10 +15,11 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GUI_Suppliers extends JPanel {
-    
+
     private JPanel topPanel, midPanel, botPanel;
     private JTable supplierTable;
     private DefaultTableModel tableModel;
@@ -26,13 +30,13 @@ public class GUI_Suppliers extends JPanel {
     private JLabel suppliersnameLabel, suppliersidLabel, addressLabel, phoneLabel;
     private JPanel buttonPanel;
 
-    public GUI_Suppliers() {
+    public GUI_Suppliers(AccountDTO a) {
         suppliersBUS = new SuppliersBUS();
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(new EmptyBorder(10, 10, 10, 10));
         setBackground(new Color(200, 200, 200));
-        
+
         topPanel = new JPanel(new BorderLayout(10, 10));
         topPanel.setPreferredSize(new Dimension(0, 60));
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -49,13 +53,14 @@ public class GUI_Suppliers extends JPanel {
 
         midPanel = new JPanel(new BorderLayout());
         midPanel.setBackground(Color.WHITE);
-        
+
         String[] columnNames = {"Mã NCC", "Tên NCC", "Địa chỉ", "SĐT"};
         CustomTable customTable = new CustomTable(columnNames);
         supplierTable = customTable.getSuppliersTable();
         tableModel = customTable.getTableModel();
-        
-        midPanel.add(customTable, BorderLayout.CENTER);
+
+        CustomScrollPane scrollPane = new CustomScrollPane(customTable);
+        midPanel.add(scrollPane, BorderLayout.CENTER);
 
         botPanel = new JPanel(new GridBagLayout());
         botPanel.setBackground(Color.WHITE);
@@ -64,7 +69,7 @@ public class GUI_Suppliers extends JPanel {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
-        
+
         gbc.gridx = 0;
         gbc.gridy = 0;
         botPanel.add(new JLabel("Tên Nhà Cung Cấp: "), gbc);
@@ -78,14 +83,14 @@ public class GUI_Suppliers extends JPanel {
         gbc.gridx = 1;
         suppliersidLabel = new JLabel("");
         botPanel.add(suppliersidLabel, gbc);
-        
+
         gbc.gridx = 0;
         gbc.gridy = 2;
         botPanel.add(new JLabel("Địa Chỉ: "), gbc);
         gbc.gridx = 1;
         addressLabel = new JLabel("");
         botPanel.add(addressLabel, gbc);
-        
+
         gbc.gridx = 0;
         gbc.gridy = 3;
         botPanel.add(new JLabel("Số Điện Thoại: "), gbc);
@@ -156,13 +161,13 @@ public class GUI_Suppliers extends JPanel {
                 JOptionPane.showMessageDialog(this, "Vui lòng chọn nhà cung cấp để xem danh sách sản phẩm!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
         });
-        
+
         exportExcelButton.addActionListener(e -> {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setDialogTitle("Chọn nơi lưu file Excel");
             fileChooser.setSelectedFile(new File("DanhSachNhaCungCap.xlsx"));
             int userSelection = fileChooser.showSaveDialog(this);
-        
+
             if (userSelection == JFileChooser.APPROVE_OPTION) {
                 File fileToSave = fileChooser.getSelectedFile();
                 String filePath = fileToSave.getAbsolutePath();
@@ -174,7 +179,7 @@ public class GUI_Suppliers extends JPanel {
                 }
             }
         });
-        
+
         supplierTable.getSelectionModel().addListSelectionListener(e -> {
             int selectedRow = supplierTable.getSelectedRow();
             if (selectedRow != -1) {
@@ -199,7 +204,7 @@ public class GUI_Suppliers extends JPanel {
                 botPanel.repaint();
             }
         });
-        
+
         add(topPanel);
         add(Box.createVerticalStrut(10));
         add(midPanel);
@@ -207,6 +212,27 @@ public class GUI_Suppliers extends JPanel {
         add(botPanel);
 
         loadSuppliers();
+        ArrayList<ActionDTO> actions = ActionBUS.getPermissionActions(a, "Quản lý nhà cung cấp");
+        boolean canAdd = false, canEdit = false, canDelete = false, canWatch = false;
+        if (actions != null) {
+            for (ActionDTO action : actions) {
+                switch (action.getName()) {
+                    case "Thêm" ->
+                        canAdd = true;
+                    case "Sửa" ->
+                        canEdit = true;
+                    case "Xóa" ->
+                        canDelete = true;
+                    case "Xem" ->
+                        canWatch = true;
+                }
+            }
+        }
+
+        addButton.setVisible(canAdd);
+        editButton.setVisible(canEdit);
+        deleteButton.setVisible(canDelete);
+        scrollPane.setVisible(canWatch);
     }
 
     public void loadSuppliers() {
@@ -225,10 +251,10 @@ public class GUI_Suppliers extends JPanel {
         tableModel.setRowCount(0);
 
         for (SuppliersDTO supplier : suppliers) {
-            if (supplier.getsuppliersID().toLowerCase().contains(keyword) ||
-                supplier.getfullname().toLowerCase().contains(keyword) ||
-                supplier.getaddress().toLowerCase().contains(keyword) ||
-                supplier.getphone().toLowerCase().contains(keyword)) {
+            if (supplier.getsuppliersID().toLowerCase().contains(keyword)
+                    || supplier.getfullname().toLowerCase().contains(keyword)
+                    || supplier.getaddress().toLowerCase().contains(keyword)
+                    || supplier.getphone().toLowerCase().contains(keyword)) {
                 tableModel.addRow(new Object[]{
                     supplier.getsuppliersID(),
                     supplier.getfullname(),
@@ -240,8 +266,7 @@ public class GUI_Suppliers extends JPanel {
     }
 
     private void deleteSupplier(String supplierID) {
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement("UPDATE nha_cung_cap SET is_deleted = 1 WHERE ma_nha_cung_cap = ?")) {
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement("UPDATE nha_cung_cap SET is_deleted = 1 WHERE ma_nha_cung_cap = ?")) {
             stmt.setString(1, supplierID);
             stmt.executeUpdate();
         } catch (SQLException e) {

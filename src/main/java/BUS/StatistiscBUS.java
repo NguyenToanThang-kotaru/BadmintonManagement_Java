@@ -3,6 +3,7 @@ package BUS;
 import DAO.StatistiscDAO;
 import DTO.CustomerDTO;
 import DTO.OrderDTO;
+import DTO.ProductDTO;
 import GUI.Utils.DateOnlyUtils;
 import com.mysql.cj.util.Util;
 import java.time.LocalDate;
@@ -51,7 +52,11 @@ public class StatistiscBUS {
         return GUI.Utils.formatCurrencyLong(totalRevenue);
     }
     
-    public ArrayList<Object[]> getProductStatistics() {
+    public ArrayList<ProductDTO> getProductStatistics() {
         return statDAO.getProductStatistics();
     }
+    
+//    public ArrayList<> filterProductForCate(ArrayList<ProductDTO> list,String cate) {
+//        return statDAO.filterProductForCate(list ,cate);
+//    }
 }
