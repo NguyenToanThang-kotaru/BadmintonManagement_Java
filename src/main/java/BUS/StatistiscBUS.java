@@ -59,7 +59,11 @@ public class StatistiscBUS {
     public int getTotalQuantityByProductId(String productId) {
         return statDAO.getTotalQuantityByProductId(productId);
     }
-//    public ArrayList<> filterProductForCate(ArrayList<ProductDTO> list,String cate) {
-//        return statDAO.filterProductForCate(list ,cate);
-//    }
+    
+    public double getTotalProfitByProductId(String productId) {
+        return statDAO.getTotalProfitByProductId(productId);
+    }
+    public ArrayList<ProductDTO> filterProductForCate(ArrayList<ProductDTO> list,String cate) {
+        return statDAO.filterProductForCate(list ,cate);
+    }
 }

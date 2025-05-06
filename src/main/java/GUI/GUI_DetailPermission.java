@@ -1,6 +1,6 @@
 package GUI;
 
-import DTO.PermissionDTO;
+//import DTO.PermissionDTO;
 import BUS.PermissionBUS;
 import DTO.FunctionDTO;
 import DTO.Permission2DTO;

@@ -169,8 +169,8 @@ public class EmployeeDAO {
         String query = "SELECT * \n"
                 + "FROM nhan_vien nv \n"
                 + "LEFT JOIN tai_khoan tk ON nv.ma_nhan_vien = tk.ten_dang_nhap \n"
-                + "WHERE tk.ten_dang_nhap IS NULL \n"
-                + "   OR nv.is_deleted = 1;";
+                + "WHERE (tk.ten_dang_nhap IS NULL OR tk.is_deleted = 1)\n"
+                + "  AND nv.is_deleted = 0;";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 employees.add(new EmployeeDTO(

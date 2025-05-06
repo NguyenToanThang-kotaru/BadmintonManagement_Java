@@ -2,11 +2,11 @@ package BUS;
 
 import DAO.AccountDAO;
 import DAO.EmployeeDAO;
-import DAO.PermissionDAO;
+//import DAO.PermissionDAO;
 import DTO.AccountDTO;
 import DTO.EmployeeDTO;
 import DTO.Permission2DTO;
-import DTO.PermissionDTO;
+//import DTO.PermissionDTO;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -74,7 +74,7 @@ public class AccountBUS {
     public static Boolean addAccount(String username, String password, String tenquyen) {
 
         System.out.println(tenquyen);
-        PermissionDTO a = new PermissionDTO(PermissionDAO.getPermissionByName(tenquyen));
+        Permission2DTO a = Permission2DAO.getPermissionByName(tenquyen);
         EmployeeDTO e = new EmployeeDTO(EmployeeDAO.getEmployeeByName(username));
         if (username != null && password != null && tenquyen != null) {
             if (AccountDAO.addAccount(e.getEmployeeID(), password, a.getID()) == true) {

@@ -5,6 +5,7 @@
 package DAO;
 
 import BUS.CustomerBUS;
+import BUS.ProductBUS;
 import Connection.DatabaseConnection;
 import DTO.CustomerDTO;
 import DTO.OrderDTO;
@@ -24,11 +25,11 @@ public class StatistiscDAO {
 
     private CustomerBUS cusBUS = new CustomerBUS();
 
-    public ArrayList<Object[]> filterProductForCate(ArrayList<ProductDTO> product, String cate) {
-        ArrayList<Object[]> kq = new ArrayList<Object[]>();
+    public ArrayList<ProductDTO> filterProductForCate(ArrayList<ProductDTO> product, String cate) {
+        ArrayList<ProductDTO> kq = new ArrayList<ProductDTO>();
         String sql = "SELECT sp.*, loai.* FROM `san_pham` sp "
                 + "JOIN loai ON sp.ma_loai = loai.ma_loai "
-                + "WHERE loai.ten_loai = '?';";
+                + "WHERE loai.ten_loai = ?;";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, cate);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -37,15 +38,11 @@ public class StatistiscDAO {
                     String PD_ID = rs.getString("sp.ma_san_pham");
                     for (ProductDTO pd : product) {
                         if (PD_ID.equals(pd.getProductID())) {
-                            ProductDTO newProduct = new ProductDTO();
-                            newProduct.setProductID(rs.getString("ma_san_pham"));
-                            newProduct.setProductName(rs.getString("ten_san_pham"));
-                            newProduct.setSoluong(rs.getString("so_luong"));
+                            ProductDTO newProduct = ProductBUS.getProduct(PD_ID);
+                       
 
-                            int soLuongBan = rs.getInt("tong_so_luong_ban");
-                            int loiNhuan = rs.getInt("tong_loi_nhuan");
 
-                            kq.add(new Object[]{product, soLuongBan, loiNhuan});
+                            kq.add(newProduct);
                         }
                     }
                 };
@@ -73,7 +70,7 @@ public class StatistiscDAO {
         System.out.println(from);
         System.out.println(to);
         String query = "SELECT * FROM hoa_don WHERE is_deleted = 0 AND DATE(ngay_xuat) BETWEEN ? AND ?";
-
+        
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
 
             // Thiết lập tham số cho câu truy vấn
@@ -102,7 +99,7 @@ public class StatistiscDAO {
     public int getTotalQuantityByProductId(String productId) {
         int totalQuantity = 0;
 
-        String query = "SELECT SUM(so_luong) AS total FROM chi_tiet_hoa_don WHERE ma_san_pham = '?' AND is_deleted = 0";
+        String query = "SELECT SUM(so_luong) AS total FROM chi_tiet_hoa_don WHERE ma_san_pham = ? AND is_deleted = 0";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
 
@@ -119,7 +116,29 @@ public class StatistiscDAO {
 
         return totalQuantity;
     }
-    
+
+    public double getTotalProfitByProductId(String productId) {
+        double totalProfit = 0;
+
+        String query = "SELECT SUM(loi_nhuan) AS total_profit FROM chi_tiet_hoa_don WHERE ma_san_pham = ? AND is_deleted = 0";
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, productId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    totalProfit = rs.getInt("total_profit");
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return totalProfit;
+    }
+
     public ArrayList<ProductDTO> getProductStatistics() {
         ArrayList<ProductDTO> result = new ArrayList<>();
 

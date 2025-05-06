@@ -47,6 +47,12 @@ public class Utils {
         return formatter.format(amount);
     }
 
+    public static String formatCurrencyDouble(double amount) {
+        DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
+        formatter.applyPattern("#,###");
+        return formatter.format(amount);
+    }
+
     public static String formatCurrencyLong(long amount) {
         DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
         formatter.applyPattern("#,###");

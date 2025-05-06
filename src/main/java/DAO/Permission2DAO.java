@@ -14,6 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -28,7 +29,7 @@ public class Permission2DAO {
             stmt.setString(1, per.getID());
             stmt.executeUpdate();
             return true;
-        }catch(SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
@@ -193,6 +194,33 @@ public class Permission2DAO {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static List<Permission2DTO> searchPermission(String tenQuyen) {
+        List<Permission2DTO> permissions = new ArrayList<>();
+
+        String query = "SELECT * FROM quyen WHERE ten_quyen LIKE ?";
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, "%" + tenQuyen + "%");
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Permission2DTO permission = new Permission2DTO();
+                    permission.setID(rs.getString("ma_quyen"));
+                    permission.setName(rs.getString("ten_quyen"));
+                    permission.setUname(rs.getString("ten_khong_dau"));
+
+                    permissions.add(permission);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return permissions;
     }
 
     public static Boolean addPermission(Permission2DTO per) {

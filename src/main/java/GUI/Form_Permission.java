@@ -2,8 +2,6 @@ package GUI;
 
 import BUS.ActionBUS;
 import BUS.FunctionBUS;
-import DAO.PermissionDAO;
-import DTO.PermissionDTO;
 import BUS.PermissionBUS;
 import DTO.ActionDTO;
 import DTO.FunctionDTO;

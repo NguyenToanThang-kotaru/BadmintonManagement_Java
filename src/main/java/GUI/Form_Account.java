@@ -2,12 +2,11 @@ package GUI;
 
 import BUS.AccountBUS;
 import BUS.PermissionBUS;
-import DAO.PermissionDAO;
 import DTO.EmployeeDTO;
 import DTO.AccountDTO;
 import DAO.EmployeeDAO;
 import DTO.Permission2DTO;
-import DTO.PermissionDTO;
+//import DTO.PermissionDTO;
 
 import javax.swing.*;
 import java.awt.*;

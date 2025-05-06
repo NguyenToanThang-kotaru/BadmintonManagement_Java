@@ -1,7 +1,7 @@
 package DAO;
 
 import DTO.AccountDTO;
-import DTO.PermissionDTO;
+//import DTO.PermissionDTO;
 import Connection.DatabaseConnection;
 import DTO.Permission2DTO;
 import java.sql.Connection;

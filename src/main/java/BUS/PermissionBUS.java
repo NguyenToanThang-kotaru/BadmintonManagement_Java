@@ -1,10 +1,8 @@
 package BUS;
 
 import DAO.Permission2DAO;
-import DTO.PermissionDTO;
-import DAO.PermissionDAO;
-import DTO.AccountDTO;
-import DTO.ActionDTO;
+
+
 import DTO.Permission2DTO;
 
 import java.util.ArrayList;
@@ -12,7 +10,9 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 public class PermissionBUS {
-
+    public static List<Permission2DTO> searchPermission(String key){
+        return Permission2DAO.searchPermission(key);
+    }
     public static Permission2DTO getPermissionByName(String name) {
         return Permission2DAO.getPermissionByName(name);
     }
@@ -73,9 +73,6 @@ public class PermissionBUS {
         return Permission2DAO.getAllPermissions();
     }
 
-    public static List<PermissionDTO> searchPermission(String keyword) {
-        return PermissionDAO.searchPermission(keyword);
-    }
 
     public static boolean validatePermission(Permission2DTO permission) {
         String name = permission.getName();

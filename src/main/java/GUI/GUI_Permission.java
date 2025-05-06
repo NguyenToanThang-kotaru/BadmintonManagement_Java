@@ -1,7 +1,7 @@
 package GUI;
 
 import BUS.ActionBUS;
-import DTO.PermissionDTO;
+//import DTO.PermissionDTO;
 import BUS.PermissionBUS;
 import DAO.Permission2DAO;
 import DTO.AccountDTO;
@@ -230,11 +230,11 @@ public class GUI_Permission extends JPanel {
     }
 
     private void searchPermission(String keyword) {
-        List<PermissionDTO> permission = PermissionBUS.searchPermission(keyword);
+        List<Permission2DTO> permission = PermissionBUS.searchPermission(keyword);
         tableModel.setRowCount(0);
         int index = 1;
-        for (PermissionDTO per : permission) {
-            tableModel.addRow(new Object[]{index++, per.getName(), per.getSlChucNang(), per.getSlTk()});
+        for (Permission2DTO per : permission) {
+            tableModel.addRow(new Object[]{index++, per.getName(), PermissionBUS.countDistinctFunctionsByPermission(per.getID()), PermissionBUS.countAllAccountsByPer(per.getID())});
         }
     }
 

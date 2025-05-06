@@ -25,7 +25,7 @@ public class GUI_Product_Statistics extends JPanel {
     private JDateChooser fromDateChooser, toDateChooser;
     private ArrayList<ProductDTO> statistics;
     private StatistiscBUS statBUS = new StatistiscBUS();
-    
+
     public GUI_Product_Statistics() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -51,7 +51,7 @@ public class GUI_Product_Statistics extends JPanel {
 
         // Combobox lọc
         ArrayList<String> Cate = productBUS.getAllCategoryNames();
-        Cate.add(0,"Tất cả");
+        Cate.add(0, "Tất cả");
         productFilterCombo = new JComboBox<>(Cate.toArray(new String[0]));
         productFilterCombo.setPreferredSize(new Dimension(150, 30));
 
@@ -62,13 +62,12 @@ public class GUI_Product_Statistics extends JPanel {
         resetButton = new CustomButton("Đặt lại");
         resetButton.setPreferredSize(new Dimension(80, 30));
 
-        exportButton = new CustomButton("Xuất Excel");
+        exportButton = new CustomButton("Reload");
         exportButton.setPreferredSize(new Dimension(100, 30));
 
         // Thêm components vào filter panel
-        filterPanel.add(new JLabel("Từ ngày:"));
+        
         filterPanel.add(fromDateChooser);
-        filterPanel.add(new JLabel("Đến ngày:"));
         filterPanel.add(toDateChooser);
         filterPanel.add(new JLabel("Loại:"));
         filterPanel.add(productFilterCombo);
@@ -129,36 +128,12 @@ public class GUI_Product_Statistics extends JPanel {
         add(botPanel);
 
         // Load dữ liệu ban đầu
-        loadProductData();
-
+        loadProductStatistics();
+        fromDateChooser.setVisible(false);
+        toDateChooser.setVisible(false);
         // Xử lý sự kiện
-//        filterButton.addActionListener(e -> filterProducts());
+        filterButton.addActionListener(e -> filterCategory(productFilterCombo.getSelectedItem().toString()));
         resetButton.addActionListener(e -> resetFilters());
-    }
-
-    private void loadProductData() {
-        tableModel.setRowCount(0); // Xóa dữ liệu cũ
-        
-        List<ProductDTO> products = productBUS.getAllProducts();
-        int totalSold = 0;
-        double totalRevenue = 0;
-        
-        for (ProductDTO product : products) {
-            totalSold = statBUS.getTotalQuantityByProductId(product.getProductID());
-            tableModel.addRow(new Object[]{
-                product.getProductID(),
-                product.getProductName(),
-                totalSold,
-                product.getProductName(),
-                product.getProductName()
-            });
-            
-//            totalSold += product.getSoldQuantity();
-//            totalRevenue += product.getRevenue();
-        }
-        
-        // Cập nhật tổng hợp
-//        updateSummary(products.size(), Utils.formatCurrency(totalRevenue), totalSold);
     }
 
 //    private void filterProducts() {
@@ -199,52 +174,71 @@ public class GUI_Product_Statistics extends JPanel {
 //        
 //        updateSummary(filteredProducts.size(), Utils.formatCurrency(totalRevenue), totalSold);
 //    }
-
     private void resetFilters() {
         fromDateChooser.setDate(null);
         toDateChooser.setDate(null);
         productFilterCombo.setSelectedIndex(0);
         loadProductStatistics();
     }
-    
-//    private void filterCategory(String Category) {
-//        ArrayList<ProductDTO> temp = new ArrayList<ProductDTO>();
-//        for(Object[] ob: statistics){
-//            temp.add(ob[0]);
-//        }
-//        statistics = statBUS.filterProductForCate(statistics, Category)
-//    }
-    
-    private void loadProductStatistics() {
+
+    private void filterCategory(String Category) {
         
+        tableModel.setRowCount(0);
+        statistics = statBUS.filterProductForCate(statistics, Category);
+        int totalSold = 0;
+        double totalRevenue = 0;
+        for (ProductDTO row : statistics) {
+
+            tableModel.addRow(new Object[]{
+                row.getProductID(),
+                row.getProductName(),
+                //                soldQuantity,
+                statBUS.getTotalQuantityByProductId(row.getProductID()),
+                row.getSoluong(),
+                statBUS.getTotalProfitByProductId(row.getProductID())
+//                Utils.formatCurrencyLong(profit)
+            });
+            totalSold += statBUS.getTotalQuantityByProductId(row.getProductID());
+//            totalSold += soldQuantity;
+            totalRevenue += statBUS.getTotalProfitByProductId(row.getProductID());
+        }
+        updateSummary(statistics.size(), GUI.Utils.formatCurrencyDouble(totalRevenue), totalSold);
+        if(Category == "Tất cả"){
+            loadProductStatistics();
+        }
+    }
+
+    private void loadProductStatistics() {
+
         statistics = statBUS.getProductStatistics();
 
         tableModel.setRowCount(0); // Xóa dữ liệu cũ
 
         int totalSold = 0;
-        int totalRevenue = 0;
+        double totalRevenue = 0;
 
         for (ProductDTO row : statistics) {
 
             tableModel.addRow(new Object[]{
                 row.getProductID(),
                 row.getProductName(),
-//                soldQuantity,
-                0,
+                //                soldQuantity,
+                statBUS.getTotalQuantityByProductId(row.getProductID()),
                 row.getSoluong(),
-                0
+                statBUS.getTotalProfitByProductId(row.getProductID())
 //                Utils.formatCurrencyLong(profit)
             });
-
+            totalSold += statBUS.getTotalQuantityByProductId(row.getProductID());
 //            totalSold += soldQuantity;
-//            totalRevenue += profit;
+            totalRevenue += statBUS.getTotalProfitByProductId(row.getProductID());
         }
-        updateSummary(statistics.size(), GUI.Utils.formatCurrencyLong(totalRevenue), totalSold);
+        updateSummary(statistics.size(), GUI.Utils.formatCurrencyDouble(totalRevenue), totalSold);
     }
 
     private void updateSummary(int totalProducts, String formattedRevenue, int totalSold) {
         totalProductLabel.setText(String.valueOf(totalProducts));
         totalRevenueLabel.setText(formattedRevenue);
-//        totalSoldLabel.setText(Stri ng.valueOf(totalSold));
+        totalSoldLabel.setText(String.valueOf(totalSold)
+        );
     }
 }
