@@ -129,7 +129,7 @@ public class GUI_Product_Statistics extends JPanel {
         add(botPanel);
 
         // Load dữ liệu ban đầu
-        loadProductStatistics();
+        loadProductData();
 
         // Xử lý sự kiện
 //        filterButton.addActionListener(e -> filterProducts());
@@ -144,10 +144,11 @@ public class GUI_Product_Statistics extends JPanel {
         double totalRevenue = 0;
         
         for (ProductDTO product : products) {
+            totalSold = statBUS.getTotalQuantityByProductId(product.getProductID());
             tableModel.addRow(new Object[]{
                 product.getProductID(),
                 product.getProductName(),
-                product.getProductName(),
+                totalSold,
                 product.getProductName(),
                 product.getProductName()
             });

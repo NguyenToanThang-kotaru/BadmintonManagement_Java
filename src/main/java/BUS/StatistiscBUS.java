@@ -56,6 +56,9 @@ public class StatistiscBUS {
         return statDAO.getProductStatistics();
     }
     
+    public int getTotalQuantityByProductId(String productId) {
+        return statDAO.getTotalQuantityByProductId(productId);
+    }
 //    public ArrayList<> filterProductForCate(ArrayList<ProductDTO> list,String cate) {
 //        return statDAO.filterProductForCate(list ,cate);
 //    }
